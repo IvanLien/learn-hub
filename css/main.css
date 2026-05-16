@@ -128,6 +128,61 @@ body {
   color: var(--text-muted); cursor: not-allowed;
 }
 
+/* ── Share button ── */
+.share-btn {
+  background: linear-gradient(135deg, #6366f1, #a78bfa);
+  border: none; color: #fff; padding: 6px 14px; border-radius: 20px;
+  font-size: 0.88rem; font-weight: 600; cursor: pointer;
+  transition: var(--transition); font-family: var(--font);
+}
+.share-btn:hover { opacity: 0.85; }
+
+/* ── Share modal ── */
+.share-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(6px);
+  display: none; align-items: center; justify-content: center; padding: 1rem;
+}
+.share-overlay.open { display: flex; }
+.share-box {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 20px; width: 100%; max-width: 360px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+  overflow: hidden;
+}
+.share-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1rem 1.2rem; border-bottom: 1px solid var(--border);
+  font-size: 1rem; font-weight: 700; color: var(--text);
+}
+.share-close {
+  background: none; border: none; color: var(--text-muted);
+  font-size: 1.1rem; cursor: pointer; padding: 2px 6px;
+}
+.share-close:hover { color: var(--text); }
+.share-body { padding: 1.3rem 1.2rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+.share-qr {
+  background: #fff; border-radius: 12px; padding: 10px;
+  display: flex; align-items: center; justify-content: center;
+}
+.share-qr img { display: block; border-radius: 6px; }
+.share-desc { font-size: 0.83rem; color: var(--text-muted); text-align: center; line-height: 1.6; }
+.share-url-row { display: flex; gap: 8px; width: 100%; }
+.share-url-input {
+  flex: 1; background: var(--bg-elevated); border: 1px solid var(--border);
+  color: var(--text-secondary); padding: 7px 10px; border-radius: 8px;
+  font-size: 0.78rem; font-family: monospace; outline: none; min-width: 0;
+}
+.share-copy-btn {
+  background: var(--primary); border: none; color: #fff;
+  padding: 7px 14px; border-radius: 8px; font-size: 0.82rem;
+  font-weight: 600; cursor: pointer; font-family: var(--font);
+  white-space: nowrap; transition: var(--transition);
+}
+.share-copy-btn:hover { background: var(--primary-dark); }
+.share-copy-btn.copied { background: #10b981; }
+.share-note { font-size: 0.76rem; color: var(--text-muted); text-align: center; }
+
 /* ── PWA Install Banner ── */
 .install-banner {
   position: fixed; bottom: 1.2rem; left: 1rem; right: 1rem; z-index: 500;

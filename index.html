@@ -30,9 +30,31 @@
     <span class="nav-title" data-i18n="nav.title">学习中心</span>
   </a>
   <div class="nav-actions">
+    <button class="share-btn" onclick="openShare()" data-i18n="nav.share">📲 分享</button>
     <button class="lang-toggle" onclick="toggleLang()" data-i18n="nav.lang">English</button>
   </div>
 </nav>
+
+<!-- 分享/安装 弹窗 -->
+<div id="share-modal" class="share-overlay" onclick="if(event.target===this)closeShare()">
+  <div class="share-box">
+    <div class="share-head">
+      <span data-i18n="share.title">📲 扫码安装到手机</span>
+      <button class="share-close" onclick="closeShare()">✕</button>
+    </div>
+    <div class="share-body">
+      <div class="share-qr" id="share-qr">
+        <img id="qr-img" src="" alt="QR Code" width="180" height="180">
+      </div>
+      <p class="share-desc" data-i18n="share.desc">用 Android 手机的相机或微信扫一扫，在 Chrome 中打开后点「安装」即可添加到主屏幕。</p>
+      <div class="share-url-row">
+        <input class="share-url-input" id="share-url" readonly>
+        <button class="share-copy-btn" onclick="copyUrl()" id="copy-btn" data-i18n="share.copy">复制</button>
+      </div>
+      <p class="share-note" data-i18n="share.note">安装后可完全离线使用，无需流量。</p>
+    </div>
+  </div>
+</div>
 
 <section class="hero">
   <div class="hero-badge" data-i18n="hero.badge">互动学习平台</div>
@@ -158,6 +180,46 @@
 
 <script src="js/i18n.js"></script>
 <script>
+// ── 分享弹窗 ──
+function openShare() {
+  const url = location.href.split('?')[0].split('#')[0];
+  document.getElementById('share-url').value = url;
+
+  // 用 qrserver.com 免费 API 动态生成二维码
+  const qrUrl = 'https://api.qrserver.com/v1/create-qr-code/'
+    + '?size=180x180'
+    + '&data=' + encodeURIComponent(url)
+    + '&bgcolor=ffffff'
+    + '&color=3730a3'
+    + '&qzone=1'
+    + '&format=svg';
+  document.getElementById('qr-img').src = qrUrl;
+
+  document.getElementById('share-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeShare() {
+  document.getElementById('share-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function copyUrl() {
+  const val = document.getElementById('share-url').value;
+  navigator.clipboard.writeText(val).then(() => {
+    const btn = document.getElementById('copy-btn');
+    const isZh = (localStorage.getItem('edu-lang') || 'zh') === 'zh';
+    btn.textContent = isZh ? '✓ 已复制' : '✓ Copied';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = isZh ? '复制' : 'Copy';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeShare(); });
+
 // ── PWA 安装提示 ──
 let _deferredPrompt = null;
 
