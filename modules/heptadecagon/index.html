@@ -556,9 +556,9 @@ const STEPS = [
   {
     badge:'key',
     zh:{title:'⑨ 再经两轮Carlyle圆，确定 cos(2π/17)',
-        desc:'重复Carlyle圆方法两次，最终在x轴上定位到cos(2π/17)的精确位置。\n\n显式公式（四重嵌套根号）：\ncos(2π/17) = (−1+√17+√(34−2√17)+2√A)/16\n其中A = 17+3√17−√(34−2√17)−2√(34+2√17)\n\n每一层对应一次圆规作图，总计4次。'},
+        desc:'对 H₁、H₂ 再作两次 Carlyle 圆，最终在x轴上定位到 cos(2π/17) 的精确位置。\n\n（为保持画面整洁，图中略去后两次 Carlyle 圆的具体作图细节，直接标出最终落点。）\n\n显式公式（四重嵌套根号）：\ncos(2π/17) = (−1+√17+√(34−2√17)+2√A)/16\n其中 A = 17+3√17−√(34−2√17)−2√(34+2√17)\n\n每一层对应一次圆规作图，总计4次。'},
     en:{title:'⑨ Two more Carlyle circles → cos(2π/17)',
-        desc:'Two more rounds of the Carlyle circle technique pinpoint cos(2π/17) on the x-axis.\n\nExplicit formula (4 nested radicals):\ncos(2π/17) = (−1+√17+√(34−2√17)+2√A)/16\nwhere A = 17+3√17−√(34−2√17)−2√(34+2√17)\n\nEach square root = one compass construction. Total: 4 constructions.'},
+        desc:'Two more Carlyle-circle rounds applied to H₁, H₂ pinpoint cos(2π/17) on the x-axis.\n\n(For visual clarity the last two Carlyle circles are not drawn — only the final landing point is marked.)\n\nExplicit formula (4 nested radicals):\ncos(2π/17) = (−1+√17+√(34−2√17)+2√A)/16\nwhere A = 17+3√17−√(34−2√17)−2√(34+2√17)\n\nEach square root = one compass construction. Total: 4 constructions.'},
     key:'cos(2π/17) ≈ 0.9326\n= (−1+√17+√(34−2√17)+2√A)/16',
     draw(isCur) {
       const a = isCur?1:0.4;
@@ -789,18 +789,18 @@ const PROOF = [
 
 η₁₁ + η₁₂ = η₁,   η₁₁ · η₁₂ = −1
 ⟹  η₁₁, η₁₂ ${zh?'满足':'satisfy'}  x² − η₁·x − 1 = 0
-<b>η₁₁ = [(−1+√17) + √(34−2√17)] / 4 ≈ 1.1284
-η₁₂ = [(−1+√17) − √(34−2√17)] / 4 ≈ 0.4332</b></div>
+<b>η₁₁ = [(−1+√17) + √(34−2√17)] / 4 ≈ +2.0495
+η₁₂ = [(−1+√17) − √(34−2√17)] / 4 ≈ −0.4878</b></div>
 <table class="period-table"><thead><tr>
   <th>${zh?'周期':'Period'}</th><th>${zh?'表达式':'Expression'}</th><th>${zh?'数值（≈）':'Numeric (≈)'}</th>
 </tr></thead><tbody>
 <tr><td>η₁</td><td class="num">(−1+√17)/2</td><td class="num">+1.5616</td></tr>
 <tr><td>η₂</td><td class="num">(−1−√17)/2</td><td class="num">−2.5616</td></tr>
-<tr><td>η₁₁</td><td class="num">[(−1+√17)+√(34−2√17)]/4</td><td class="num">+1.1284</td></tr>
-<tr><td>η₁₂</td><td class="num">[(−1+√17)−√(34−2√17)]/4</td><td class="num">+0.4332</td></tr>
+<tr><td>η₁₁</td><td class="num">[(−1+√17)+√(34−2√17)]/4</td><td class="num">+2.0495</td></tr>
+<tr><td>η₁₂</td><td class="num">[(−1+√17)−√(34−2√17)]/4</td><td class="num">−0.4878</td></tr>
 <tr><td>2cos(2π/17)</td><td class="num">${zh?'第三层分解得到':'from 3rd-level split'}</td><td class="num">+1.8652</td></tr>
 </tbody></table>
-<p class="proof-p">${zh?'验证：η₁₁·η₁₂ = 1.1284×0.4332 ≈ −0.9997 ≈ −1 ✓（误差来自近似）':'Check: η₁₁·η₁₂ ≈ 1.1284×0.4332 ≈ −1.000 ✓'}</p>`;
+<p class="proof-p">${zh?'验证：η₁₁·η₁₂ ≈ 2.0495 × (−0.4878) ≈ −0.9998 ≈ −1 ✓（与 Vieta 公式 η₁₁·η₁₂ = −1 一致）':'Check: η₁₁·η₁₂ ≈ 2.0495 × (−0.4878) ≈ −0.9998 ≈ −1 ✓ (matches Vieta\\'s η₁₁·η₁₂ = −1)'}</p>`;
     }
   },
   {

@@ -1255,10 +1255,11 @@ N   = 训练样本总数
 
 推论：<span class="ok">只有一个极小值 = 全局最小值</span>
 
-收敛速度（强凸函数，固定学习率 α &lt; 1/L）：
-  ‖θ_t − θ*‖² ≤ (1 − <span class="vl">2αμ</span>)ᵗ · ‖θ₀ − θ*‖²
+收敛速度（μ-强凸 + L-光滑，固定学习率 α &lt; 2/L）：
+  ‖θ_t − θ*‖² ≤ (1 − <span class="vl">2αμ + α²L²</span>)ᵗ · ‖θ₀ − θ*‖²
 
-μ = 强凸系数，t = 迭代次数
+μ = 强凸系数，L = 梯度的 Lipschitz 常数，t = 迭代次数
+当 α 取最优 α=μ/L² 时 ⟹ 收缩因子 = 1 − μ²/L² &lt; 1
 → <span class="ok">指数速度收敛</span>到最优解 θ*
   </div>
 </div>
@@ -1395,10 +1396,13 @@ rl: `
   <h3>🎯 目标：求解 Bellman 最优方程</h3>
   <p>Q-Learning 本质上在求解一个递归方程——<strong>Bellman 最优方程</strong>，其唯一解 Q* 即为"在每个状态下，每个动作的真实最优价值"：</p>
   <div class="mf">
-<span class="kw">Q*(s, a)</span> = r(s,a) + <span class="vl">γ</span> · max_{a'} <span class="kw">Q*(s', a')</span>
-    ↑              ↑       ↑              ↑
-  最优Q值      即时奖励  折扣因子      下一状态的最优Q值
+<span class="kw">Q*(s, a)</span> = <span class="vl">𝔼<sub>s'</sub></span>[ r(s,a) + <span class="vl">γ</span> · max_{a'} <span class="kw">Q*(s', a')</span> ]
+                ↑       ↑       ↑              ↑
+            对随机   即时奖励 折扣因子    下一状态的最优Q值
+            下一状态
+            取期望
 
+（本项目迷宫为<span class="ok">确定性环境</span>，下一状态唯一，期望算子可省。）
 这是一个<span class="ok">不动点方程</span>：Q* 是满足此方程的唯一函数。
 代码中的即时奖励：
   r = <span class="ok">+10</span>  （到达目标）
@@ -1412,7 +1416,7 @@ rl: `
   <p>为什么反复更新 Q 值最终能收敛到 Q*？答案在于 <strong>Bellman 算子 T 是压缩映射</strong>：</p>
   <div class="mf g">
 定义 Bellman 算子 T：
-  (<span class="kw">TQ</span>)(s,a) = r(s,a) + <span class="vl">γ</span> · max_{a'} Q(s', a')
+  (<span class="kw">TQ</span>)(s,a) = <span class="vl">𝔼<sub>s'</sub></span>[ r(s,a) + <span class="vl">γ</span> · max_{a'} Q(s', a') ]
 
 关键性质（在 L∞ 范数下）：
   ‖<span class="kw">TQ</span> − <span class="kw">TQ'</span>‖∞ ≤ <span class="vl">γ</span> · ‖Q − Q'‖∞
@@ -1539,10 +1543,11 @@ Convex function definition:
 
 Implication: <span class="ok">only one local minimum = the global minimum</span>
 
-Convergence rate (strongly convex, fixed α &lt; 1/L):
-  ‖θ_t − θ*‖² ≤ (1 − <span class="vl">2αμ</span>)ᵗ · ‖θ₀ − θ*‖²
+Convergence rate (μ-strongly convex + L-smooth, fixed α &lt; 2/L):
+  ‖θ_t − θ*‖² ≤ (1 − <span class="vl">2αμ + α²L²</span>)ᵗ · ‖θ₀ − θ*‖²
 
-μ = strong convexity constant, t = iterations
+μ = strong-convexity constant, L = gradient Lipschitz constant, t = iterations
+With optimal α = μ/L² ⟹ contraction factor = 1 − μ²/L² &lt; 1
 → <span class="ok">exponential convergence</span> to optimal θ*
   </div>
 </div>
@@ -1678,11 +1683,13 @@ rl: `
   <h3>🎯 Goal: Solve the Bellman Optimality Equation</h3>
   <p>Q-Learning is solving a recursive fixed-point equation. Its unique solution Q* gives the true optimal value of every action in every state:</p>
   <div class="mf">
-<span class="kw">Q*(s, a)</span> = r(s,a) + <span class="vl">γ</span> · max_{a'} <span class="kw">Q*(s', a')</span>
-    ↑              ↑       ↑              ↑
- optimal Q    immediate  discount    optimal Q of
-   value       reward    factor      next state
+<span class="kw">Q*(s, a)</span> = <span class="vl">𝔼<sub>s'</sub></span>[ r(s,a) + <span class="vl">γ</span> · max_{a'} <span class="kw">Q*(s', a')</span> ]
+              ↑          ↑       ↑              ↑
+          expectation immediate discount   optimal Q of
+          over next    reward   factor     next state
+          state
 
+(Our maze is <span class="ok">deterministic</span> — the next state is unique, so the expectation drops out.)
 This is a <span class="ok">fixed-point equation</span>: Q* is the unique function satisfying it.
 Rewards in our maze:
   r = <span class="ok">+10</span>  (reached goal)
@@ -1696,7 +1703,7 @@ Rewards in our maze:
   <p>Why does repeatedly updating Q eventually reach Q*? Because the <strong>Bellman operator T is a contraction</strong>:</p>
   <div class="mf g">
 Define the Bellman operator T:
-  (<span class="kw">TQ</span>)(s,a) = r(s,a) + <span class="vl">γ</span> · max_{a'} Q(s', a')
+  (<span class="kw">TQ</span>)(s,a) = <span class="vl">𝔼<sub>s'</sub></span>[ r(s,a) + <span class="vl">γ</span> · max_{a'} Q(s', a') ]
 
 Key property (in the L∞ norm):
   ‖<span class="kw">TQ</span> − <span class="kw">TQ'</span>‖∞ ≤ <span class="vl">γ</span> · ‖Q − Q'‖∞
