@@ -477,7 +477,7 @@ const STEPS = [
     zh:{title:'⑥ 过J作JE的垂线，把共轭周期 η₂ 编码进 F',
         desc:'过J作JE的垂线，交x轴负半轴于F。\n\n垂直关系意味着F是外角平分线的垂足：\nF 的横坐标 = −r(√17+1)/16\n\n关键关系（与 η₁ 同样的 r/8 比例）：\nx_F = (r/8) · η₂，其中 η₂ = (−1−√17)/2 ≈ −2.5616\n\nE 与 F 同时把两个共轭高斯周期 η₁, η₂ 以相同的 r/8 比例编码在 x 轴上——下一步只需在它们之间做几何运算即可继续分解。'},
     en:{title:'⑥ Perpendicular at J to JE → encode η₂ in F',
-        desc:'Through J, draw the perpendicular to JE; it meets the negative x-axis at F (the external-bisector foot).\n\nF\\'s x-coordinate = −r(√17+1)/16\n\nExact relation (same r/8 scale as E):\nx_F = (r/8) · η₂, where η₂ = (−1−√17)/2 ≈ −2.5616\n\nE and F jointly encode the conjugate periods η₁ and η₂ on the x-axis at the same scale — geometric operations between them carry the next level of decomposition.'},
+        desc:'Through J, draw the perpendicular to JE; it meets the negative x-axis at F (the external-bisector foot).\n\nx-coordinate of F = −r(√17+1)/16\n\nExact relation (same r/8 scale as E):\nx_F = (r/8) · η₂, where η₂ = (−1−√17)/2 ≈ −2.5616\n\nE and F jointly encode the conjugate periods η₁ and η₂ on the x-axis at the same scale — geometric operations between them carry the next level of decomposition.'},
     key:'OF = r(√17+1)/16   ≈ 0.320 r\nη₁·η₂ = −4,  η₁+η₂ = −1',
     draw(isCur) {
       const a = isCur?1:0.4;
@@ -800,7 +800,7 @@ const PROOF = [
 <tr><td>η₁₂</td><td class="num">[(−1+√17)−√(34−2√17)]/4</td><td class="num">−0.4878</td></tr>
 <tr><td>2cos(2π/17)</td><td class="num">${zh?'第三层分解得到':'from 3rd-level split'}</td><td class="num">+1.8652</td></tr>
 </tbody></table>
-<p class="proof-p">${zh?'验证：η₁₁·η₁₂ ≈ 2.0495 × (−0.4878) ≈ −0.9998 ≈ −1 ✓（与 Vieta 公式 η₁₁·η₁₂ = −1 一致）':'Check: η₁₁·η₁₂ ≈ 2.0495 × (−0.4878) ≈ −0.9998 ≈ −1 ✓ (matches Vieta\\'s η₁₁·η₁₂ = −1)'}</p>`;
+<p class="proof-p">${zh?'验证：η₁₁·η₁₂ ≈ 2.0495 × (−0.4878) ≈ −0.9998 ≈ −1 ✓（与 Vieta 公式 η₁₁·η₁₂ = −1 一致）':'Check: η₁₁·η₁₂ ≈ 2.0495 × (−0.4878) ≈ −0.9998 ≈ −1 ✓ (matches the Vieta relation η₁₁·η₁₂ = −1)'}</p>`;
     }
   },
   {
