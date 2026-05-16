@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>日语旅行速成 · Japanese Travel</title>
+  <style>
+    :root {
+      --primary: #e11d48;
+      --primary-dark: #be123c;
+      --slang: #8b5cf6;
+      --accent: #f59e0b;
+      --bg: #0f172a;
+      --bg-card: #1e293b;
+      --bg-elevated: #334155;
+      --text: #f1f5f9;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --radius: 16px;
+      --shadow: 0 4px 24px rgba(0,0,0,0.4);
+      --transition: 0.2s ease;
+      --font: 'Segoe UI','PingFang SC','Microsoft YaHei','Noto Sans SC',system-ui,sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.7; min-height: 100vh; }
+
+    /* ── Nav ── */
+    .nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(15,23,42,0.92); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-brand { display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--text); }
+    .nav-logo { font-size: 1.8rem; }
+    .nav-title {
+      font-size: 1.15rem; font-weight: 700;
+      background: linear-gradient(135deg, #e11d48, #f97316, #f59e0b);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .nav-actions { display:flex; align-items:center; gap:10px; }
+    .nav-back {
+      color: var(--text-muted); text-decoration:none; font-size:0.88rem;
+      padding: 6px 12px; border-radius:8px; transition: var(--transition);
+    }
+    .nav-back:hover { color:var(--text); background:var(--bg-elevated); }
+    .lang-toggle {
+      background: var(--bg-elevated); border: 1px solid var(--border);
+      color: var(--text); padding: 6px 16px; border-radius: 20px;
+      font-size: 0.88rem; font-weight: 600; cursor: pointer;
+      transition: var(--transition); font-family: var(--font);
+    }
+    .lang-toggle:hover { background: var(--primary); border-color: var(--primary); }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 2.5rem 2rem 1.8rem; text-align: center;
+      background: linear-gradient(180deg, rgba(225,29,72,0.07) 0%, transparent 100%);
+    }
+    .hero-badge {
+      display: inline-block;
+      background: rgba(225,29,72,0.12); color: #fb7185;
+      border: 1px solid rgba(225,29,72,0.28);
+      padding: 4px 14px; border-radius: 20px;
+      font-size: 0.78rem; font-weight: 700;
+      letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 1rem;
+    }
+    .hero h1 {
+      font-size: clamp(1.6rem, 4vw, 2.6rem); font-weight: 800;
+      letter-spacing: -0.03em; margin-bottom: 0.7rem; line-height: 1.2;
+    }
+    .hero h1 .jp {
+      background: linear-gradient(135deg, #e11d48, #f97316, #f59e0b);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .hero p { font-size: 0.97rem; color: var(--text-muted); max-width: 540px; margin: 0 auto 1.2rem; }
+    .tts-notice {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.22);
+      color: #34d399; padding: 5px 14px; border-radius: 20px;
+      font-size: 0.8rem; font-weight: 600;
+    }
+    .tts-notice.unavail { background: rgba(100,116,139,0.1); border-color: rgba(100,116,139,0.22); color: #94a3b8; }
+
+    /* ── Controls ── */
+    .controls { max-width: 1100px; margin: 0 auto; padding: 1rem 1.5rem 0.5rem; }
+    .search-row { display: flex; gap: 10px; margin-bottom: 1rem; }
+    .search-box {
+      flex: 1; background: var(--bg-card); border: 1px solid var(--border);
+      color: var(--text); padding: 10px 16px; border-radius: 10px;
+      font-size: 0.93rem; font-family: var(--font); outline: none; transition: var(--transition);
+    }
+    .search-box::placeholder { color: var(--text-muted); }
+    .search-box:focus { border-color: var(--primary); }
+    .drill-btn {
+      background: linear-gradient(135deg, #8b5cf6, #6366f1); color: #fff;
+      border: none; padding: 10px 20px; border-radius: 10px;
+      font-size: 0.88rem; font-weight: 700; cursor: pointer; font-family: var(--font);
+      transition: var(--transition); white-space: nowrap;
+    }
+    .drill-btn:hover { opacity: 0.85; }
+    .tabs-wrap { overflow-x: auto; scrollbar-width: none; }
+    .tabs-wrap::-webkit-scrollbar { display: none; }
+    .tabs { display: flex; gap: 8px; white-space: nowrap; padding-bottom: 8px; }
+    .tab {
+      background: var(--bg-card); border: 1px solid var(--border);
+      color: var(--text-muted); padding: 7px 15px; border-radius: 20px;
+      font-size: 0.82rem; font-weight: 600; cursor: pointer;
+      transition: var(--transition); font-family: var(--font);
+    }
+    .tab:hover { color: var(--text); border-color: var(--text-muted); }
+    .tab.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .tab.fav-tab.active { background: var(--accent); border-color: var(--accent); }
+
+    /* ── Phrase grid ── */
+    .phrase-grid {
+      max-width: 1100px; margin: 0 auto; padding: 1rem 1.5rem 3rem;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem;
+    }
+    .p-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.2rem;
+      display: flex; flex-direction: column; gap: 0.55rem;
+      transition: var(--transition); position: relative;
+    }
+    .p-card:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: var(--shadow); }
+    .p-card.slang-card { border-color: rgba(139,92,246,0.25); }
+    .p-card.slang-card:hover { border-color: var(--slang); }
+    .p-card.essential-card { border-color: rgba(225,29,72,0.18); }
+
+    .card-badges { display: flex; gap: 5px; flex-wrap: wrap; }
+    .badge { padding: 2px 8px; border-radius: 10px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.04em; }
+    .badge-ess { background: rgba(225,29,72,0.13); color: #fb7185; }
+    .badge-slang { background: rgba(139,92,246,0.13); color: #a78bfa; }
+    .badge-casual { background: rgba(6,182,212,0.13); color: #22d3ee; }
+
+    .jp-text { font-size: 1.55rem; font-weight: 700; color: var(--text); line-height: 1.3; letter-spacing: 0.01em; }
+    .romaji { font-size: 0.85rem; color: #fb7185; font-weight: 600; letter-spacing: 0.03em; }
+    .meanings { display: flex; flex-direction: column; gap: 3px; }
+    .meaning-row { display: flex; align-items: flex-start; gap: 7px; font-size: 0.86rem; }
+    .meaning-flag { flex-shrink: 0; margin-top: 2px; }
+    .meaning-text { color: var(--text-secondary); }
+    .tip-block {
+      background: rgba(245,158,11,0.07); border: 1px solid rgba(245,158,11,0.18);
+      border-radius: 8px; padding: 8px 10px;
+      font-size: 0.78rem; color: #fbbf24; line-height: 1.55;
+    }
+    .tip-block::before { content: '💡 '; }
+
+    .card-actions { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 0.4rem; }
+    .speak-btn {
+      background: rgba(225,29,72,0.08); border: 1px solid rgba(225,29,72,0.22);
+      color: #fb7185; padding: 6px 13px; border-radius: 8px;
+      font-size: 0.8rem; font-weight: 600; cursor: pointer;
+      transition: var(--transition); font-family: var(--font);
+    }
+    .speak-btn:hover { background: rgba(225,29,72,0.18); }
+    .speak-btn.speaking { background: rgba(225,29,72,0.28); }
+    .fav-btn {
+      background: none; border: none; cursor: pointer;
+      font-size: 1.25rem; padding: 4px; line-height: 1;
+      transition: transform 0.15s; opacity: 0.4;
+    }
+    .fav-btn:hover { transform: scale(1.2); opacity: 1; }
+    .fav-btn.on { opacity: 1; }
+
+    .empty-state { grid-column: 1/-1; text-align: center; padding: 4rem 2rem; color: var(--text-muted); }
+    .empty-state .ei { font-size: 2.5rem; margin-bottom: 0.8rem; }
+
+    /* ── Culture section ── */
+    .culture-section { max-width: 1100px; margin: 0 auto; padding: 0 1.5rem 4rem; }
+    .section-title { font-size: 1.05rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 1rem; }
+    .culture-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 0.9rem; }
+    .culture-card {
+      background: var(--bg-card); border: 1px solid rgba(245,158,11,0.18);
+      border-radius: 12px; padding: 1rem 1.1rem;
+    }
+    .culture-title { font-size: 0.88rem; font-weight: 700; color: #fbbf24; margin-bottom: 0.35rem; }
+    .culture-body { font-size: 0.82rem; color: var(--text-muted); line-height: 1.6; }
+
+    /* ── Drill overlay ── */
+    .drill-overlay {
+      position: fixed; inset: 0; z-index: 200; background: var(--bg);
+      display: none; flex-direction: column; align-items: center; justify-content: center; padding: 2rem;
+    }
+    .drill-overlay.open { display: flex; }
+    .drill-close {
+      position: fixed; top: 1.2rem; right: 1.2rem;
+      background: var(--bg-elevated); border: 1px solid var(--border);
+      color: var(--text-muted); padding: 7px 16px; border-radius: 10px;
+      font-size: 0.88rem; cursor: pointer; font-family: var(--font);
+    }
+    .drill-close:hover { color: var(--text); }
+    .drill-progress { width: 100%; max-width: 480px; height: 3px; background: var(--bg-elevated); border-radius: 2px; margin-bottom: 1.5rem; overflow: hidden; }
+    .drill-progress-fill { height: 100%; background: var(--primary); transition: width 0.3s; }
+    .drill-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 22px; padding: 2.5rem 2rem; max-width: 480px; width: 100%;
+      text-align: center; cursor: pointer; min-height: 250px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.8rem;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5); transition: transform 0.15s;
+    }
+    .drill-card:hover { transform: scale(1.01); }
+    .drill-hint { font-size: 0.8rem; color: var(--text-muted); }
+    .drill-jp { font-size: 2.2rem; font-weight: 800; }
+    .drill-romaji { font-size: 1rem; color: #fb7185; font-weight: 600; }
+    .drill-meaning { font-size: 0.95rem; color: var(--text-secondary); margin-top: 0.2rem; }
+    .drill-controls { display: flex; gap: 12px; margin-top: 1.4rem; flex-wrap: wrap; justify-content: center; }
+    .drill-fail { background: #ef4444; border: none; color: #fff; padding: 11px 26px; border-radius: 11px; font-size: 0.93rem; font-weight: 700; cursor: pointer; font-family: var(--font); }
+    .drill-ok   { background: #10b981; border: none; color: #fff; padding: 11px 26px; border-radius: 11px; font-size: 0.93rem; font-weight: 700; cursor: pointer; font-family: var(--font); }
+    .drill-skip { background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-muted); padding: 11px 18px; border-radius: 11px; font-size: 0.88rem; cursor: pointer; font-family: var(--font); }
+    .drill-score { font-size: 0.85rem; color: var(--text-muted); margin-top: 0.8rem; }
+
+    /* ── Voice bar ── */
+    .voice-bar {
+      display: none; align-items: center; flex-wrap: wrap; gap: 10px;
+      padding: 10px 14px; margin-bottom: 1rem;
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+    }
+    .voice-bar.visible { display: flex; }
+    .vb-section { display: flex; align-items: center; gap: 7px; }
+    .vb-label { font-size: 0.78rem; color: var(--text-muted); font-weight: 600; white-space: nowrap; }
+    .vb-divider { width: 1px; height: 22px; background: var(--border); flex-shrink: 0; }
+    .voice-chips { display: flex; gap: 5px; flex-wrap: wrap; }
+    .voice-chip {
+      background: var(--bg-elevated); border: 1px solid var(--border);
+      color: var(--text-muted); padding: 4px 11px; border-radius: 20px;
+      font-size: 0.78rem; font-weight: 600; cursor: pointer;
+      transition: var(--transition); font-family: var(--font);
+    }
+    .voice-chip.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .voice-chip:not(.active):hover { border-color: var(--primary); color: var(--text); }
+    .speed-btns { display: flex; gap: 5px; }
+    .speed-btn {
+      background: var(--bg-elevated); border: 1px solid var(--border);
+      color: var(--text-muted); padding: 4px 11px; border-radius: 20px;
+      font-size: 0.78rem; font-weight: 600; cursor: pointer;
+      transition: var(--transition); font-family: var(--font);
+    }
+    .speed-btn.active { background: rgba(225,29,72,0.14); border-color: rgba(225,29,72,0.38); color: #fb7185; }
+    .speed-btn:not(.active):hover { border-color: var(--text-muted); color: var(--text); }
+    .vb-tip {
+      width: 100%; font-size: 0.74rem; color: var(--text-muted);
+      background: rgba(245,158,11,0.07); border: 1px solid rgba(245,158,11,0.18);
+      border-radius: 6px; padding: 5px 10px; display: none;
+    }
+    .vb-tip.show { display: block; }
+    .vb-tip a { color: #fbbf24; text-decoration: none; }
+    .vb-tip a:hover { text-decoration: underline; }
+
+    @media (max-width: 600px) {
+      .phrase-grid { grid-template-columns: 1fr; padding: 1rem; }
+      .nav { padding: 0 1rem; }
+      .jp-text { font-size: 1.35rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-brand" href="../../index.html">
+    <span class="nav-logo">🎌</span>
+    <span class="nav-title" data-i18n="nav.title">日语旅行速成</span>
+  </a>
+  <div class="nav-actions">
+    <a class="nav-back" href="../../index.html" data-i18n="nav.back">← 返回</a>
+    <button class="lang-toggle" onclick="toggleLang()" data-i18n="nav.lang">English</button>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge" data-i18n="hero.badge">旅行日语 · 速成宝典</div>
+  <h1><span class="jp">日本へようこそ</span></h1>
+  <p data-i18n="hero.desc">精选旅行必备日语，地道表达 + 流行俚语，每个短语可点击播放真实发音。</p>
+  <div id="tts-status" class="tts-notice">⏳ 检测语音支持…</div>
+</section>
+
+<div class="controls">
+  <div class="search-row">
+    <input class="search-box" id="search" type="text" data-i18n-ph="search.ph" placeholder="搜索短语…">
+    <button class="drill-btn" onclick="startDrill()" data-i18n="btn.drill">⚡ 闪卡练习</button>
+  </div>
+  <div class="tabs-wrap">
+    <div class="tabs" id="tabs"></div>
+  </div>
+  <!-- Voice & speed bar — populated after voices load -->
+  <div class="voice-bar" id="voice-bar">
+    <div class="vb-section">
+      <span class="vb-label" data-i18n="voice.label">🎤 声音</span>
+      <div class="voice-chips" id="voice-chips"></div>
+    </div>
+    <div class="vb-divider"></div>
+    <div class="vb-section">
+      <span class="vb-label" data-i18n="speed.label">⏱ 速度</span>
+      <div class="speed-btns">
+        <button class="speed-btn" data-rate="0.60" onclick="setSpeed(this)" data-i18n="speed.slow">🐢 学习</button>
+        <button class="speed-btn active" data-rate="0.84" onclick="setSpeed(this)" data-i18n="speed.normal">▶ 标准</button>
+        <button class="speed-btn" data-rate="1.10" onclick="setSpeed(this)" data-i18n="speed.fast">⚡ 地道</button>
+      </div>
+    </div>
+    <div class="vb-divider"></div>
+    <div class="vb-section">
+      <span class="vb-label" data-i18n="pitch.label">🎵 音调</span>
+      <div class="speed-btns" id="pitch-btns">
+        <button class="speed-btn" data-pitch="1.35" onclick="setPitch(this)" data-i18n="pitch.high">高音</button>
+        <button class="speed-btn active" data-pitch="1.00" onclick="setPitch(this)" data-i18n="pitch.mid">中音</button>
+        <button class="speed-btn" data-pitch="0.65" onclick="setPitch(this)" data-i18n="pitch.low">低音</button>
+      </div>
+    </div>
+    <div class="vb-tip" id="vb-tip" data-i18n-html="voice.tip"></div>
+  </div>
+</div>
+
+<div class="phrase-grid" id="phrase-grid"></div>
+
+<section class="culture-section" id="culture-section">
+  <div class="section-title" data-i18n="culture.title">🏯 文化小贴士</div>
+  <div class="culture-grid" id="culture-grid"></div>
+</section>
+
+<!-- Drill overlay -->
+<div class="drill-overlay" id="drill-overlay">
+  <button class="drill-close" onclick="closeDrill()" data-i18n="btn.close">✕ 退出练习</button>
+  <div class="drill-progress"><div class="drill-progress-fill" id="drill-bar"></div></div>
+  <div class="drill-card" id="drill-card" onclick="flipDrill()">
+    <div class="drill-hint" id="drill-hint" data-i18n="drill.tap">点击卡片翻转查看答案</div>
+    <div class="drill-jp" id="drill-jp"></div>
+    <div id="drill-back" style="display:none">
+      <div class="drill-romaji" id="drill-romaji"></div>
+      <div class="drill-meaning" id="drill-meaning"></div>
+    </div>
+  </div>
+  <div class="drill-controls" id="drill-btns" style="display:none">
+    <button class="drill-fail" onclick="drillAnswer(false)" data-i18n="drill.forgot">✗ 没记住</button>
+    <button class="drill-skip" onclick="drillNext()" data-i18n="drill.skip">跳过</button>
+    <button class="drill-ok"   onclick="drillAnswer(true)"  data-i18n="drill.knew">✓ 记住了</button>
+  </div>
+  <div class="drill-score" id="drill-score"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  i18n
+// ═══════════════════════════════════════════════════════
+const T = {
+  zh: {
+    'nav.title':'日语旅行速成','nav.back':'← 返回','nav.lang':'English',
+    'hero.badge':'旅行日语 · 速成宝典',
+    'hero.desc':'精选旅行必备日语，地道表达 + 流行俚语，每个短语可点击播放真实发音。',
+    'search.ph':'搜索短语…',
+    'btn.drill':'⚡ 闪卡练习','btn.close':'✕ 退出练习','btn.speak':'🔊 播放',
+    'drill.tap':'点击卡片翻转查看答案',
+    'drill.forgot':'✗ 没记住','drill.skip':'跳过','drill.knew':'✓ 记住了',
+    'drill.score':'本轮：%ok 记住 / %total 个',
+    'drill.done':'🎉 完成！记住了 %ok / %total 个',
+    'drill.empty':'没有可练习的短语',
+    'empty.search':'没有匹配的短语','empty.fav':'还没收藏，点击 ⭐ 添加',
+    'culture.title':'🏯 文化小贴士',
+    'cat.all':'全部','cat.basic':'基础礼貌','cat.restaurant':'餐厅美食',
+    'cat.shopping':'购物扫货','cat.transport':'交通出行','cat.hotel':'住宿酒店',
+    'cat.emergency':'紧急求助','cat.slang':'🔥 潮流俚语','cat.fav':'⭐ 我的收藏',
+    'tts.ok':'🔊 语音就绪，点击任意播放按钮','tts.no':'🔇 浏览器暂不支持语音播放',
+    'voice.label':'🎤 声音','speed.label':'⏱ 速度',
+    'speed.slow':'🐢 学习','speed.normal':'▶ 标准','speed.fast':'⚡ 地道',
+    'pitch.label':'🎵 音调','pitch.high':'高音','pitch.mid':'中音','pitch.low':'低音',
+    'voice.system':'系统默认',
+    'voice.tip':'💡 当前只检测到 1 个日语声音。使用 <a href="https://www.microsoft.com/edge" target="_blank">Microsoft Edge</a> 浏览器可获得南波美（女声）和圭太（男声）两种高质量神经语音。',
+    'badge.ess':'必备','badge.slang':'俚语','badge.casual':'口语',
+  },
+  en: {
+    'nav.title':'Japanese Travel','nav.back':'← Home','nav.lang':'中文',
+    'hero.badge':'Travel Japanese · Quick Guide',
+    'hero.desc':'Essential travel phrases — authentic expressions, trendy slang, real pronunciation on every card.',
+    'search.ph':'Search phrases…',
+    'btn.drill':'⚡ Flashcard Drill','btn.close':'✕ Exit','btn.speak':'🔊 Play',
+    'drill.tap':'Tap card to reveal answer',
+    'drill.forgot':'✗ Forgot','drill.skip':'Skip','drill.knew':'✓ Got it',
+    'drill.score':'Round: %ok got it / %total',
+    'drill.done':'🎉 Done! Got %ok / %total',
+    'drill.empty':'No phrases to drill',
+    'empty.search':'No phrases found','empty.fav':'No favorites yet — tap ⭐ to add',
+    'culture.title':'🏯 Culture Tips',
+    'cat.all':'All','cat.basic':'Politeness','cat.restaurant':'Restaurant',
+    'cat.shopping':'Shopping','cat.transport':'Transport','cat.hotel':'Hotel',
+    'cat.emergency':'Emergency','cat.slang':'🔥 Slang','cat.fav':'⭐ Favorites',
+    'tts.ok':'🔊 Audio ready — click any play button','tts.no':'🔇 Audio not supported here',
+    'voice.label':'🎤 Voice','speed.label':'⏱ Speed',
+    'speed.slow':'🐢 Study','speed.normal':'▶ Normal','speed.fast':'⚡ Native',
+    'pitch.label':'🎵 Pitch','pitch.high':'High','pitch.mid':'Mid','pitch.low':'Low',
+    'voice.system':'System Default',
+    'voice.tip':'💡 Only 1 Japanese voice detected. Try <a href="https://www.microsoft.com/edge" target="_blank">Microsoft Edge</a> to unlock Nanami (female) and Keita (male) neural voices.',
+    'badge.ess':'Essential','badge.slang':'Slang','badge.casual':'Casual',
+  }
+};
+
+let lang = localStorage.getItem('edu-lang') || 'zh';
+const t = k => (T[lang] || T.zh)[k] || k;
+
+function applyLang() {
+  document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+  document.querySelectorAll('[data-i18n]').forEach(el => { const v = t(el.dataset.i18n); if (v) el.textContent = v; });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => { const v = t(el.dataset.i18nPh); if (v) el.placeholder = v; });
+  renderTabs();
+  filterPhrases();
+  renderCulture();
+  const ts = document.getElementById('tts-status');
+  if (ts) ts.textContent = ttsReady ? t('tts.ok') : t('tts.no');
+  // refresh voice tip text on language switch
+  const tip = document.getElementById('vb-tip');
+  if (tip && tip.classList.contains('show')) tip.innerHTML = t('voice.tip');
+}
+
+function toggleLang() {
+  lang = lang === 'zh' ? 'en' : 'zh';
+  localStorage.setItem('edu-lang', lang);
+  applyLang();
+}
+
+// ═══════════════════════════════════════════════════════
+//  Phrase data
+// ═══════════════════════════════════════════════════════
+const CATS = ['all','basic','restaurant','shopping','transport','hotel','emergency','slang','fav'];
+
+const PHRASES = [
+  // ────── 基础礼貌 ──────
+  {id:'b01',cat:'basic',lv:'ess',
+   jp:'すみません',tts:'すみません',
+   romaji:'Sumimasen',
+   zh:'不好意思 / 打扰一下 / 对不起',en:'Excuse me / Sorry (for the trouble)',
+   tip_zh:'日语最万能短语！叫服务员、向陌生人搭话、道歉、接受别人帮忙统统用它，比「ごめんなさい」更万能也更礼貌。',
+   tip_en:'The Swiss Army knife of Japanese. Use it to get attention, apologize, or even thank someone who helped you.'},
+  {id:'b02',cat:'basic',lv:'ess',
+   jp:'ありがとうございます',tts:'ありがとうございます',
+   romaji:'Arigatō gozaimasu',
+   zh:'非常感谢（正式）',en:'Thank you very much (formal)',
+   tip_zh:'对陌生人和服务员用这个。跟同龄朋友说「ありがとう」就够了。',
+   tip_en:'"Arigatō" alone is casual. Use the full form with strangers and service staff.'},
+  {id:'b03',cat:'basic',lv:'ess',
+   jp:'こんにちは',tts:'こんにちは',
+   romaji:'Konnichiwa',
+   zh:'你好（白天）',en:'Hello (daytime)',
+   tip_zh:'早上用「おはようございます」，晚上用「こんばんは」。',
+   tip_en:'Morning: おはようございます / Evening: こんばんは'},
+  {id:'b04',cat:'basic',lv:'ess',
+   jp:'わかりません',tts:'わかりません',
+   romaji:'Wakarimasen',
+   zh:'我不明白',en:"I don't understand",
+   tip_zh:'诚实说不懂，日本人通常会放慢语速、换简单说法甚至帮你找翻译。',
+   tip_en:'Say it honestly — Japanese people will slow down or find another way to help you.'},
+  {id:'b05',cat:'basic',lv:'ess',
+   jp:'もう一度お願いします',tts:'もう一度お願いします',
+   romaji:'Mō ichido onegaishimasu',
+   zh:'请再说一遍',en:'Please say that again',
+   tip_zh:'也可以补一句「ゆっくり話してください」（请说慢一点）。',
+   tip_en:'Add: ゆっくり話してください (please speak slowly)'},
+  {id:'b06',cat:'basic',lv:'ess',
+   jp:'〜はどこですか？',tts:'トイレはどこですか',
+   romaji:'... wa doko desu ka?',
+   zh:'〜在哪里？',en:'Where is ~?',
+   tip_zh:'将地点名称填入〜。例：「トイレはどこですか？」（厕所在哪？）点播放会示范"厕所在哪"的发音。',
+   tip_en:'Fill in the location. E.g. トイレはどこですか = Where\'s the restroom? (Play button demos this)'},
+  {id:'b07',cat:'basic',lv:'useful',
+   jp:'日本語が少しだけ話せます',tts:'日本語が少しだけ話せます',
+   romaji:'Nihongo ga sukoshi dake hanasemasu',
+   zh:'我只会一点点日语',en:'I can only speak a little Japanese',
+   tip_zh:'这句话能让对方主动放慢语速、更耐心，是很聪明的开场白。',
+   tip_en:'A smart opener — signals goodwill and makes people more patient.'},
+  {id:'b08',cat:'basic',lv:'useful',
+   jp:'英語はできますか？',tts:'英語はできますか',
+   romaji:'Eigo wa dekimasu ka?',
+   zh:'您会说英语吗？',en:'Do you speak English?'},
+  {id:'b09',cat:'basic',lv:'useful',
+   jp:'よろしくお願いします',tts:'よろしくお願いします',
+   romaji:'Yoroshiku onegaishimasu',
+   zh:'请多关照 / 麻烦您了',en:'Please take care of me / Nice to meet you',
+   tip_zh:'初次见面、请求帮助、交换名片都说这句，是日本社交的核心用语，找不到场合的话就说这句准没错。',
+   tip_en:'Said when meeting someone, asking a favor, or starting anything. Truly essential.'},
+  {id:'b10',cat:'basic',lv:'useful',
+   jp:'はじめまして',tts:'はじめまして',
+   romaji:'Hajimemashite',
+   zh:'初次见面，请多关照',en:'Nice to meet you (first meeting)',
+   tip_zh:'第一次见面时说，之后通常跟着「よろしくお願いします」。只在初次见面时用，见过的人再说就奇怪了。',
+   tip_en:'Only for first meetings — always followed by よろしくお願いします. Don\'t say it twice to the same person.'},
+  {id:'b11',cat:'basic',lv:'useful',
+   jp:'どうぞ',tts:'どうぞ',
+   romaji:'Dōzo',
+   zh:'请（请用 / 请先行 / 请进）',en:'Please / Go ahead / Here you are',
+   tip_zh:'场景超多：递东西给别人、让对方先过、请人进门，都是「どうぞ」。配合手势效果更好。',
+   tip_en:'Covers "here you are," "after you," "please go in" — pair it with a gesture for best effect.'},
+  {id:'b12',cat:'basic',lv:'useful',
+   jp:'大丈夫です',tts:'大丈夫です',
+   romaji:'Daijōbu desu',
+   zh:'没关系 / 我没事 / 不需要了',en:'I\'m fine / No problem / No thank you',
+   tip_zh:'⚠️ 可以表示"没问题"也可以表示"不需要了"，语气不同意思不同。店员问你要不要袋子，说「大丈夫です」就是"不用了"。',
+   tip_en:'Context-sensitive: "I\'m fine" OR "no thanks." Shopkeeper asks if you need a bag? 大丈夫です = no need.'},
+  {id:'b13',cat:'basic',lv:'useful',
+   jp:'〜はありますか？',tts:'英語のメニューはありますか',
+   romaji:'... wa arimasu ka?',
+   zh:'有〜吗？',en:'Do you have ~?',
+   tip_zh:'例：「英語のメニューはありますか？」（有英文菜单吗？）播放示范的是这句话。',
+   tip_en:'E.g. 英語のメニューはありますか = Do you have an English menu? (Play demos this)'},
+  {id:'b14',cat:'basic',lv:'useful',
+   jp:'写真を撮ってもいいですか？',tts:'写真を撮ってもいいですか',
+   romaji:'Shashin wo totte mo ii desu ka?',
+   zh:'可以拍照吗？',en:'May I take a photo?',
+   tip_zh:'日本很多店铺、神社、餐厅不允许拍照，进门前先问是一种礼貌。',
+   tip_en:'Many shops, temples, and restaurants prohibit photos — always ask first, it\'s respectful.'},
+  {id:'b15',cat:'basic',lv:'useful',
+   jp:'ちょっと待ってください',tts:'ちょっと待ってください',
+   romaji:'Chotto matte kudasai',
+   zh:'请稍等一下',en:'Please wait a moment',
+   tip_zh:'口语中常简化为「ちょっと待って！」，对朋友说没问题，对陌生人或长辈加上「ください」更礼貌。',
+   tip_en:'"ちょっと待って！" works with friends; add ください for strangers and elders.'},
+  {id:'b16',cat:'basic',lv:'useful',
+   jp:'お手洗いはどこですか？',tts:'お手洗いはどこですか',
+   romaji:'Otearai wa doko desu ka?',
+   zh:'洗手间在哪里？（比トイレ更礼貌）',en:'Where is the restroom? (more formal than トイレ)',
+   tip_zh:'「トイレ」直接但略显粗俗，在高档餐厅或旅馆用「お手洗い」更合适。',
+   tip_en:'トイレ is understood everywhere; お手洗い is more refined for upscale restaurants and hotels.'},
+  {id:'b17',cat:'basic',lv:'useful',
+   jp:'〜をお願いします',tts:'タクシーをお願いします',
+   romaji:'... wo onegaishimasu',
+   zh:'麻烦您帮我〜 / 请给我〜',en:'~ please (polite all-purpose request)',
+   tip_zh:'万能礼貌请求句式。例：「タクシーをお願いします」（帮我叫出租车）。播放示范的是这句话。',
+   tip_en:'The universal polite request. タクシーをお願いします = Please get me a taxi. (Play demos this)'},
+
+  // ────── 餐厅 ──────
+  {id:'r01',cat:'restaurant',lv:'ess',
+   jp:'〜をください',tts:'これをください',
+   romaji:'... wo kudasai',
+   zh:'请给我〜（最直接点菜方式）',en:'I\'ll have ~ / Please give me ~',
+   tip_zh:'指着菜单说「これをください」（请给我这个）完全没问题，播放示范的是"这个给我"的发音。',
+   tip_en:'Point at menu + "これをください" = "I\'ll have this." Play button demonstrates this.'},
+  {id:'r02',cat:'restaurant',lv:'ess',
+   jp:'お会計をお願いします',tts:'お会計をお願いします',
+   romaji:'Okaikei wo onegaishimasu',
+   zh:'买单，麻烦了',en:'Check, please',
+   tip_zh:'日本餐厅不会主动送账单，必须主动开口，或去收银台结账。',
+   tip_en:'Japanese restaurants don\'t bring the bill automatically — you must ask.'},
+  {id:'r03',cat:'restaurant',lv:'ess',
+   jp:'いただきます',tts:'いただきます',
+   romaji:'Itadakimasu',
+   zh:'开动了（饭前必说）',en:'Let\'s eat / I gratefully receive this',
+   tip_zh:'吃饭前双手合十说这句，表示对食物和厨师的感谢。不说会显得有点奇怪。',
+   tip_en:'Palms together before eating. Skipping it feels odd to locals — just say it!'},
+  {id:'r04',cat:'restaurant',lv:'ess',
+   jp:'ごちそうさまでした',tts:'ごちそうさまでした',
+   romaji:'Gochisōsama deshita',
+   zh:'谢谢款待（饭后必说）',en:'Thank you for the meal',
+   tip_zh:'离开餐厅时对着厨师或服务员说这句，他们会非常开心。外国人知道这句话是大加分。',
+   tip_en:'Say this leaving the restaurant — staff are genuinely delighted when foreigners know it.'},
+  {id:'r05',cat:'restaurant',lv:'useful',
+   jp:'おすすめは何ですか？',tts:'おすすめは何ですか',
+   romaji:'Osusume wa nan desu ka?',
+   zh:'有什么推荐的吗？',en:'What do you recommend?',
+   tip_zh:'日本服务员非常乐意推荐，往往能吃到真正好吃的隐藏款。',
+   tip_en:'Japanese staff love this question and will proudly suggest their best.'},
+  {id:'r06',cat:'restaurant',lv:'useful',
+   jp:'〜抜きでお願いします',tts:'ネギ抜きでお願いします',
+   romaji:'... nuki de onegaishimasu',
+   zh:'请不要加〜（食材）',en:'Without ~, please',
+   tip_zh:'例：「ネギ抜きでお願いします」（请不要放葱）。播放示范的是"不要葱"。',
+   tip_en:'E.g. ネギ抜き = no green onions. Play demonstrates the green-onion version.'},
+  {id:'r07',cat:'restaurant',lv:'useful',
+   jp:'アレルギーがあります',tts:'アレルギーがあります',
+   romaji:'Arerugī ga arimasu',
+   zh:'我有食物过敏',en:'I have a food allergy',
+   tip_zh:'建议出发前把过敏食材的日文写在手机备忘录里，比口头表达更准确，遇事直接给对方看。',
+   tip_en:'Best practice: prepare a written list of your allergens in Japanese before departure.'},
+  {id:'r08',cat:'restaurant',lv:'useful',
+   jp:'辛いですか？',tts:'辛いですか',
+   romaji:'Karai desu ka?',
+   zh:'这道菜辣吗？',en:'Is it spicy?'},
+  {id:'r09',cat:'restaurant',lv:'nice',
+   jp:'おいしい！',tts:'おいしい',
+   romaji:'Oishii!',
+   zh:'好吃！',en:'Delicious!',
+   tip_zh:'说出这句话，厨师和服务员都会非常开心。',
+   tip_en:'Say this and watch the chef beam with pride.'},
+  {id:'r10',cat:'restaurant',lv:'useful',
+   jp:'持ち帰りにできますか？',tts:'持ち帰りにできますか',
+   romaji:'Mochikaeri ni dekimasu ka?',
+   zh:'可以打包带走吗？',en:'Can I get this to go?',
+   tip_zh:'也可以说「テイクアウトできますか？」，两种说法都通用。',
+   tip_en:'Also understood: テイクアウトできますか (can I take out?) — both expressions work everywhere.'},
+  {id:'r11',cat:'restaurant',lv:'useful',
+   jp:'お冷やください',tts:'お冷やください',
+   romaji:'Ohiya kudasai',
+   zh:'请给我冷水',en:'Cold water, please',
+   tip_zh:'日本很多餐厅会自动提供免费冷水，如果没有可以主动开口要。「お水をください」也可以。',
+   tip_en:'Many Japanese restaurants serve free cold water automatically; ask if they don\'t. お水をください also works.'},
+  {id:'r12',cat:'restaurant',lv:'useful',
+   jp:'禁煙席をお願いします',tts:'禁煙席をお願いします',
+   romaji:'Kin\'enseki wo onegaishimasu',
+   zh:'请给我禁烟区的座位',en:'Non-smoking table, please',
+   tip_zh:'喜欢吸烟区说「喫煙席をお願いします」。很多小餐厅没有分区，届时灵活处理。',
+   tip_en:'For smoking section: 喫煙席をお願いします. Many small restaurants have no separation.'},
+  {id:'r13',cat:'restaurant',lv:'useful',
+   jp:'メニューを見せてください',tts:'メニューを見せてください',
+   romaji:'Menyū wo misete kudasai',
+   zh:'请给我看菜单',en:'May I see the menu?',
+   tip_zh:'很多现代日本餐厅改用平板点餐或二维码菜单，直接扫一扫即可。',
+   tip_en:'Many modern Japanese restaurants now use tablets or QR code menus — scan first, ask if you can\'t.'},
+  {id:'r14',cat:'restaurant',lv:'nice',
+   jp:'フォークをください',tts:'フォークをください',
+   romaji:'Fōku wo kudasai',
+   zh:'请给我叉子',en:'Fork, please',
+   tip_zh:'在日本使用筷子当然最地道，但需要叉子完全没问题，大多数餐厅都有备用。',
+   tip_en:'Using chopsticks earns you kudos, but asking for a fork is totally fine — most places have them.'},
+  {id:'r15',cat:'restaurant',lv:'nice',
+   jp:'おかわりをください',tts:'おかわりをください',
+   romaji:'Okawari wo kudasai',
+   zh:'请再给我添一份（饮料/饭）',en:'Refill please / One more serving please',
+   tip_zh:'很多日本定食套餐提供免费米饭续碗，大声说「おかわり！」是完全没问题的。',
+   tip_en:'Many set meals (定食) include free rice refills — calling out おかわり！ is perfectly natural.'},
+
+  // ────── 购物 ──────
+  {id:'s01',cat:'shopping',lv:'ess',
+   jp:'いくらですか？',tts:'いくらですか',
+   romaji:'Ikura desu ka?',
+   zh:'多少钱？',en:'How much is it?'},
+  {id:'s02',cat:'shopping',lv:'ess',
+   jp:'これをください',tts:'これをください',
+   romaji:'Kore wo kudasai',
+   zh:'我要这个',en:'I\'ll take this one'},
+  {id:'s03',cat:'shopping',lv:'useful',
+   jp:'試着してもいいですか？',tts:'試着してもいいですか',
+   romaji:'Shichaku shite mo ii desu ka?',
+   zh:'可以试穿吗？',en:'May I try this on?'},
+  {id:'s04',cat:'shopping',lv:'useful',
+   jp:'カードで払えますか？',tts:'カードで払えますか',
+   romaji:'Kādo de haraemasu ka?',
+   zh:'可以刷卡吗？',en:'Can I pay by card?',
+   tip_zh:'很多日本小店、神社、居酒屋只收现金！出发前记得准备日元现金。',
+   tip_en:'Many small shops, shrines, and izakayas are cash-only — always carry yen.'},
+  {id:'s05',cat:'shopping',lv:'useful',
+   jp:'免税できますか？',tts:'免税できますか',
+   romaji:'Menzei dekimasu ka?',
+   zh:'可以免税吗？',en:'Can I get a tax refund?',
+   tip_zh:'外国游客购物满5000日元（含税）可以申请免税退税，记得带护照。',
+   tip_en:'Foreign visitors get tax-free on purchases over ¥5,000. Bring your passport.'},
+  {id:'s06',cat:'shopping',lv:'useful',
+   jp:'袋はいりません',tts:'袋はいりません',
+   romaji:'Fukuro wa irimasen',
+   zh:'不需要袋子（自备环保袋）',en:'No bag needed',
+   tip_zh:'日本现在大多数便利店和超市对塑料袋收费，主动说不需要会留下好印象。',
+   tip_en:'Japan now charges for plastic bags — proactively declining is eco-friendly and appreciated.'},
+  {id:'s07',cat:'shopping',lv:'nice',
+   jp:'ちょっと考えます',tts:'ちょっと考えます',
+   romaji:'Chotto kangaemasu',
+   zh:'我再想想（礼貌的不买信号）',en:'I\'ll think about it a bit',
+   tip_zh:'比直接说「いりません」（不需要）更礼貌的婉拒方式，日本人一听就明白你不打算买了。',
+   tip_en:'The polite way to say "not buying" without being blunt. Everyone understands.'},
+  {id:'s08',cat:'shopping',lv:'useful',
+   jp:'他の色はありますか？',tts:'他の色はありますか',
+   romaji:'Hoka no iro wa arimasu ka?',
+   zh:'有其他颜色吗？',en:'Do you have other colors?'},
+  {id:'s09',cat:'shopping',lv:'useful',
+   jp:'Mサイズはありますか？',tts:'Mサイズはありますか',
+   romaji:'Emu saizu wa arimasu ka?',
+   zh:'有M码吗？',en:'Do you have size M?',
+   tip_zh:'S/M/L/LL 在日本通用，尺码标注与国内可能有差异，最好试穿确认。',
+   tip_en:'S/M/L/LL sizing is standard in Japan, but sizing may differ from home — always try things on.'},
+  {id:'s10',cat:'shopping',lv:'useful',
+   jp:'領収書をください',tts:'領収書をください',
+   romaji:'Ryōshūsho wo kudasai',
+   zh:'请给我收据（正式发票）',en:'Receipt please (formal/tax receipt)',
+   tip_zh:'普通收据叫「レシート」，正式发票叫「領収書」（可以填公司名），出差报销时用后者。',
+   tip_en:'"レシート" is a standard receipt; "領収書" is a formal tax receipt you can have made out to a company.'},
+  {id:'s11',cat:'shopping',lv:'useful',
+   jp:'ポイントカードはお持ちですか？',tts:'ポイントカードはお持ちですか',
+   romaji:'Pointo kādo wa omochi desu ka?',
+   zh:'您有积分卡吗？',en:'Do you have a points card?',
+   tip_zh:'这句话在日本便利店和药妆店几乎每次结账都会听到，知道是什么意思可以避免尬在收银台前。「ありません」（没有）就够了。',
+   tip_en:'You\'ll hear this at EVERY convenience store and drugstore checkout. Just say ありません (I don\'t have one).'},
+  {id:'s12',cat:'shopping',lv:'nice',
+   jp:'プレゼント用に包んでもらえますか？',tts:'プレゼント用に包んでもらえますか',
+   romaji:'Purezento yō ni tsutsunde moraemasu ka?',
+   zh:'可以帮我做礼品包装吗？',en:'Could you gift-wrap this?',
+   tip_zh:'日本礼品包装非常精美，很多百货店和礼品店提供免费礼盒服务，主动开口就好。',
+   tip_en:'Japanese gift wrapping is an art form — department stores often do it beautifully and for free.'},
+  {id:'s13',cat:'shopping',lv:'nice',
+   jp:'〜を探しているんですが',tts:'化粧品売り場を探しているんですが',
+   romaji:'... wo sagashite irun desu ga',
+   zh:'我在找〜（婉转询问的说法）',en:'I\'m looking for ~ (politely indirect)',
+   tip_zh:'比「〜はどこですか」更自然柔和，留给对方更多空间来帮你。播放示范的是"找化妆品区"。',
+   tip_en:'Softer and more natural than a direct question — leaves room for the other person to help you fully.'},
+
+  // ────── 交通 ──────
+  {id:'t01',cat:'transport',lv:'ess',
+   jp:'〜まで、いくらですか？',tts:'駅まで、いくらですか',
+   romaji:'... made, ikura desu ka?',
+   zh:'到〜多少钱？（出租车）',en:'How much to ~? (taxi)',
+   tip_zh:'日本出租车按表计价，不砍价，非常规范。播放示范的是"到车站多少钱"。',
+   tip_en:'Japanese taxis are strictly metered — no bargaining needed. Play demos "to the station."'},
+  {id:'t02',cat:'transport',lv:'ess',
+   jp:'〜に行きたいんですが',tts:'東京駅に行きたいんですが',
+   romaji:'... ni ikitain desu ga',
+   zh:'我想去〜（语气比直接要求更柔和）',en:'I\'d like to go to ~ (polite, softer tone)',
+   tip_zh:'「んですが」结尾比直接说「〜へ行きたいです」听起来更自然、更礼貌，是地道口语。',
+   tip_en:'The んですが ending is softer and more natural than です alone — locals use it constantly.'},
+  {id:'t03',cat:'transport',lv:'ess',
+   jp:'ここで降ろしてください',tts:'ここで降ろしてください',
+   romaji:'Koko de oroshite kudasai',
+   zh:'请在这里停（出租车）',en:'Please drop me off here (taxi)'},
+  {id:'t04',cat:'transport',lv:'useful',
+   jp:'〜は何番線ですか？',tts:'新宿は何番線ですか',
+   romaji:'... wa nan-bansen desu ka?',
+   zh:'去〜是几号站台？',en:'Which platform for ~?'},
+  {id:'t05',cat:'transport',lv:'useful',
+   jp:'終電は何時ですか？',tts:'終電は何時ですか',
+   romaji:'Shūden wa nanji desu ka?',
+   zh:'末班车几点？',en:'When is the last train?',
+   tip_zh:'东京末班车通常在午夜12点前后，错过只能打车，费用较高，要留意。',
+   tip_en:'Tokyo\'s last trains are around midnight — miss it and you\'re taking an expensive taxi.'},
+  {id:'t06',cat:'transport',lv:'useful',
+   jp:'すみません、降ります',tts:'すみません、降ります',
+   romaji:'Sumimasen, orimasu',
+   zh:'不好意思，我要下车了（挤电车必备）',en:'Excuse me, I\'m getting off (crowded train)',
+   tip_zh:'在拥挤的电车里需要穿过人群下车时说这句，周围的人会自动给你让路。',
+   tip_en:'Say this on a packed train — people will step aside to let you through.'},
+  {id:'t07',cat:'transport',lv:'nice',
+   jp:'ICカードはどこで買えますか？',tts:'ICカードはどこで買えますか',
+   romaji:'IC kādo wa doko de kaemasu ka?',
+   zh:'哪里可以买IC交通卡？',en:'Where can I buy an IC card (transit card)?',
+   tip_zh:'Suica / PASMO 交通卡几乎通用所有电车和公交，还能在便利店、自动贩卖机支付，强烈推荐第一天就买。',
+   tip_en:'Suica/PASMO works on almost all trains, buses, and even convenience stores — buy one on day 1.'},
+  {id:'t08',cat:'transport',lv:'ess',
+   jp:'迷子になりました',tts:'迷子になりました',
+   romaji:'Maigo ni narimashita',
+   zh:'我迷路了',en:'I\'m lost',
+   tip_zh:'在日本迷路可以直接去最近的派出所（交番）求助，警察会非常热心地帮你指路。',
+   tip_en:'If lost in Japan, head to the nearest 交番 (koban, police box) — officers will patiently help you.'},
+  {id:'t09',cat:'transport',lv:'useful',
+   jp:'この電車は〜に止まりますか？',tts:'この電車は新宿に止まりますか',
+   romaji:'Kono densha wa ... ni tomarimasu ka?',
+   zh:'这趟电车停〜吗？',en:'Does this train stop at ~?',
+   tip_zh:'上车前确认，避免坐错特急列车（特急不停普通站）。播放示范"这车停新宿吗"。',
+   tip_en:'Critical before boarding — express trains skip many stations. Play demos "Does this stop at Shinjuku?"'},
+  {id:'t10',cat:'transport',lv:'useful',
+   jp:'〜番出口はどこですか？',tts:'A番出口はどこですか',
+   romaji:'... ban deguchi wa doko desu ka?',
+   zh:'〜号出口在哪？',en:'Where is exit ~?',
+   tip_zh:'东京大站（新宿、涩谷等）出口多达几十个，选错出口会走很多冤枉路，约好地方时一定要确认出口号码。',
+   tip_en:'Tokyo mega-stations have 30–50+ exits — always confirm the exit number when meeting someone.'},
+  {id:'t11',cat:'transport',lv:'useful',
+   jp:'バス停はどこですか？',tts:'バス停はどこですか',
+   romaji:'Basu-tei wa doko desu ka?',
+   zh:'公交车站在哪里？',en:'Where is the bus stop?'},
+  {id:'t12',cat:'transport',lv:'useful',
+   jp:'タクシーを呼んでもらえますか？',tts:'タクシーを呼んでもらえますか',
+   romaji:'Takushī wo yonde moraemasu ka?',
+   zh:'可以帮我叫出租车吗？',en:'Could you call a taxi for me?',
+   tip_zh:'日本出租车不能随意在路边拦，需要在指定候车点或让酒店/餐厅帮忙呼叫。也可以用タクシーアプリ（滴滴日本版：GO App）。',
+   tip_en:'Japan taxis don\'t stop anywhere — use designated stands or ask staff to call. The GO app works like DiDi.'},
+
+  // ────── 住宿 ──────
+  {id:'h01',cat:'hotel',lv:'ess',
+   jp:'チェックインをお願いします',tts:'チェックインをお願いします',
+   romaji:'Chekku-in wo onegaishimasu',
+   zh:'我要入住',en:'Check-in, please'},
+  {id:'h02',cat:'hotel',lv:'ess',
+   jp:'Wi-Fiのパスワードは何ですか？',tts:'Wi-Fiのパスワードは何ですか',
+   romaji:'Waifai no pasuwādo wa nan desu ka?',
+   zh:'Wi-Fi密码是什么？',en:'What\'s the Wi-Fi password?'},
+  {id:'h03',cat:'hotel',lv:'useful',
+   jp:'チェックアウトをお願いします',tts:'チェックアウトをお願いします',
+   romaji:'Chekku-auto wo onegaishimasu',
+   zh:'我要退房',en:'Check-out, please'},
+  {id:'h04',cat:'hotel',lv:'useful',
+   jp:'タオルをもう一枚もらえますか？',tts:'タオルをもう一枚もらえますか',
+   romaji:'Taoru wo mō ichimai moraemasu ka?',
+   zh:'可以再给我一条毛巾吗？',en:'Could I get one more towel?'},
+  {id:'h05',cat:'hotel',lv:'useful',
+   jp:'〜が壊れています',tts:'エアコンが壊れています',
+   romaji:'... ga kowarete imasu',
+   zh:'〜坏掉了',en:'The ~ is broken',
+   tip_zh:'例：「エアコンが壊れています」（空调坏了）。播放示范的是"空调坏了"。',
+   tip_en:'E.g. エアコンが壊れています = The air con is broken. Play demos this.'},
+  {id:'h06',cat:'hotel',lv:'useful',
+   jp:'荷物を預かってもらえますか？',tts:'荷物を預かってもらえますか',
+   romaji:'Nimotsu wo azukatte moraemasu ka?',
+   zh:'可以帮我寄存行李吗？',en:'Could you hold my luggage?',
+   tip_zh:'入住前或退房后行李寄存非常常见，大多数日本酒店提供免费寄存服务。',
+   tip_en:'Very common in Japan — most hotels offer free luggage storage before check-in or after check-out.'},
+  {id:'h07',cat:'hotel',lv:'useful',
+   jp:'朝食は何時からですか？',tts:'朝食は何時からですか',
+   romaji:'Chōshoku wa nanji kara desu ka?',
+   zh:'早餐几点开始？',en:'What time does breakfast start?'},
+  {id:'h08',cat:'hotel',lv:'useful',
+   jp:'近くにコンビニはありますか？',tts:'近くにコンビニはありますか',
+   romaji:'Chikaku ni konbini wa arimasu ka?',
+   zh:'附近有便利店吗？',en:'Is there a convenience store nearby?',
+   tip_zh:'日本便利店（7-11、全家、罗森）24小时营业，可以买到热食、ATM取钱、购买各种票券，是旅行的绝对刚需。',
+   tip_en:'Japanese konbini (7-Eleven, FamilyMart, Lawson) are open 24/7 — hot food, ATM, tickets. Essential!'},
+  {id:'h09',cat:'hotel',lv:'nice',
+   jp:'両替はできますか？',tts:'両替はできますか',
+   romaji:'Ryōgae wa dekimasu ka?',
+   zh:'可以换钱吗？',en:'Can I exchange currency here?',
+   tip_zh:'酒店汇率通常偏差，建议去邮局ATM（ゆうちょ）或7-11 ATM取现，手续费低且接受外国银行卡。',
+   tip_en:'Hotel rates are poor — use Japan Post (ゆうちょ) or 7-Eleven ATMs instead; they accept foreign cards.'},
+  {id:'h10',cat:'hotel',lv:'nice',
+   jp:'〜時にモーニングコールをお願いします',tts:'七時にモーニングコールをお願いします',
+   romaji:'... ji ni mōningu kōru wo onegaishimasu',
+   zh:'请在〜点打叫醒电话',en:'Wake-up call at ~ please',
+   tip_zh:'例：「七時に〜」（7点叫醒我）。播放示范的是早7点的叫醒电话请求。',
+   tip_en:'E.g. 七時に = at 7am. Play demos requesting a 7am wake-up call.'},
+
+  // ────── 紧急 ──────
+  {id:'e01',cat:'emergency',lv:'ess',
+   jp:'助けてください！',tts:'助けてください',
+   romaji:'Tasukete kudasai!',
+   zh:'救命！请帮帮我！',en:'Help! / Please help me!'},
+  {id:'e02',cat:'emergency',lv:'ess',
+   jp:'警察を呼んでください',tts:'警察を呼んでください',
+   romaji:'Keisatsu wo yonde kudasai',
+   zh:'请叫警察',en:'Please call the police'},
+  {id:'e03',cat:'emergency',lv:'ess',
+   jp:'救急車を呼んでください',tts:'救急車を呼んでください',
+   romaji:'Kyūkyūsha wo yonde kudasai',
+   zh:'请叫救护车',en:'Please call an ambulance'},
+  {id:'e04',cat:'emergency',lv:'ess',
+   jp:'財布を盗まれました',tts:'財布を盗まれました',
+   romaji:'Saifu wo nusumaremashita',
+   zh:'我的钱包被偷了',en:'My wallet was stolen'},
+  {id:'e05',cat:'emergency',lv:'ess',
+   jp:'気分が悪いです',tts:'気分が悪いです',
+   romaji:'Kibun ga warui desu',
+   zh:'我身体不舒服',en:'I\'m not feeling well'},
+  {id:'e06',cat:'emergency',lv:'ess',
+   jp:'病院はどこですか？',tts:'病院はどこですか',
+   romaji:'Byōin wa doko desu ka?',
+   zh:'医院在哪里？',en:'Where is the hospital?'},
+  {id:'e07',cat:'emergency',lv:'ess',
+   jp:'パスポートをなくしました',tts:'パスポートをなくしました',
+   romaji:'Pasupōto wo nakushimashita',
+   zh:'我的护照丢了',en:'I lost my passport',
+   tip_zh:'第一时间去最近的警察局报案，拿到「遺失届受理証明書」，然后联系中国大使馆/领事馆补办。',
+   tip_en:'File a police report first (get the 遺失届受理証明書), then contact your embassy/consulate.'},
+  {id:'e08',cat:'emergency',lv:'ess',
+   jp:'薬局はどこですか？',tts:'薬局はどこですか',
+   romaji:'Yakkyoku wa doko desu ka?',
+   zh:'药店在哪里？',en:'Where is the pharmacy?',
+   tip_zh:'日本药妆店（マツキヨ、薬王堂、ウエルシア等）非常多，药品种类齐全。处方药需要医院，常备药直接买即可。',
+   tip_en:'Drug stores (マツキヨ etc.) are everywhere in Japan with excellent OTC medicine. Prescription drugs need a doctor.'},
+  {id:'e09',cat:'emergency',lv:'ess',
+   jp:'〜が痛いです',tts:'お腹が痛いです',
+   romaji:'... ga itai desu',
+   zh:'〜很痛',en:'My ~ hurts',
+   tip_zh:'例：「お腹が痛いです」（肚子痛）、「頭が痛いです」（头痛）。播放示范的是"肚子痛"。',
+   tip_en:'お腹が痛い = stomachache / 頭が痛い = headache. Play demos the stomachache version.'},
+  {id:'e10',cat:'emergency',lv:'useful',
+   jp:'中国大使館はどこですか？',tts:'中国大使館はどこですか',
+   romaji:'Chūgoku taishikan wa doko desu ka?',
+   zh:'中国大使馆在哪里？',en:'Where is the Chinese embassy?',
+   tip_zh:'驻日中国大使馆位于东京文京区。领事馆另有大阪、福冈、名古屋、札幌等分馆。护照丢失或遇重大问题时第一时间联系。',
+   tip_en:'Chinese Embassy is in Tokyo\'s Bunkyō ward. Consulates also in Osaka, Fukuoka, Nagoya, Sapporo.'},
+
+  // ────── 潮流俚语 ──────
+  {id:'sl01',cat:'slang',lv:'slang',
+   jp:'やばい！',tts:'やばい',
+   romaji:'Yabai!',
+   zh:'绝了！/ 糟透了！（看语气）',en:'Awesome! / Oh no! (context decides)',
+   tip_zh:'原意"危险"，现在正面负面都能用，是当代日语最万能的感叹词。「このラーメンやばい！」= 这拉面绝了！',
+   tip_en:'Originally "dangerous/risky," now Japan\'s #1 exclamation for both good and bad. Context is everything.'},
+  {id:'sl02',cat:'slang',lv:'slang',
+   jp:'草（www）',tts:'草',
+   romaji:'Kusa',
+   zh:'哈哈哈（相当于LOL）',en:'LOL / hahaha (internet origin)',
+   tip_zh:'起源：「w」= 笑（warau），「www」连在一起像草地，于是"草"就成了笑的象征。年轻人日常对话也会直接说「草」。',
+   tip_en:'"w" = warau (laugh) → "www" looks like grass (草) → 草 = laughing. Now used in real speech too.'},
+  {id:'sl03',cat:'slang',lv:'slang',
+   jp:'ガチで',tts:'ガチで',
+   romaji:'Gachi de',
+   zh:'认真的 / 真的不开玩笑',en:'Seriously / For real / Not kidding',
+   tip_zh:'「ガチ」来自相扑术语"ガチンコ"（全力对决），现在泛指"真心的、货真价实的"。「ガチ恋」= 真心喜欢某位偶像。',
+   tip_en:'From sumo "gachinko" (all-out match). ガチで美味しい = This is genuinely delicious.'},
+  {id:'sl04',cat:'slang',lv:'slang',
+   jp:'めっちゃ〜',tts:'めっちゃ楽しい',
+   romaji:'Meccha ...',
+   zh:'超级〜 / 非常〜',en:'Super ~ / Really ~ / So ~',
+   tip_zh:'发源于关西（大阪）方言，现在全国年轻人都用。「めっちゃ楽しい！」= 超好玩！（播放示范）',
+   tip_en:'Originally Osaka dialect, now nationwide youth slang. めっちゃ楽しい! = So much fun!'},
+  {id:'sl05',cat:'slang',lv:'slang',
+   jp:'まじ？',tts:'まじ',
+   romaji:'Maji?',
+   zh:'真的假的？/ 不会吧？',en:'Seriously? / No way? / Really?',
+   tip_zh:'「まじで！」语气更强，相当于"哇！不会吧！"。仅限朋友之间使用，对长辈不合适。',
+   tip_en:'"まじで！" is stronger — like "No WAY!" Casual only, don\'t use with elders.'},
+  {id:'sl06',cat:'slang',lv:'slang',
+   jp:'〜じゃん',tts:'いいじゃん',
+   romaji:'... jan',
+   zh:'〜不是吗？/ 不挺好的嘛（寻求共鸣）',en:'Isn\'t it ~? / Come on, it\'s ~ right?',
+   tip_zh:'「いいじゃん！」= 挺好的嘛！以东京为主的关东地区常用，是寻求对方认同的语气词。',
+   tip_en:'"いいじゃん！" = Looks good to me! Common in Tokyo for seeking agreement or reassurance.'},
+  {id:'sl07',cat:'slang',lv:'slang',
+   jp:'テンション上がる',tts:'テンション上がる',
+   romaji:'Tenshon agaru',
+   zh:'心情高涨 / 嗨起来了',en:'Getting hyped / Mood is rising',
+   tip_zh:'⚠️ 经典和制英语陷阱！日语的「テンション」是"情绪/心情"，不是英语的"紧张感"。千万别搞混！',
+   tip_en:'⚠️ False friend! Japanese テンション means "mood/excitement," NOT "tension" — classic trap for English speakers.'},
+  {id:'sl08',cat:'slang',lv:'slang',
+   jp:'うまい！',tts:'うまい',
+   romaji:'Umai!',
+   zh:'好吃！（口语、男性化）',en:'Delicious! (casual, often masculine)',
+   tip_zh:'比「おいしい」更随意，男性常用。女性一般用「おいしい！」。两者都对，语感不同。',
+   tip_en:'"おいしい" is neutral/polite; "うまい" is casual and masculine-leaning. Both are correct.'},
+  {id:'sl09',cat:'slang',lv:'slang',
+   jp:'なるほど',tts:'なるほど',
+   romaji:'Naruhodo',
+   zh:'原来如此 / 我懂了',en:'I see / That makes sense',
+   tip_zh:'⚠️ 对上司或长辈频繁说这个会显得不尊重，建议换成「そうですね」或「おっしゃる通りです」。',
+   tip_en:'⚠️ Over-using "naruhodo" with superiors sounds dismissive. Use そうですね or おっしゃる通りです instead.'},
+  {id:'sl10',cat:'slang',lv:'slang',
+   jp:'お疲れ様です',tts:'お疲れ様です',
+   romaji:'Otsukaresama desu',
+   zh:'您辛苦了 / 今天也辛苦了',en:'Good work / Thanks for your effort',
+   tip_zh:'日本文化核心用语！遇到工作的人、结束一天、向服务员道别都可以说。比「ありがとう」更能表达对对方付出的理解。',
+   tip_en:'A cultural cornerstone — say it to anyone finishing their shift. Deeply appreciated and very Japanese.'},
+  {id:'sl11',cat:'slang',lv:'slang',
+   jp:'〜すぎる',tts:'かわいすぎる',
+   romaji:'... sugiru',
+   zh:'太〜了（程度很深）',en:'Way too ~ / Extremely ~',
+   tip_zh:'极其常用！「かわいすぎる！」（太可爱了！）「辛すぎる！」（太辣了！）「安すぎる！」（太便宜了！）',
+   tip_en:'Apply to almost anything: かわいすぎる (too cute!), 辛すぎる (way too spicy!), 安すぎる (so cheap!)'},
+  {id:'sl12',cat:'slang',lv:'slang',
+   jp:'ノリがいい',tts:'ノリがいい',
+   romaji:'Nori ga ii',
+   zh:'好相处 / 很有气氛 / 配合度高',en:'Good vibe / Easy-going / Fun to be around',
+   tip_zh:'「ノリ」= 节奏感/气氛。说某人「ノリがいい」是很高的夸奖——活泼、爽快、很会玩。',
+   tip_en:'Saying someone has いいノリ is a genuine compliment: spontaneous, fun, easy to vibe with.'},
+  {id:'sl13',cat:'slang',lv:'slang',
+   jp:'エモい',tts:'エモい',
+   romaji:'Emoi',
+   zh:'有感觉 / 感人 / 氛围感强 / 有美学',en:'Emotional / Aesthetic / Touching / Atmospheric',
+   tip_zh:'来自英语"emotional"，但日语用法更广。美丽的夕阳、复古的咖啡馆、伤感的歌曲都可以说「エモい」，是Z世代最喜欢的词之一。',
+   tip_en:'From English "emotional," but broader in Japanese. A nostalgic café, beautiful sunset, or sad song can all be エモい.'},
+  {id:'sl14',cat:'slang',lv:'slang',
+   jp:'鬼〜（おに〜）',tts:'鬼かわいい',
+   romaji:'Oni ...',
+   zh:'超级〜 / 鬼级别的〜（比めっちゃ更夸张）',en:'Insanely ~ / Ridiculously ~ (stronger than めっちゃ)',
+   tip_zh:'「鬼」本意是"鬼/妖怪"，用作程度副词时表示"超出常规的强度"。「鬼かわいい」= 美到爆！比めっちゃ语气更猛。播放示范这句话。',
+   tip_en:'鬼 (demon) used as an intensifier = off-the-charts level. 鬼かわいい = insanely cute! Even stronger than めっちゃ.'},
+  {id:'sl15',cat:'slang',lv:'slang',
+   jp:'しんどい',tts:'しんどい',
+   romaji:'Shindoi',
+   zh:'好累 / 好难受 / 撑不住了',en:'Exhausted / Rough / Can\'t take it anymore',
+   tip_zh:'发源于关西方言，现在全国通用。既可以表示身体疲惫（「今日しんどい」= 今天好累），也可以表示心理压力（「仕事がしんどい」= 工作好累心）。',
+   tip_en:'From Kansai dialect, now nationwide. Covers physical exhaustion AND emotional drain — very versatile.'},
+  {id:'sl16',cat:'slang',lv:'slang',
+   jp:'コスパいい',tts:'コスパがいい',
+   romaji:'Kosupa ii',
+   zh:'性价比高 / 值！',en:'Great value / Good cost-performance',
+   tip_zh:'「コスパ」= cost performance（成本效益）。「このランチ、コスパいい！」= 这午饭好值！反之「コスパ悪い」= 性价比差。',
+   tip_en:'コスパ = cost-performance. このランチ、コスパいい！ = Great value lunch! コスパ悪い = rip-off.'},
+  {id:'sl17',cat:'slang',lv:'slang',
+   jp:'神！',tts:'神',
+   romaji:'Kami!',
+   zh:'绝了！/ 神级！/ 太牛了！',en:'God-tier! / Absolutely incredible!',
+   tip_zh:'日本年轻人把「神」（神明）用作形容词，表示"达到神级水准的"。「神対応」= 完美处理，「神回」= 神级名场面，「あの店、神！」= 那家店绝了！',
+   tip_en:'Using 神 (god) as an adjective = beyond amazing. 神対応 = perfect handling. あの店、神！= That place is god-tier!'},
+  {id:'sl18',cat:'slang',lv:'slang',
+   jp:'ぴえん',tts:'ぴえん',
+   romaji:'Pien',
+   zh:'呜呜呜 / 好难过（可爱哭泣声）',en:'Boo-hoo / I\'m sad (cute crying onomatopoeia)',
+   tip_zh:'模拟哭泣声的Z世代网络词。可以用于真实的轻微难过，也可以自嘲搞笑。「ぴえんを超えてパオン」（比ぴえん还惨，相当于"哭死了"）是更夸张的升级版。',
+   tip_en:'Gen-Z onomatopoeia for light crying or mock sadness. The upgrade: ぴえんを超えてパオン = total meltdown (like sobbing elephant).'},
+  {id:'sl19',cat:'slang',lv:'slang',
+   jp:'チルい',tts:'チルい',
+   romaji:'Chiru-i',
+   zh:'很放松 / 很惬意 / 随性的',en:'Chill / Relaxed / Low-key',
+   tip_zh:'来自英语"chill"，日语加上「い」变成形容词。「チルい音楽」= 让人放松的音乐，「今日はチルく過ごしたい」= 今天想悠哉度过。',
+   tip_en:'From English "chill" + い ending = Japanese adjective. チルい音楽 = chill music. チルく過ごす = spending time laid-back.'},
+  {id:'sl20',cat:'slang',lv:'slang',
+   jp:'タイパ',tts:'タイパがいい',
+   romaji:'Taipa',
+   zh:'时间性价比 / 高效利用时间',en:'Time efficiency / Time ROI',
+   tip_zh:'「タイムパフォーマンス」的缩写，是コスパ的时间版本。日本Z世代追求タイパ，所以倍速看剧、跳着读书越来越流行。',
+   tip_en:'Short for "time performance" — the time equivalent of コスパ. Drives Gen-Z\'s obsession with 2× video speed and skimming books.'},
+];
+
+// ═══════════════════════════════════════════════════════
+//  Culture tips
+// ═══════════════════════════════════════════════════════
+const CULTURE = [
+  {title_zh:'🙅 绝对不要给小费',title_en:'🙅 Never Tip',
+   body_zh:'日本是无小费文化。餐厅、酒店、出租车给小费反而会让对方困惑甚至感到冒犯。优质服务是职业骄傲，不需要额外报酬。',
+   body_en:'Tipping is not done in Japan — at restaurants, hotels, or taxis. It can cause confusion or even offend. Excellent service is a point of professional pride.'},
+  {title_zh:'🚶 扶梯靠哪边站',title_en:'🚶 Escalator Etiquette',
+   body_zh:'东京原则上靠左站，右侧留给赶路的人；大阪相反，靠右站。站错边可能会被投来奇怪的眼神。',
+   body_en:'Tokyo: stand left, walk right. Osaka: stand right, walk left. Getting it wrong earns you some side-eye.'},
+  {title_zh:'🚬 路边禁止吸烟',title_en:'🚬 No Street Smoking',
+   body_zh:'很多日本城市路边吸烟是违法的，最高可罚款。请寻找专用的室外吸烟区（喫煙所）。',
+   body_en:'Street smoking is banned in most city centers and can be fined. Look for designated 喫煙所 (smoking areas).'},
+  {title_zh:'💴 随时备好现金',title_en:'💴 Always Carry Cash',
+   body_zh:'即使到了2025年，很多小餐厅、神社、居酒屋只收现金。建议随时备有一万日元左右的零钱。',
+   body_en:'Even in 2025, many small restaurants, shrines and izakayas are cash-only. Keep ¥10,000+ in cash at all times.'},
+  {title_zh:'🥢 筷子禁忌',title_en:'🥢 Chopstick Taboos',
+   body_zh:'筷子竖插在饭碗里（类似祭祀烧香）和用筷子互相夹食物传递（像骨灰交接仪式），都是葬礼仪式才有的动作，绝对避免。',
+   body_en:'Never stick chopsticks upright in rice (funeral rite) or pass food chopstick-to-chopstick (ash-passing ceremony). Both are deeply taboo.'},
+  {title_zh:'🛁 温泉礼仪',title_en:'🛁 Onsen Rules',
+   body_zh:'进温泉前必须彻底淋浴。通常需要裸浴（不穿泳衣）。有纹身者在大多数公共温泉会被拒绝入场。',
+   body_en:'Shower thoroughly before entering. Swimsuits are forbidden in most onsen. Tattoos may result in being turned away.'},
+  {title_zh:'🗑️ 几乎没有垃圾桶',title_en:'🗑️ No Public Trash Cans',
+   body_zh:'日本街头垃圾桶极少。请自备小袋装垃圾带走，便利店门口通常有垃圾桶可以使用。',
+   body_en:'Japan has almost no street-side trash cans. Carry your trash with you — convenience stores usually have bins.'},
+  {title_zh:'🚇 电车里保持安静',title_en:'🚇 Quiet on Trains',
+   body_zh:'电车上需要保持安静，手机设成静音，避免大声通话或喧哗。优先席（博爱座）旁禁止使用手机。',
+   body_en:'Stay quiet on trains — phone on silent, no loud calls. Near priority seats, avoid using your phone entirely.'},
+];
+
+// ═══════════════════════════════════════════════════════
+//  TTS — multi-voice + speed control
+// ═══════════════════════════════════════════════════════
+let ttsReady = false;
+let jaVoices = [];
+let selectedVoice = null;
+let playRate = 0.84;
+let playPitch = 1.0;
+
+function friendlyName(v) {
+  const n = v.name;
+  if (/Nanami/i.test(n))  return '南波美 ♀';
+  if (/Keita/i.test(n))   return '圭太 ♂';
+  if (/Haruka/i.test(n))  return '遥 ♀';
+  if (/Kyoko/i.test(n))   return 'Kyoko ♀';
+  if (/O-ren/i.test(n))   return 'O-ren ♀';
+  if (/Google/i.test(n))  return 'Google ♀';
+  if (/Hattori/i.test(n)) return '服部 ♂';
+  // strip long suffixes like " - Japanese (Japan)" or " Online (Natural)"
+  return n.replace(/Microsoft /i,'').replace(/ Online.*$/i,'').replace(/ - .*/,'').trim();
+}
+
+function renderVoiceBar() {
+  const bar = document.getElementById('voice-bar');
+  const chips = document.getElementById('voice-chips');
+  const tip = document.getElementById('vb-tip');
+  bar.classList.add('visible');
+
+  if (jaVoices.length === 0) {
+    chips.innerHTML = `<span class="voice-chip active">${t('voice.system')}</span>`;
+    tip.innerHTML = t('voice.tip'); tip.classList.add('show');
+  } else if (jaVoices.length === 1) {
+    chips.innerHTML = `<span class="voice-chip active">${friendlyName(jaVoices[0])}</span>`;
+    tip.innerHTML = t('voice.tip'); tip.classList.add('show');
+  } else {
+    chips.innerHTML = jaVoices.map((v, i) =>
+      `<button class="voice-chip${v === selectedVoice ? ' active' : ''}" onclick="selectVoice(${i})">${friendlyName(v)}</button>`
+    ).join('');
+    tip.classList.remove('show');
+  }
+  // re-apply i18n to labelled buttons
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const v = t(el.dataset.i18n); if (v) el.textContent = v;
+  });
+}
+
+function selectVoice(idx) {
+  selectedVoice = jaVoices[idx];
+  renderVoiceBar();
+  speakText('こんにちは、よろしくお願いします');
+}
+
+function setSpeed(btn) {
+  playRate = parseFloat(btn.dataset.rate);
+  btn.closest('.speed-btns').querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function setPitch(btn) {
+  playPitch = parseFloat(btn.dataset.pitch);
+  btn.closest('.speed-btns').querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  // preview the new pitch immediately
+  speakText('こんにちは');
+}
+
+function initTTS() {
+  const el = document.getElementById('tts-status');
+  if (!window.speechSynthesis) {
+    el.textContent = t('tts.no'); el.classList.add('unavail'); return;
+  }
+  const setup = () => {
+    const all = speechSynthesis.getVoices();
+    jaVoices = all.filter(v => v.lang.startsWith('ja'));
+    selectedVoice = jaVoices[0] || null;
+    ttsReady = all.length > 0;
+    el.textContent = t(ttsReady ? 'tts.ok' : 'tts.no');
+    if (!ttsReady) el.classList.add('unavail');
+    else renderVoiceBar();
+  };
+  if (speechSynthesis.getVoices().length > 0) setup();
+  else speechSynthesis.onvoiceschanged = setup;
+}
+
+function _makeSpeech(text) {
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'ja-JP';
+  u.rate = playRate;
+  u.pitch = playPitch;
+  if (selectedVoice) u.voice = selectedVoice;
+  return u;
+}
+
+function speakCard(btn) {
+  if (!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = _makeSpeech(btn.dataset.tts);
+  btn.classList.add('speaking');
+  u.onend = u.onerror = () => btn.classList.remove('speaking');
+  speechSynthesis.speak(u);
+}
+
+function speakText(text) {
+  if (!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(_makeSpeech(text));
+}
+
+// ═══════════════════════════════════════════════════════
+//  State
+// ═══════════════════════════════════════════════════════
+let activeTab = 'all';
+let searchQ = '';
+let favorites = JSON.parse(localStorage.getItem('jp-favs') || '[]');
+
+// ═══════════════════════════════════════════════════════
+//  Tabs
+// ═══════════════════════════════════════════════════════
+function renderTabs() {
+  document.getElementById('tabs').innerHTML = CATS.map(c => {
+    const cls = ['tab', c === 'fav' ? 'fav-tab' : '', c === activeTab ? 'active' : ''].filter(Boolean).join(' ');
+    return `<button class="${cls}" onclick="setTab('${c}')">${t('cat.' + c)}</button>`;
+  }).join('');
+}
+
+function setTab(cat) { activeTab = cat; renderTabs(); filterPhrases(); }
+
+// ═══════════════════════════════════════════════════════
+//  Phrase cards
+// ═══════════════════════════════════════════════════════
+function filterPhrases() {
+  const grid = document.getElementById('phrase-grid');
+  const q = searchQ.toLowerCase();
+  let list = PHRASES;
+
+  if (activeTab === 'fav') list = list.filter(p => favorites.includes(p.id));
+  else if (activeTab !== 'all') list = list.filter(p => p.cat === activeTab);
+
+  if (q) list = list.filter(p =>
+    p.jp.includes(q) || p.romaji.toLowerCase().includes(q) ||
+    p.zh.includes(q) || p.en.toLowerCase().includes(q)
+  );
+
+  if (!list.length) {
+    const msg = (activeTab === 'fav' && !q) ? t('empty.fav') : t('empty.search');
+    const icon = activeTab === 'fav' ? '⭐' : '🔍';
+    grid.innerHTML = `<div class="empty-state"><div class="ei">${icon}</div><p>${msg}</p></div>`;
+    return;
+  }
+  grid.innerHTML = list.map(renderCard).join('');
+}
+
+function renderCard(p) {
+  const isFav = favorites.includes(p.id);
+  const isSlang = p.lv === 'slang';
+  const isEss = p.lv === 'ess';
+  const cardCls = ['p-card', isSlang ? 'slang-card' : '', isEss ? 'essential-card' : ''].filter(Boolean).join(' ');
+
+  const badges = [];
+  if (isEss) badges.push(`<span class="badge badge-ess">${t('badge.ess')}</span>`);
+  if (isSlang) badges.push(`<span class="badge badge-slang">${t('badge.slang')}</span>`);
+  if (p.lv === 'casual') badges.push(`<span class="badge badge-casual">${t('badge.casual')}</span>`);
+
+  const tipKey = lang === 'zh' ? 'tip_zh' : 'tip_en';
+  const tip = p[tipKey];
+
+  // escape single quotes in tts string for data attribute
+  const ttsEsc = (p.tts || p.jp).replace(/"/g, '&quot;');
+
+  return `<div class="${cardCls}">
+  ${badges.length ? `<div class="card-badges">${badges.join('')}</div>` : ''}
+  <div class="jp-text">${p.jp}</div>
+  <div class="romaji">${p.romaji}</div>
+  <div class="meanings">
+    <div class="meaning-row"><span class="meaning-flag">🇨🇳</span><span class="meaning-text">${p.zh}</span></div>
+    <div class="meaning-row"><span class="meaning-flag">🌐</span><span class="meaning-text">${p.en}</span></div>
+  </div>
+  ${tip ? `<div class="tip-block">${tip}</div>` : ''}
+  <div class="card-actions">
+    <button class="speak-btn" data-tts="${ttsEsc}" onclick="speakCard(this)">${t('btn.speak')}</button>
+    <button class="fav-btn ${isFav ? 'on' : ''}" data-id="${p.id}" onclick="toggleFav(this)">⭐</button>
+  </div>
+</div>`;
+}
+
+function toggleFav(btn) {
+  const id = btn.dataset.id;
+  if (favorites.includes(id)) {
+    favorites = favorites.filter(f => f !== id);
+    btn.classList.remove('on');
+  } else {
+    favorites.push(id);
+    btn.classList.add('on');
+  }
+  localStorage.setItem('jp-favs', JSON.stringify(favorites));
+  if (activeTab === 'fav') filterPhrases();
+}
+
+// ═══════════════════════════════════════════════════════
+//  Culture tips
+// ═══════════════════════════════════════════════════════
+function renderCulture() {
+  const tk = lang === 'zh' ? 'title_zh' : 'title_en';
+  const bk = lang === 'zh' ? 'body_zh' : 'body_en';
+  document.getElementById('culture-grid').innerHTML = CULTURE.map(c =>
+    `<div class="culture-card"><div class="culture-title">${c[tk]}</div><div class="culture-body">${c[bk]}</div></div>`
+  ).join('');
+}
+
+// ═══════════════════════════════════════════════════════
+//  Flashcard drill
+// ═══════════════════════════════════════════════════════
+let drillQueue = [], drillIdx = 0, drillFlipped = false, drillOk = 0, drillTotal = 0;
+
+function buildDrillPool() {
+  let pool = activeTab === 'fav' ? PHRASES.filter(p => favorites.includes(p.id))
+           : activeTab === 'all' ? [...PHRASES]
+           : PHRASES.filter(p => p.cat === activeTab);
+  if (searchQ) {
+    const q = searchQ.toLowerCase();
+    pool = pool.filter(p => p.jp.includes(q) || p.romaji.toLowerCase().includes(q) || p.zh.includes(q));
+  }
+  return pool;
+}
+
+function startDrill() {
+  const pool = buildDrillPool();
+  if (!pool.length) { alert(t('drill.empty')); return; }
+  drillQueue = pool.sort(() => Math.random() - 0.5);
+  drillIdx = 0; drillOk = 0; drillTotal = 0; drillFlipped = false;
+  document.getElementById('drill-overlay').classList.add('open');
+  showDrillCard();
+}
+
+function showDrillCard() {
+  const prog = drillQueue.length ? drillIdx / drillQueue.length * 100 : 100;
+  document.getElementById('drill-bar').style.width = prog + '%';
+
+  if (drillIdx >= drillQueue.length) {
+    document.getElementById('drill-jp').textContent = '🎉';
+    document.getElementById('drill-back').style.display = 'none';
+    document.getElementById('drill-btns').style.display = 'none';
+    document.getElementById('drill-hint').textContent = '';
+    document.getElementById('drill-score').textContent =
+      t('drill.done').replace('%ok', drillOk).replace('%total', drillTotal);
+    return;
+  }
+
+  const p = drillQueue[drillIdx];
+  document.getElementById('drill-jp').textContent = p.jp;
+  document.getElementById('drill-back').style.display = 'none';
+  document.getElementById('drill-btns').style.display = 'none';
+  document.getElementById('drill-hint').textContent = t('drill.tap');
+  document.getElementById('drill-score').textContent =
+    t('drill.score').replace('%ok', drillOk).replace('%total', drillTotal);
+  drillFlipped = false;
+}
+
+function flipDrill() {
+  if (drillFlipped || drillIdx >= drillQueue.length) return;
+  drillFlipped = true;
+  const p = drillQueue[drillIdx];
+  document.getElementById('drill-romaji').textContent = p.romaji;
+  document.getElementById('drill-meaning').textContent = lang === 'zh' ? p.zh : p.en;
+  document.getElementById('drill-back').style.display = 'block';
+  document.getElementById('drill-btns').style.display = 'flex';
+  document.getElementById('drill-hint').textContent = '';
+  speakText(p.tts || p.jp);
+}
+
+function drillAnswer(ok) { drillTotal++; if (ok) drillOk++; drillIdx++; showDrillCard(); }
+function drillNext() { drillIdx++; showDrillCard(); }
+function closeDrill() { document.getElementById('drill-overlay').classList.remove('open'); }
+
+// ═══════════════════════════════════════════════════════
+//  Search
+// ═══════════════════════════════════════════════════════
+document.getElementById('search').addEventListener('input', function () {
+  searchQ = this.value.trim();
+  filterPhrases();
+});
+
+// ═══════════════════════════════════════════════════════
+//  Boot
+// ═══════════════════════════════════════════════════════
+initTTS();
+applyLang();
+</script>
+</body>
+</html>

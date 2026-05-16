@@ -1,0 +1,167 @@
+:root {
+  --primary: #6366f1;
+  --primary-dark: #4f46e5;
+  --secondary: #8b5cf6;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --bg: #0f172a;
+  --bg-card: #1e293b;
+  --bg-elevated: #334155;
+  --text: #f1f5f9;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --border: #334155;
+  --radius: 16px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+  --transition: 0.2s ease;
+  --font: 'Segoe UI','PingFang SC','Microsoft YaHei','Noto Sans SC',system-ui,sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  min-height: 100vh;
+  font-size: 16px;
+}
+
+.nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(15,23,42,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem; height: 64px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nav-brand { display:flex; align-items:center; gap:12px; text-decoration:none; color:var(--text); }
+.nav-logo { font-size: 1.8rem; }
+.nav-title {
+  font-size: 1.2rem; font-weight: 700; letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #6366f1, #a78bfa);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.nav-actions { display:flex; align-items:center; gap:12px; }
+.nav-back {
+  color: var(--text-muted); text-decoration:none; font-size:0.9rem;
+  padding: 6px 12px; border-radius:8px; transition: var(--transition);
+}
+.nav-back:hover { color:var(--text); background:var(--bg-elevated); }
+
+.lang-toggle {
+  background: var(--bg-elevated); border: 1px solid var(--border);
+  color: var(--text); padding: 6px 16px; border-radius: 20px;
+  font-size: 0.9rem; font-weight: 600; cursor: pointer;
+  transition: var(--transition); font-family: var(--font);
+}
+.lang-toggle:hover { background: var(--primary); border-color: var(--primary); }
+
+.hero {
+  padding: 5rem 2rem 3rem; text-align: center;
+  max-width: 800px; margin: 0 auto;
+}
+.hero-badge {
+  display: inline-block;
+  background: rgba(99,102,241,0.15); color: #a78bfa;
+  border: 1px solid rgba(99,102,241,0.3);
+  padding: 4px 16px; border-radius: 20px;
+  font-size: 0.85rem; font-weight: 600;
+  letter-spacing: 0.05em; text-transform: uppercase;
+  margin-bottom: 1.5rem;
+}
+.hero h1 {
+  font-size: clamp(2rem,5vw,3.2rem); font-weight: 800;
+  line-height: 1.2; letter-spacing: -0.03em; margin-bottom: 1.2rem;
+}
+.gradient-text {
+  background: linear-gradient(135deg, #6366f1, #a78bfa, #06b6d4);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+.hero p { font-size: 1.1rem; color: var(--text-muted); max-width: 520px; margin: 0 auto; }
+
+.modules-section { padding: 2rem; max-width: 1200px; margin: 0 auto; }
+.section-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--text-secondary); }
+.modules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px,1fr));
+  gap: 1.5rem;
+}
+
+.module-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden; transition: var(--transition);
+}
+.module-card:hover { transform: translateY(-4px); border-color: var(--primary); box-shadow: var(--shadow); }
+.module-card.coming-soon { opacity: 0.55; pointer-events: none; }
+
+.module-card-header {
+  padding: 1.5rem;
+  background: linear-gradient(135deg, var(--c1, #6366f1), var(--c2, #8b5cf6));
+  display: flex; align-items: center; gap: 1rem;
+}
+.module-icon { font-size: 2.4rem; line-height: 1; }
+.module-card-title { font-size: 1.05rem; font-weight: 700; color: #fff; }
+.module-card-subtitle { font-size: 0.82rem; color: rgba(255,255,255,0.75); }
+.module-card-body { padding: 1.2rem 1.5rem; }
+.module-card-desc { font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.2rem; }
+.module-card-footer { display:flex; align-items:center; justify-content:space-between; }
+
+.badge { padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+.badge-ready { background: rgba(16,185,129,0.15); color: #10b981; }
+.badge-soon { background: rgba(100,116,139,0.15); color: #64748b; }
+
+.btn {
+  padding: 8px 18px; border-radius: 8px;
+  font-size: 0.88rem; font-weight: 600; cursor: pointer;
+  border: none; transition: var(--transition);
+  font-family: var(--font);
+  display: inline-flex; align-items: center; gap: 6px;
+  text-decoration: none;
+}
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-outline {
+  background: transparent; border: 1px solid var(--border);
+  color: var(--text-muted); cursor: not-allowed;
+}
+
+/* ── PWA Install Banner ── */
+.install-banner {
+  position: fixed; bottom: 1.2rem; left: 1rem; right: 1rem; z-index: 500;
+  background: var(--bg-card);
+  border: 1px solid var(--primary);
+  border-radius: 14px; padding: 12px 14px;
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.55);
+  animation: slideUp 0.35s cubic-bezier(0.34,1.56,0.64,1) both;
+  max-width: 520px; margin: 0 auto;
+}
+@keyframes slideUp {
+  from { transform: translateY(120%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+.install-banner-icon { font-size: 1.4rem; flex-shrink: 0; }
+.install-banner-text { flex: 1; font-size: 0.83rem; color: var(--text-secondary); line-height: 1.4; }
+.install-banner-btn {
+  background: var(--primary); color: #fff; border: none;
+  padding: 7px 16px; border-radius: 8px; font-size: 0.85rem;
+  font-weight: 700; cursor: pointer; white-space: nowrap;
+  font-family: var(--font); flex-shrink: 0;
+  transition: var(--transition);
+}
+.install-banner-btn:hover { background: var(--primary-dark); }
+.install-banner-close {
+  background: none; border: none; color: var(--text-muted);
+  font-size: 1rem; cursor: pointer; padding: 4px; flex-shrink: 0;
+  transition: var(--transition);
+}
+.install-banner-close:hover { color: var(--text); }
+
+footer {
+  text-align: center; padding: 2.5rem 2rem;
+  color: var(--text-muted); font-size: 0.88rem;
+  border-top: 1px solid var(--border); margin-top: 4rem;
+}

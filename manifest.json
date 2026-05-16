@@ -1,0 +1,47 @@
+{
+  "name": "学习中心 · Learn Hub",
+  "short_name": "学习中心",
+  "description": "家庭互动学习平台，涵盖人工智能、汉诺塔、日语旅行等互动模块。",
+  "lang": "zh-CN",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0f172a",
+  "theme_color": "#6366f1",
+  "categories": ["education"],
+  "icons": [
+    {
+      "src": "icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "icons/icon-maskable.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "机器学习",
+      "short_name": "ML",
+      "url": "./modules/ml-basics/index.html",
+      "icons": [{ "src": "icons/icon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "汉诺塔",
+      "short_name": "汉诺塔",
+      "url": "./modules/hanoi/index.html",
+      "icons": [{ "src": "icons/icon.svg", "sizes": "any" }]
+    },
+    {
+      "name": "日语速成",
+      "short_name": "日语",
+      "url": "./modules/japanese-travel/index.html",
+      "icons": [{ "src": "icons/icon.svg", "sizes": "any" }]
+    }
+  ]
+}

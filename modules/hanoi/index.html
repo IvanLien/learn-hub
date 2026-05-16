@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>汉诺塔 · Tower of Hanoi</title>
+<style>
+:root {
+  --bg:#0f172a;--card:#1e293b;--el:#334155;
+  --text:#f1f5f9;--muted:#94a3b8;--border:#334155;
+  --primary:#6366f1;--success:#10b981;--warn:#f59e0b;--danger:#ef4444;
+  --font:'Segoe UI','PingFang SC','Microsoft YaHei',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;font-size:16px;}
+
+/* NAV */
+nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(15,23,42,.93);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  padding:0 1.5rem;height:60px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.back-btn{color:var(--muted);text-decoration:none;font-size:.9rem;padding:5px 10px;border-radius:8px;transition:.2s;}
+.back-btn:hover{color:var(--text);background:var(--el);}
+.nav-center{font-size:1rem;font-weight:700;}
+.lang-btn{
+  background:var(--el);border:1px solid var(--border);color:var(--text);
+  padding:5px 14px;border-radius:20px;font-size:.85rem;font-weight:600;
+  cursor:pointer;transition:.2s;font-family:var(--font);
+}
+.lang-btn:hover{background:var(--primary);border-color:var(--primary);}
+
+/* HERO */
+.hero{padding:2rem 1.5rem 1rem;text-align:center;max-width:700px;margin:0 auto;}
+.hero h1{font-size:clamp(1.6rem,4vw,2.4rem);font-weight:800;margin-bottom:.5rem;}
+.hero h1 .hl{
+  background:linear-gradient(135deg,#f59e0b,#ef4444);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero p{font-size:.95rem;color:var(--muted);max-width:480px;margin:0 auto;}
+
+/* DISK SELECTOR */
+.disk-selector{
+  display:flex;align-items:center;justify-content:center;gap:.6rem;
+  padding:.8rem 1rem;flex-wrap:wrap;
+}
+.ds-label{font-size:.9rem;font-weight:700;color:var(--muted);margin-right:.4rem;}
+.ds-btn{
+  width:38px;height:38px;border-radius:50%;border:2px solid transparent;
+  font-size:.9rem;font-weight:800;cursor:pointer;transition:.2s;
+  background:var(--el);color:var(--muted);font-family:var(--font);
+}
+.ds-btn:hover{transform:scale(1.12);}
+.ds-btn.active{border-color:var(--warn);color:var(--warn);background:rgba(245,158,11,.15);}
+
+/* GAME CANVAS AREA */
+.game-wrap{
+  display:flex;justify-content:center;padding:.5rem 1rem 0;
+}
+#hanoi-canvas{
+  border-radius:16px;background:#0f172a;border:1px solid var(--border);
+  width:100%;max-width:750px;height:auto;cursor:pointer;
+  box-shadow:0 0 40px rgba(0,0,0,.5);
+  touch-action:manipulation;
+}
+
+/* CONTROLS */
+.controls{
+  display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap;
+  padding:.8rem 1rem;max-width:750px;margin:0 auto;
+}
+.btn{
+  padding:9px 18px;border-radius:10px;font-size:.88rem;font-weight:700;
+  cursor:pointer;border:none;font-family:var(--font);
+  transition:.2s;display:inline-flex;align-items:center;gap:.4rem;
+}
+.btn-hint{background:rgba(245,158,11,.2);color:#fbbf24;border:1px solid rgba(245,158,11,.4);}
+.btn-hint:hover{background:rgba(245,158,11,.35);}
+.btn-undo{background:var(--el);color:var(--text);}
+.btn-undo:hover{background:var(--border);}
+.btn-auto{background:rgba(99,102,241,.2);color:#a78bfa;border:1px solid rgba(99,102,241,.4);}
+.btn-auto:hover{background:rgba(99,102,241,.35);}
+.btn-reset{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3);}
+.btn-reset:hover{background:rgba(239,68,68,.3);}
+.btn:disabled{opacity:.35;cursor:not-allowed;}
+
+/* STATS */
+.stats-bar{
+  display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap;
+  padding:.4rem 1rem;max-width:750px;margin:.2rem auto 0;
+}
+.stat-box{
+  background:var(--card);border:1px solid var(--border);border-radius:10px;
+  padding:.5rem .9rem;text-align:center;min-width:90px;
+}
+.stat-val{font-size:1.4rem;font-weight:800;line-height:1.2;}
+.stat-lbl{font-size:.72rem;color:var(--muted);margin-top:.1rem;}
+.stat-progress{min-width:200px;padding:.5rem 1rem;}
+.progress-track{height:8px;background:var(--el);border-radius:4px;margin:.4rem 0;overflow:hidden;}
+.progress-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#6366f1,#10b981);transition:width .4s ease;width:0;}
+.progress-label{font-size:.75rem;color:var(--muted);text-align:center;}
+
+/* STATUS BAR */
+.status-bar{
+  text-align:center;font-size:.9rem;min-height:2.2rem;
+  padding:.5rem 1rem;max-width:750px;margin:.2rem auto 0;
+  border-radius:10px;transition:.3s;
+}
+.status-bar.ready{color:var(--muted);}
+.status-bar.ok{background:rgba(16,185,129,.1);color:#34d399;border:1px solid rgba(16,185,129,.2);}
+.status-bar.bad{background:rgba(239,68,68,.1);color:#f87171;border:1px solid rgba(239,68,68,.2);}
+.status-bar.win{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.3);font-size:1.1rem;font-weight:700;}
+.status-bar.hint{background:rgba(245,158,11,.1);color:#fbbf24;border:1px solid rgba(245,158,11,.2);}
+
+/* WALKTHROUGH SECTION */
+.section{max-width:750px;margin:1.5rem auto 0;padding:0 1rem;}
+.section-hd{
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;padding:.8rem 1rem;
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  user-select:none;
+}
+.section-hd h2{font-size:1rem;font-weight:700;display:flex;align-items:center;gap:.5rem;}
+.section-hd .chevron{transition:.3s;color:var(--muted);}
+.section-hd.open .chevron{transform:rotate(180deg);}
+.section-body{
+  display:none;margin-top:.4rem;
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:1.2rem;
+}
+.section-body.open{display:block;}
+
+/* WALKTHROUGH */
+.wt-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:.8rem;flex-wrap:wrap;gap:.5rem;
+}
+.wt-progress{font-size:.85rem;color:var(--muted);}
+.wt-nav{display:flex;gap:.5rem;}
+.wt-step-display{
+  display:grid;grid-template-columns:60px 1fr 60px;
+  align-items:center;gap:.5rem;min-height:80px;
+}
+.wt-arrow-col{text-align:center;}
+.wt-arrow{font-size:2rem;color:var(--muted);}
+.wt-arrow.active{color:var(--warn);cursor:pointer;}
+.wt-step-card{
+  background:var(--el);border-radius:10px;padding:1rem;
+  text-align:center;
+}
+.wt-disk-visual{display:flex;align-items:center;justify-content:center;gap:.4rem;margin:.5rem 0;}
+.wt-disk-chip{
+  border-radius:6px;padding:3px 10px;font-size:.82rem;font-weight:700;
+  color:#fff;
+}
+.wt-move-text{font-size:.88rem;color:var(--text);line-height:1.5;}
+.wt-peg-name{font-weight:700;}
+
+/* MATH SECTION */
+.math-table{width:100%;border-collapse:separate;border-spacing:0;font-size:.88rem;}
+.math-table th{background:var(--el);padding:.6rem .8rem;text-align:left;font-weight:700;border-bottom:2px solid var(--border);}
+.math-table td{padding:.6rem .8rem;border-bottom:1px solid var(--border);}
+.math-table tr:last-child td{border-bottom:none;}
+.math-table .highlight{color:var(--warn);font-weight:700;}
+.formula-box{
+  background:#0f172a;border:1px solid var(--border);border-left:3px solid var(--warn);
+  border-radius:0 10px 10px 0;padding:.8rem 1.1rem;
+  font-family:'Cascadia Code','Consolas',monospace;font-size:.9rem;
+  line-height:2;margin:.8rem 0;
+}
+.formula-box .kw{color:#a78bfa;}
+.formula-box .vl{color:var(--warn);}
+
+/* STRATEGY SECTION */
+.strategy-step{
+  display:flex;align-items:flex-start;gap:.8rem;
+  padding:.7rem;background:var(--el);border-radius:10px;margin-bottom:.5rem;
+}
+.step-num{
+  width:28px;height:28px;border-radius:50%;flex-shrink:0;
+  background:var(--primary);color:#fff;font-weight:800;font-size:.85rem;
+  display:flex;align-items:center;justify-content:center;
+}
+.step-text{font-size:.88rem;line-height:1.6;}
+.step-formula{
+  background:#0f172a;border-radius:6px;padding:.3rem .7rem;
+  font-family:monospace;font-size:.82rem;margin-top:.4rem;
+  color:var(--warn);display:inline-block;
+}
+
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border);margin-top:2rem;}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="back-btn" href="../../index.html">← <span data-i18n="nav.back">返回首页</span></a>
+  <span class="nav-center" data-i18n="nav.title">汉诺塔</span>
+  <button class="lang-btn" onclick="toggleLang()" data-i18n="nav.lang">English</button>
+</nav>
+
+<section class="hero">
+  <h1><span class="hl" data-i18n="hero.title">汉诺塔</span></h1>
+  <p data-i18n="hero.desc">一个古老的数学游戏。学会规律，掌握策略，从2个圆盘到10个圆盘，挑战自己！</p>
+</section>
+
+<!-- DISK SELECTOR -->
+<div class="disk-selector">
+  <span class="ds-label" data-i18n="ds.label">圆盘数量：</span>
+  <button id="ds2"  class="ds-btn" onclick="setDisks(2)">2</button>
+  <button id="ds3"  class="ds-btn active" onclick="setDisks(3)">3</button>
+  <button id="ds4"  class="ds-btn" onclick="setDisks(4)">4</button>
+  <button id="ds5"  class="ds-btn" onclick="setDisks(5)">5</button>
+  <button id="ds6"  class="ds-btn" onclick="setDisks(6)">6</button>
+  <button id="ds7"  class="ds-btn" onclick="setDisks(7)">7</button>
+  <button id="ds8"  class="ds-btn" onclick="setDisks(8)">8</button>
+  <button id="ds9"  class="ds-btn" onclick="setDisks(9)">9</button>
+  <button id="ds10" class="ds-btn" onclick="setDisks(10)">10</button>
+</div>
+
+<!-- GAME -->
+<div class="game-wrap">
+  <canvas id="hanoi-canvas" width="750" height="370"></canvas>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <button class="btn btn-hint" onclick="showHint()" id="btn-hint" data-i18n="btn.hint">💡 提示</button>
+  <button class="btn btn-undo" onclick="doUndo()" id="btn-undo" data-i18n="btn.undo">↩ 撤销</button>
+  <button class="btn btn-auto" onclick="doAutoSolve()" id="btn-auto" data-i18n="btn.auto">⚡ 自动解答</button>
+  <button class="btn btn-reset" onclick="doReset()" id="btn-reset" data-i18n="btn.reset">↺ 重置</button>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-box">
+    <div class="stat-val" id="s-moves">0</div>
+    <div class="stat-lbl" data-i18n="stat.moves">当前步数</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-val" id="s-min" style="color:var(--success);">7</div>
+    <div class="stat-lbl" data-i18n="stat.minimum">最少步数</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-val" id="s-disks" style="color:var(--warn);">3</div>
+    <div class="stat-lbl" data-i18n="stat.disks">圆盘数</div>
+  </div>
+  <div class="stat-box stat-progress">
+    <div class="progress-label" id="prog-label" data-i18n="stat.progress">进度 0%</div>
+    <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
+  </div>
+</div>
+
+<!-- STATUS -->
+<div class="status-bar ready" id="status-bar" data-i18n="status.ready">点击左侧柱子选中圆盘，再点目标柱子移动</div>
+
+<!-- WALKTHROUGH -->
+<div class="section">
+  <div class="section-hd" onclick="toggleSection('wt')">
+    <h2>📖 <span data-i18n="wt.title">逐步解法教程</span></h2>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="section-body" id="body-wt">
+    <div class="wt-header">
+      <span class="wt-progress" id="wt-prog">0 / 0</span>
+      <div class="wt-nav">
+        <button class="btn btn-undo" onclick="wtPrev()" id="wt-prev" style="padding:6px 14px;">← <span data-i18n="wt.prev">上一步</span></button>
+        <button class="btn btn-hint" onclick="wtNext()" id="wt-next" style="padding:6px 14px;"><span data-i18n="wt.next">下一步</span> →</button>
+        <button class="btn btn-reset" onclick="wtReset()" style="padding:6px 14px;font-size:.78rem;" data-i18n="wt.restart">从头看</button>
+      </div>
+    </div>
+    <div class="wt-step-display">
+      <div class="wt-arrow-col">
+        <div class="wt-arrow active" onclick="wtPrev()">‹</div>
+      </div>
+      <div class="wt-step-card" id="wt-card">
+        <div style="color:var(--muted);font-size:.9rem;" data-i18n="wt.start">点击"下一步"开始查看解法</div>
+      </div>
+      <div class="wt-arrow-col">
+        <div class="wt-arrow active" onclick="wtNext()">›</div>
+      </div>
+    </div>
+    <div style="margin-top:.8rem;font-size:.82rem;color:var(--muted);" data-i18n="wt.note">
+      💡 教程演示与上方游戏独立，不影响你的游戏进度。
+    </div>
+  </div>
+</div>
+
+<!-- MATH SECTION -->
+<div class="section">
+  <div class="section-hd" onclick="toggleSection('math')">
+    <h2>📐 <span data-i18n="math.title">神奇的数学规律</span></h2>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="section-body" id="body-math">
+    <div class="formula-box">
+<span class="kw">最少步数</span> = <span class="vl">2ⁿ − 1</span>   （n = 圆盘个数）</div>
+    <table class="math-table">
+      <thead>
+        <tr>
+          <th data-i18n="math.col.n">圆盘数 n</th>
+          <th data-i18n="math.col.moves">最少步数 (2ⁿ−1)</th>
+          <th data-i18n="math.col.time">若每秒走一步，需要</th>
+        </tr>
+      </thead>
+      <tbody id="math-tbody"></tbody>
+    </table>
+    <div style="margin-top:.8rem;padding:.7rem;background:var(--el);border-radius:8px;font-size:.84rem;color:var(--muted);" data-i18n="math.legend">
+      🏛️ 传说：古印度神庙有一座64个黄金圆盘的汉诺塔，僧侣们日夜不停地移动，当完成时世界将会终结。按每秒1步，需要约 5,849亿年——太阳系早就消失了！
+    </div>
+  </div>
+</div>
+
+<!-- STRATEGY SECTION -->
+<div class="section" style="margin-bottom:2rem;">
+  <div class="section-hd" onclick="toggleSection('strat')">
+    <h2>🧠 <span data-i18n="strat.title">秘诀：怎么想这道题？</span></h2>
+    <span class="chevron">▼</span>
+  </div>
+  <div class="section-body" id="body-strat">
+    <div id="strat-content"></div>
+  </div>
+</div>
+
+<footer><p data-i18n="footer">汉诺塔游戏 · 学习中心</p></footer>
+
+<script>
+// ============================================================
+// LANGUAGE
+// ============================================================
+const T = {
+zh:{
+  'nav.back':'返回首页','nav.title':'汉诺塔','nav.lang':'English',
+  'hero.title':'汉诺塔','hero.desc':'一个古老的数学游戏。学会规律，掌握策略，从2个圆盘到10个圆盘，挑战自己！',
+  'ds.label':'圆盘数量：',
+  'btn.hint':'💡 提示','btn.undo':'↩ 撤销','btn.auto':'⚡ 自动解答','btn.reset':'↺ 重置',
+  'stat.moves':'当前步数','stat.minimum':'最少步数','stat.disks':'圆盘数',
+  'stat.progress':'进度',
+  'status.ready':'点击左侧柱子选中圆盘，再点目标柱子移动',
+  'status.selected':'已选中 %peg 柱的圆盘，点击目标柱移动',
+  'status.invalid':'不行！大圆盘不能放在小圆盘上面 ❌',
+  'status.empty':'这里没有圆盘',
+  'status.hint':'💡 提示：把 %from 柱顶部的圆盘移到 %to 柱',
+  'status.win.exact':'🌟 完美！你用了最少步数完成了！太厉害了！',
+  'status.win':'🎉 太棒了！你用了 %n 步完成！（最少需要 %m 步）',
+  'status.auto':'正在自动演示解法...',
+  'peg.a':'出发','peg.b':'中转','peg.c':'目标',
+  'wt.title':'逐步解法教程','wt.prev':'上一步','wt.next':'下一步','wt.restart':'从头看',
+  'wt.start':'点击"下一步"开始查看解法',
+  'wt.note':'💡 教程演示与上方游戏独立，不影响你的游戏进度。',
+  'wt.step':'第 %n 步，共 %total 步',
+  'wt.move':'将 %disk 号圆盘（%color）从 %from 柱移到 %to 柱',
+  'wt.done':'✅ 完成！所有圆盘都移到了目标柱子上。',
+  'math.title':'神奇的数学规律',
+  'math.col.n':'圆盘数 n','math.col.moves':'最少步数 (2ⁿ−1)','math.col.time':'若每秒走一步，需要',
+  'math.legend':'🏛️ 传说：古印度神庙有一座64个黄金圆盘的汉诺塔，僧侣们日夜不停地移动，当完成时世界将会终结。按每秒1步，需要约 5,849亿年——太阳系早就消失了！',
+  'strat.title':'秘诀：怎么想这道题？',
+  'footer':'汉诺塔游戏 · 学习中心',
+  'diskcolor':['红','橙','黄','绿','青','蓝','靛','紫','粉','紫红'],
+},
+en:{
+  'nav.back':'Home','nav.title':'Tower of Hanoi','nav.lang':'中文',
+  'hero.title':'Tower of Hanoi','hero.desc':'An ancient mathematical puzzle. Learn the pattern, master the strategy — from 2 disks to 10!',
+  'ds.label':'Disks:',
+  'btn.hint':'💡 Hint','btn.undo':'↩ Undo','btn.auto':'⚡ Auto-Solve','btn.reset':'↺ Reset',
+  'stat.moves':'Moves','stat.minimum':'Minimum','stat.disks':'Disks',
+  'stat.progress':'Progress',
+  'status.ready':'Click a peg to pick up its top disk, then click a destination peg',
+  'status.selected':'Selected the top disk on %peg peg — click destination',
+  'status.invalid':"Can't place a bigger disk on a smaller one ❌",
+  'status.empty':'No disk on that peg',
+  'status.hint':'💡 Hint: Move the top disk from %from peg to %to peg',
+  'status.win.exact':'🌟 Perfect! You solved it in the minimum number of moves!',
+  'status.win':'🎉 Great job! You solved it in %n moves! (Minimum: %m)',
+  'status.auto':'Auto-solving...',
+  'peg.a':'Start','peg.b':'Helper','peg.c':'Goal',
+  'wt.title':'Step-by-Step Tutorial','wt.prev':'Prev','wt.next':'Next','wt.restart':'Restart',
+  'wt.start':'Click "Next" to start the solution walkthrough',
+  'wt.note':'💡 This tutorial runs independently — it does not affect your game above.',
+  'wt.step':'Step %n of %total',
+  'wt.move':'Move disk %disk (%color) from the %from peg to the %to peg',
+  'wt.done':'✅ Done! All disks are on the Goal peg.',
+  'math.title':'The Amazing Math Pattern',
+  'math.col.n':'Disks n','math.col.moves':'Min moves (2ⁿ−1)','math.col.time':'At 1 move/sec',
+  'math.legend':'🏛️ Legend: An ancient Indian temple had a Tower of Hanoi with 64 golden disks. When the monks finish, the world will end. At 1 move per second, it would take ~585 billion years — long after the sun burns out!',
+  'strat.title':'The Secret: How to Think About It',
+  'footer':'Tower of Hanoi · Learn Hub',
+  'diskcolor':['Red','Orange','Yellow','Green','Cyan','Blue','Indigo','Violet','Pink','Purple'],
+},
+};
+
+let lang = localStorage.getItem('edu-lang') || 'zh';
+function t(k,vars){
+  let s=(T[lang]||{})[k]||k;
+  if(vars) Object.keys(vars).forEach(v=>{s=s.replace('%'+v,vars[v]);});
+  return s;
+}
+function applyLang(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const v=t(el.dataset.i18n);
+    if(v) el.textContent=v;
+  });
+  document.documentElement.lang=lang==='zh'?'zh-CN':'en';
+  buildMathTable();
+  buildStratContent();
+  updateWtCard();
+  updateStatus('ready');
+}
+function toggleLang(){
+  lang=lang==='en'?'zh':'en';
+  localStorage.setItem('edu-lang',lang);
+  applyLang();
+}
+
+// ============================================================
+// CANVAS & CONSTANTS
+// ============================================================
+const CW=750,CH=370;
+const PEG_X=[150,375,600];
+const BASE_Y=330,PEG_TOP=55;
+const PEG_H=BASE_Y-PEG_TOP;
+const DISK_H=22,DISK_GAP=3;
+const MIN_W=44,MAX_W=200;
+const COLORS=['#ef4444','#f97316','#eab308','#22c55e','#06b6d4','#3b82f6','#6366f1','#8b5cf6','#ec4899','#a855f7'];
+const PEG_KEYS=['a','b','c'];
+
+function diskW(d){
+  if(numDisks===1)return MAX_W;
+  return MIN_W+(d-1)*(MAX_W-MIN_W)/(numDisks-1);
+}
+function topY(peg,stackPos){
+  return BASE_Y-(stackPos+1)*(DISK_H+DISK_GAP);
+}
+
+// ============================================================
+// GAME STATE
+// ============================================================
+let numDisks=3;
+let pegs=[[],[],[]];
+let selectedPeg=-1;
+let moveCount=0;
+let history=[];
+let hintFrom=-1,hintTo=-1;
+let solved=false;
+let animating=false;
+let animState=null;
+let particles=[];
+let invalidPeg=-1,invalidTimer=null;
+let autoRunning=false;
+let rafId=null;
+
+function findDiskPeg(d){
+  for(let p=0;p<3;p++) if(pegs[p].includes(d)) return p;
+  return -1;
+}
+
+// ============================================================
+// HINT ALGORITHM (recursive — works from any valid state)
+// ============================================================
+function getHint(n,goal){
+  if(n===0) return null;
+  const lp=findDiskPeg(n);
+  if(lp===goal) return getHint(n-1,goal);
+  const helper=3-lp-goal;
+  let allOnHelper=true;
+  for(let d=1;d<n;d++) if(findDiskPeg(d)!==helper){allOnHelper=false;break;}
+  if(allOnHelper) return [lp,goal];
+  return getHint(n-1,helper);
+}
+
+// ============================================================
+// PRECOMPUTED OPTIMAL MOVES (for walkthrough)
+// ============================================================
+let optMoves=[];
+function computeOpt(n,from,to,via){
+  if(n===1){optMoves.push([from,to]);return;}
+  computeOpt(n-1,from,via,to);
+  optMoves.push([from,to]);
+  computeOpt(n-1,via,to,from);
+}
+
+// ============================================================
+// MOVE LOGIC
+// ============================================================
+function canPlace(from,to){
+  if(pegs[from].length===0)return false;
+  if(pegs[to].length===0)return true;
+  return pegs[from][pegs[from].length-1]<pegs[to][pegs[to].length-1];
+}
+
+function commitMove(from,to){
+  const d=pegs[from].pop();
+  pegs[to].push(d);
+  moveCount++;
+  history.push({from,to,d});
+  updateStats();
+  if(pegs[2].length===numDisks){
+    solved=true;
+    hintFrom=-1;hintTo=-1;selectedPeg=-1;
+    setTimeout(celebrate,150);
+    updateStatus(moveCount===(Math.pow(2,numDisks)-1)?'win.exact':'win');
+  }
+}
+
+// ============================================================
+// ANIMATED MOVE
+// ============================================================
+function startAnim(disk,from,to,onDone){
+  const fY=topY(from,pegs[from].length-1);
+  const tY=topY(to,pegs[to].length);
+  pegs[from].pop(); // visually removed during flight
+  animState={
+    disk,
+    sx:PEG_X[from],sy:fY,
+    ex:PEG_X[to],  ey:tY,
+    arcH:Math.max(90,Math.abs(PEG_X[to]-PEG_X[from])*0.55),
+    dur:Math.min(600,150+Math.abs(PEG_X[to]-PEG_X[from])*0.8),
+    t0:null,
+    cx:PEG_X[from],cy:fY,
+    onDone
+  };
+  animating=true;
+  ensureLoop();
+}
+
+function animatedMove(from,to){
+  return new Promise(res=>{
+    const disk=pegs[from][pegs[from].length-1];
+    startAnim(disk,from,to,()=>{
+      pegs[to].push(disk);
+      moveCount++;
+      history.push({from,to,d:disk});
+      updateStats();
+      if(pegs[2].length===numDisks){
+        solved=true;
+        setTimeout(celebrate,100);
+        updateStatus(moveCount===(Math.pow(2,numDisks)-1)?'win.exact':'win');
+      }
+      animating=false;
+      res();
+    });
+  });
+}
+
+// ============================================================
+// CONTROLS
+// ============================================================
+function showHint(){
+  if(solved||animating||autoRunning) return;
+  const h=getHint(numDisks,2);
+  if(!h) return;
+  hintFrom=h[0];hintTo=h[1];
+  selectedPeg=-1;
+  updateStatus('hint');
+  drawBoard();
+  clearTimeout(hintTimer);
+  hintTimer=setTimeout(()=>{hintFrom=-1;hintTo=-1;drawBoard();},3500);
+}
+let hintTimer=null;
+
+function doUndo(){
+  if(history.length===0||animating||autoRunning) return;
+  const last=history.pop();
+  pegs[last.to].pop();
+  pegs[last.from].push(last.d);
+  moveCount=Math.max(0,moveCount-1);
+  hintFrom=-1;hintTo=-1;selectedPeg=-1;
+  solved=false;particles=[];
+  updateStats();updateStatus('ready');drawBoard();
+}
+
+function doReset(){
+  if(autoRunning){autoRunning=false;}
+  initGame();
+  drawBoard();
+}
+
+async function doAutoSolve(){
+  if(animating||autoRunning) return;
+  // Reset to initial state first
+  initGame();
+  drawBoard();
+  await sleep(200);
+  autoRunning=true;
+  updateStatus('auto');
+  let steps=0;
+  while(pegs[2].length<numDisks&&steps<2000&&autoRunning){
+    const h=getHint(numDisks,2);
+    if(!h) break;
+    await animatedMove(h[0],h[1]);
+    drawBoard();
+    steps++;
+    await sleep(30);
+  }
+  autoRunning=false;
+}
+
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+// ============================================================
+// CANVAS INTERACTION
+// ============================================================
+function handleClick(e){
+  if(solved||animating||autoRunning) return;
+  const canvas=document.getElementById('hanoi-canvas');
+  const rect=canvas.getBoundingClientRect();
+  const sx=CW/rect.width;
+  const cx=(e.clientX-rect.left)*sx;
+  let peg=-1;
+  for(let p=0;p<3;p++){if(Math.abs(cx-PEG_X[p])<115){peg=p;break;}}
+  if(peg===-1) return;
+
+  if(selectedPeg===-1){
+    if(pegs[peg].length===0){updateStatus('empty');return;}
+    selectedPeg=peg;
+    hintFrom=-1;hintTo=-1;
+    updateStatus('selected');
+    drawBoard();
+  } else {
+    if(peg===selectedPeg){selectedPeg=-1;updateStatus('ready');drawBoard();return;}
+    if(canPlace(selectedPeg,peg)){
+      const from=selectedPeg;selectedPeg=-1;
+      hintFrom=-1;hintTo=-1;
+      const disk=pegs[from][pegs[from].length-1];
+      startAnim(disk,from,peg,()=>{
+        pegs[peg].push(disk);
+        moveCount++;history.push({from,to:peg,d:disk});
+        updateStats();
+        animating=false;
+        if(pegs[2].length===numDisks){
+          solved=true;
+          setTimeout(celebrate,150);
+          updateStatus(moveCount===(Math.pow(2,numDisks)-1)?'win.exact':'win');
+        } else {
+          updateStatus('ready');
+        }
+      });
+    } else {
+      invalidPeg=peg;
+      clearTimeout(invalidTimer);
+      invalidTimer=setTimeout(()=>{invalidPeg=-1;drawBoard();},500);
+      updateStatus('invalid');drawBoard();
+    }
+  }
+}
+
+function handleTouch(e){
+  e.preventDefault();
+  if(e.touches.length===1){
+    const t=e.touches[0];
+    handleClick({clientX:t.clientX,clientY:t.clientY});
+  }
+}
+
+// ============================================================
+// DRAWING
+// ============================================================
+function drawBoard(){
+  const canvas=document.getElementById('hanoi-canvas');
+  if(!canvas) return;
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,CW,CH);
+
+  // Background
+  ctx.fillStyle='#0f172a';
+  ctx.fillRect(0,0,CW,CH);
+
+  // Subtle grid dots
+  ctx.fillStyle='rgba(255,255,255,0.03)';
+  for(let x=30;x<CW;x+=30)for(let y=20;y<CH;y+=30){
+    ctx.beginPath();ctx.arc(x,y,1,0,Math.PI*2);ctx.fill();
+  }
+
+  // Base platform
+  const basGrad=ctx.createLinearGradient(20,BASE_Y,20,BASE_Y+12);
+  basGrad.addColorStop(0,'#334155');basGrad.addColorStop(1,'#1e293b');
+  ctx.fillStyle=basGrad;
+  roundRect(ctx,20,BASE_Y,CW-40,12,6);ctx.fill();
+
+  // Pegs
+  for(let p=0;p<3;p++){
+    const isSel=p===selectedPeg,isHF=p===hintFrom,isHT=p===hintTo,isInv=p===invalidPeg;
+    const color=isSel?'#818cf8':isHF?'#fbbf24':isHT?'#34d399':isInv?'#f87171':'#475569';
+    if(isSel||isHF||isHT){ctx.shadowBlur=18;ctx.shadowColor=color;}
+    const g=ctx.createLinearGradient(PEG_X[p]-5,0,PEG_X[p]+5,0);
+    g.addColorStop(0,color+'88');g.addColorStop(0.5,color);g.addColorStop(1,color+'88');
+    ctx.fillStyle=g;
+    ctx.fillRect(PEG_X[p]-5,PEG_TOP,10,PEG_H);
+    ctx.shadowBlur=0;
+
+    // Peg cap
+    ctx.beginPath();ctx.arc(PEG_X[p],PEG_TOP,7,0,Math.PI*2);
+    ctx.fillStyle=color;ctx.fill();
+
+    // Peg label
+    ctx.font='bold 13px '+getComputedStyle(document.body).fontFamily;
+    ctx.textAlign='center';ctx.textBaseline='top';
+    const names=[t('peg.a'),t('peg.b'),t('peg.c')];
+    ctx.fillStyle=p===0?'#94a3b8':p===2?'#34d399':'#64748b';
+    ctx.fillText(names[p],PEG_X[p],BASE_Y+16);
+
+    // Shake effect on invalid
+    if(isInv){
+      ctx.strokeStyle='#f87171';ctx.lineWidth=2;ctx.setLineDash([4,4]);
+      roundRect(ctx,PEG_X[p]-90,PEG_TOP-5,180,PEG_H+5,8);ctx.stroke();
+      ctx.setLineDash([]);
+    }
+  }
+
+  // Hint arrow
+  if(hintFrom>=0&&hintTo>=0){
+    drawArrow(ctx,PEG_X[hintFrom],PEG_X[hintTo]);
+  }
+
+  // Disks on pegs
+  for(let p=0;p<3;p++){
+    for(let i=0;i<pegs[p].length;i++){
+      const d=pegs[p][i];
+      if(animState&&animState.disk===d) continue;
+      const glow=(p===selectedPeg&&i===pegs[p].length-1);
+      drawDisk(ctx,d,PEG_X[p],topY(p,i),glow);
+    }
+  }
+
+  // Animating disk
+  if(animState&&animState.cx!==undefined){
+    drawDisk(ctx,animState.disk,animState.cx,animState.cy,true);
+  }
+
+  // Selection indicator
+  if(selectedPeg>=0&&pegs[selectedPeg].length>0){
+    const d=pegs[selectedPeg][pegs[selectedPeg].length-1];
+    const y=topY(selectedPeg,pegs[selectedPeg].length-1);
+    ctx.beginPath();
+    ctx.arc(PEG_X[selectedPeg],y-10,6,0,Math.PI*2);
+    ctx.fillStyle='#818cf8';ctx.fill();
+  }
+
+  // Particles
+  particles.forEach(p=>{
+    ctx.save();ctx.globalAlpha=p.life;
+    ctx.fillStyle=p.col;
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();
+    ctx.restore();
+  });
+}
+
+function drawDisk(ctx,d,cx,y,glow){
+  const w=diskW(d),h=DISK_H,r=h/2;
+  const col=COLORS[d-1];
+  ctx.save();
+  if(glow){ctx.shadowBlur=14;ctx.shadowColor=col;}
+  // Body
+  ctx.fillStyle=col;
+  roundRect(ctx,cx-w/2,y,w,h,r);ctx.fill();
+  // Highlight
+  ctx.fillStyle='rgba(255,255,255,0.18)';
+  roundRect(ctx,cx-w/2+2,y+2,w-4,h*0.4,r-1);ctx.fill();
+  // Bottom shadow
+  ctx.fillStyle='rgba(0,0,0,0.2)';
+  roundRect(ctx,cx-w/2+2,y+h*0.65,w-4,h*0.3,r-1);ctx.fill();
+  // Label
+  if(w>32){
+    ctx.fillStyle='rgba(255,255,255,0.92)';
+    ctx.font=`bold ${Math.min(13,h*0.55)}px sans-serif`;
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(d,cx,y+h/2);
+  }
+  ctx.restore();
+}
+
+function drawArrow(ctx,fx,tx){
+  const y=PEG_TOP-20;
+  const dir=tx>fx?1:-1;
+  ctx.save();
+  ctx.strokeStyle='#fbbf24';ctx.lineWidth=2.5;
+  ctx.shadowBlur=8;ctx.shadowColor='#fbbf24';
+  // Line
+  ctx.beginPath();ctx.moveTo(fx,y);ctx.lineTo(tx,y);ctx.stroke();
+  // Arrowhead
+  ctx.beginPath();
+  ctx.moveTo(tx,y);
+  ctx.lineTo(tx-dir*12,y-7);
+  ctx.lineTo(tx-dir*12,y+7);
+  ctx.closePath();ctx.fillStyle='#fbbf24';ctx.fill();
+  // Animated pulse dot
+  ctx.beginPath();ctx.arc(fx,y,4,0,Math.PI*2);
+  ctx.fillStyle='#fbbf24';ctx.fill();
+  ctx.restore();
+}
+
+function roundRect(ctx,x,y,w,h,r){
+  if(ctx.roundRect){ctx.beginPath();ctx.roundRect(x,y,w,h,r);return;}
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);
+  ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
+}
+
+// ============================================================
+// ANIMATION LOOP
+// ============================================================
+function ensureLoop(){if(!rafId)rafId=requestAnimationFrame(loop);}
+function loop(ts){
+  rafId=null;
+  if(animState){
+    if(!animState.t0)animState.t0=ts;
+    const raw=Math.min((ts-animState.t0)/animState.dur,1);
+    const et=raw<0.5?2*raw*raw:1-Math.pow(-2*raw+2,2)/2;
+    animState.cx=animState.sx+(animState.ex-animState.sx)*et;
+    const ly=animState.sy+(animState.ey-animState.sy)*et;
+    animState.cy=ly-animState.arcH*Math.sin(Math.PI*raw);
+    if(raw>=1){const cb=animState.onDone;animState=null;cb&&cb();}
+  }
+  particles=particles.filter(p=>{
+    p.x+=p.vx;p.y+=p.vy;p.vy+=0.25;p.life-=0.016;return p.life>0;
+  });
+  drawBoard();
+  if(animState||particles.length>0||autoRunning)rafId=requestAnimationFrame(loop);
+}
+
+// ============================================================
+// CELEBRATE
+// ============================================================
+function celebrate(){
+  const bx=PEG_X[2];
+  const by=BASE_Y-numDisks*(DISK_H+DISK_GAP)-10;
+  for(let i=0;i<100;i++){
+    particles.push({
+      x:bx+(Math.random()-.5)*120,y:by,
+      vx:(Math.random()-.5)*9,vy:-(Math.random()*10+3),
+      col:COLORS[Math.floor(Math.random()*COLORS.length)],
+      r:3+Math.random()*5,life:1
+    });
+  }
+  ensureLoop();
+}
+
+// ============================================================
+// STATS & STATUS
+// ============================================================
+function updateStats(){
+  const min=Math.pow(2,numDisks)-1;
+  document.getElementById('s-moves').textContent=moveCount;
+  document.getElementById('s-min').textContent=min;
+  document.getElementById('s-disks').textContent=numDisks;
+  const prog=solved?100:Math.min(99,Math.round(pegs[2].length/numDisks*100));
+  document.getElementById('prog-fill').style.width=prog+'%';
+  document.getElementById('prog-label').textContent=t('stat.progress')+' '+prog+'%';
+}
+
+function updateStatus(key){
+  const el=document.getElementById('status-bar');
+  el.className='status-bar';
+  const min=Math.pow(2,numDisks)-1;
+  const pegName=p=>t('peg.'+PEG_KEYS[p]);
+  const msgs={
+    ready:{k:'status.ready',cls:'ready'},
+    selected:{k:'status.selected',cls:'ok',v:{peg:pegName(selectedPeg>=0?selectedPeg:0)}},
+    invalid:{k:'status.invalid',cls:'bad'},
+    empty:{k:'status.empty',cls:'bad'},
+    hint:{k:'status.hint',cls:'hint',v:{from:pegName(hintFrom>=0?hintFrom:0),to:pegName(hintTo>=0?hintTo:0)}},
+    'win.exact':{k:'status.win.exact',cls:'win'},
+    win:{k:'status.win',cls:'win',v:{n:moveCount,m:min}},
+    auto:{k:'status.auto',cls:'ok'},
+  };
+  const m=msgs[key]||msgs.ready;
+  el.classList.add(m.cls);
+  el.textContent=t(m.k,m.v||{});
+}
+
+// ============================================================
+// INIT GAME
+// ============================================================
+function initGame(){
+  pegs=[[],[],[]];
+  for(let i=numDisks;i>=1;i--) pegs[0].push(i);
+  selectedPeg=-1;moveCount=0;history=[];
+  hintFrom=-1;hintTo=-1;solved=false;
+  animating=false;animState=null;particles=[];
+  invalidPeg=-1;autoRunning=false;
+  // Precompute optimal
+  optMoves=[];computeOpt(numDisks,0,2,1);
+  wtIdx=-1;
+  updateStats();updateStatus('ready');
+}
+
+function setDisks(n){
+  numDisks=n;
+  document.querySelectorAll('.ds-btn').forEach(b=>{
+    b.classList.toggle('active',parseInt(b.textContent)===n);
+  });
+  initGame();drawBoard();
+}
+
+// ============================================================
+// WALKTHROUGH (STEP-BY-STEP TUTORIAL)
+// ============================================================
+let wtIdx=-1; // -1 = not started
+
+function wtPrev(){if(wtIdx>-1){wtIdx--;updateWtCard();}}
+function wtNext(){if(wtIdx<optMoves.length-1){wtIdx++;updateWtCard();}else if(wtIdx===optMoves.length-1){wtIdx=optMoves.length;updateWtCard();}}
+function wtReset(){wtIdx=-1;updateWtCard();}
+
+function updateWtCard(){
+  const total=optMoves.length;
+  const prog=document.getElementById('wt-prog');
+  const card=document.getElementById('wt-card');
+  document.getElementById('wt-prev').disabled=wtIdx<=-1;
+  document.getElementById('wt-next').disabled=wtIdx>=total;
+
+  if(wtIdx===-1){
+    prog.textContent='0 / '+total;
+    card.innerHTML=`<div style="color:var(--muted);font-size:.9rem;">${t('wt.start')}</div>`;
+    return;
+  }
+  if(wtIdx>=total){
+    prog.textContent=total+' / '+total;
+    card.innerHTML=`<div style="color:var(--success);font-size:1rem;font-weight:700;">${t('wt.done')}</div>`;
+    return;
+  }
+
+  const [from,to]=optMoves[wtIdx];
+  // Simulate state up to step wtIdx
+  const sim=[[],[],[]];
+  for(let i=numDisks;i>=1;i--) sim[0].push(i);
+  for(let s=0;s<=wtIdx-1;s++){
+    const [sf,st]=optMoves[s];
+    sim[st].push(sim[sf].pop());
+  }
+  const disk=sim[from][sim[from].length-1];
+  const diskCol=COLORS[disk-1];
+  const colorName=(T[lang]?.diskcolor||T.zh.diskcolor)[disk-1];
+  const fromName=t('peg.'+PEG_KEYS[from]);
+  const toName=t('peg.'+PEG_KEYS[to]);
+
+  prog.textContent=`${wtIdx+1} / ${total}`;
+  card.innerHTML=`
+    <div style="font-size:.78rem;color:var(--muted);margin-bottom:.4rem;">${t('wt.step',{n:wtIdx+1,total})}</div>
+    <div class="wt-disk-visual">
+      <span style="font-size:1.5rem;">${t('peg.'+PEG_KEYS[from])}</span>
+      <span style="font-size:1.1rem;color:var(--muted);">→</span>
+      <div class="wt-disk-chip" style="background:${diskCol};min-width:${Math.max(40,diskCol?30:30)}px;">
+        ${disk}
+      </div>
+      <span style="font-size:1.1rem;color:var(--muted);">→</span>
+      <span style="font-size:1.5rem;">${t('peg.'+PEG_KEYS[to])}</span>
+    </div>
+    <div class="wt-move-text">${t('wt.move',{disk,color:colorName,from:fromName,to:toName})}</div>
+  `;
+}
+
+// ============================================================
+// MATH TABLE
+// ============================================================
+function buildMathTable(){
+  const tbody=document.getElementById('math-tbody');
+  if(!tbody) return;
+  const timeStr=[
+    lang==='zh'?'3秒':'3 sec',
+    lang==='zh'?'7秒':'7 sec',
+    lang==='zh'?'15秒':'15 sec',
+    lang==='zh'?'31秒':'31 sec',
+    lang==='zh'?'约1分钟':'~1 min',
+    lang==='zh'?'约2分钟':'~2 min',
+    lang==='zh'?'约4分钟':'~4 min',
+    lang==='zh'?'约9分钟':'~9 min',
+    lang==='zh'?'约17分钟':'~17 min',
+  ];
+  tbody.innerHTML='';
+  for(let n=2;n<=10;n++){
+    const min=Math.pow(2,n)-1;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td>${n===numDisks?'<strong style="color:var(--warn);">'+n+'</strong>':n}</td>
+      <td class="${n===numDisks?'highlight':''}">${min.toLocaleString()}</td>
+      <td style="color:var(--muted);font-size:.83rem;">${timeStr[n-2]}</td>
+    `;
+    tbody.appendChild(tr);
+  }
+}
+
+// ============================================================
+// STRATEGY CONTENT
+// ============================================================
+function buildStratContent(){
+  const el=document.getElementById('strat-content');
+  if(!el) return;
+  if(lang==='zh'){
+    el.innerHTML=`
+      <div style="margin-bottom:1rem;padding:.8rem;background:var(--el);border-radius:10px;font-size:.9rem;line-height:1.7;">
+        <strong>核心秘诀</strong>：要把 <strong>N</strong> 个圆盘从出发柱移到目标柱，只需要记住一件事：
+        <div style="margin:.6rem 0;padding:.5rem .8rem;background:#0f172a;border-radius:8px;font-size:1rem;font-weight:700;color:var(--warn);text-align:center;">
+          先移 N-1 个 → 移最大的 → 再移 N-1 个
+        </div>
+      </div>
+      <div class="strategy-step">
+        <div class="step-num">1</div>
+        <div class="step-text">
+          <strong>把上面 N-1 个圆盘移到中间柱（中转）</strong><br>
+          暂时忽略最大的圆盘，先把小圆盘们"搬家"到中间柱。
+          <div class="step-formula">需要 2^(N-1) − 1 步</div>
+        </div>
+      </div>
+      <div class="strategy-step">
+        <div class="step-num">2</div>
+        <div class="step-text">
+          <strong>把最大圆盘直接移到目标柱</strong><br>
+          现在出发柱只剩最大圆盘，目标柱是空的，直接移过去！
+          <div class="step-formula">只需 1 步</div>
+        </div>
+      </div>
+      <div class="strategy-step">
+        <div class="step-num">3</div>
+        <div class="step-text">
+          <strong>把中间柱的 N-1 个圆盘移到目标柱</strong><br>
+          最大圆盘已经到位，现在把剩余圆盘也移过来——重复同样的过程。
+          <div class="step-formula">需要 2^(N-1) − 1 步</div>
+        </div>
+      </div>
+      <div style="padding:.8rem;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);border-radius:10px;margin-top:.6rem;font-size:.85rem;">
+        <strong>为什么是 2ⁿ − 1 步？</strong><br>
+        设 f(n) = n个盘所需步数<br>
+        f(1) = 1<br>
+        f(n) = f(n-1) + 1 + f(n-1) = 2×f(n-1) + 1<br>
+        解这个递推：f(n) = 2×2×...×2×1 + ... = 2ⁿ − 1 ✓
+      </div>
+    `;
+  } else {
+    el.innerHTML=`
+      <div style="margin-bottom:1rem;padding:.8rem;background:var(--el);border-radius:10px;font-size:.9rem;line-height:1.7;">
+        <strong>The Core Secret</strong>: To move <strong>N</strong> disks from Start to Goal, remember just one thing:
+        <div style="margin:.6rem 0;padding:.5rem .8rem;background:#0f172a;border-radius:8px;font-size:1rem;font-weight:700;color:var(--warn);text-align:center;">
+          Move N-1 → Move the biggest → Move N-1 again
+        </div>
+      </div>
+      <div class="strategy-step">
+        <div class="step-num">1</div>
+        <div class="step-text">
+          <strong>Move the top N-1 disks to the Helper peg</strong><br>
+          Temporarily ignore the biggest disk. "Park" all the smaller ones in the middle.
+          <div class="step-formula">Takes 2^(N-1) − 1 moves</div>
+        </div>
+      </div>
+      <div class="strategy-step">
+        <div class="step-num">2</div>
+        <div class="step-text">
+          <strong>Move the biggest disk straight to the Goal</strong><br>
+          The Start peg has only the biggest disk, and Goal is empty — move it directly!
+          <div class="step-formula">Just 1 move</div>
+        </div>
+      </div>
+      <div class="strategy-step">
+        <div class="step-num">3</div>
+        <div class="step-text">
+          <strong>Move the N-1 disks from Helper to Goal</strong><br>
+          The biggest is in place — now move the rest on top. Repeat the same process!
+          <div class="step-formula">Takes 2^(N-1) − 1 moves</div>
+        </div>
+      </div>
+      <div style="padding:.8rem;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);border-radius:10px;margin-top:.6rem;font-size:.85rem;">
+        <strong>Why is the formula 2ⁿ − 1?</strong><br>
+        Let f(n) = minimum moves for n disks<br>
+        f(1) = 1<br>
+        f(n) = f(n-1) + 1 + f(n-1) = 2·f(n-1) + 1<br>
+        Solving the recurrence: f(n) = 2ⁿ − 1 ✓
+      </div>
+    `;
+  }
+}
+
+// ============================================================
+// ACCORDION
+// ============================================================
+function toggleSection(id){
+  const hd=document.querySelector(`[onclick="toggleSection('${id}')"]`);
+  const bd=document.getElementById('body-'+id);
+  hd.classList.toggle('open');
+  bd.classList.toggle('open');
+}
+
+// ============================================================
+// BOOT
+// ============================================================
+document.addEventListener('DOMContentLoaded',()=>{
+  const canvas=document.getElementById('hanoi-canvas');
+  canvas.addEventListener('click',handleClick);
+  canvas.addEventListener('touchstart',handleTouch,{passive:false});
+  applyLang();
+  setDisks(3);
+});
+</script>
+</body>
+</html>

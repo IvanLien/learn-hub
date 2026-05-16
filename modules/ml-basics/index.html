@@ -1,0 +1,1790 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>机器学习三大类型 · ML Basics</title>
+<style>
+:root {
+  --bg: #0f172a; --bg-card: #1e293b; --bg-el: #334155;
+  --text: #f1f5f9; --muted: #94a3b8; --border: #334155;
+  --primary: #6366f1; --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
+  --c-sup: #6366f1; --c-unsup: #10b981; --c-rl: #f59e0b;
+  --font: 'Segoe UI','PingFang SC','Microsoft YaHei',system-ui,sans-serif;
+  --r: 14px; --trans: 0.2s ease;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.7;font-size:16px;}
+
+/* NAV */
+nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(15,23,42,.93);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  padding:0 1.5rem;height:60px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.nav-left{display:flex;align-items:center;gap:12px;}
+.back-btn{color:var(--muted);text-decoration:none;font-size:.9rem;padding:5px 10px;border-radius:8px;transition:var(--trans);}
+.back-btn:hover{color:var(--text);background:var(--bg-el);}
+.nav-title{font-size:1rem;font-weight:700;color:var(--text);}
+.lang-btn{
+  background:var(--bg-el);border:1px solid var(--border);color:var(--text);
+  padding:5px 14px;border-radius:20px;font-size:.85rem;font-weight:600;
+  cursor:pointer;transition:var(--trans);font-family:var(--font);
+}
+.lang-btn:hover{background:var(--primary);border-color:var(--primary);}
+
+/* HERO */
+.hero{padding:3.5rem 2rem 2rem;text-align:center;max-width:750px;margin:0 auto;}
+.hero h1{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:800;letter-spacing:-.03em;margin-bottom:.8rem;}
+.hero p{font-size:1.05rem;color:var(--muted);max-width:520px;margin:0 auto;}
+.hero-chips{display:flex;justify-content:center;gap:.6rem;margin-top:1.2rem;flex-wrap:wrap;}
+.chip{
+  padding:4px 14px;border-radius:20px;font-size:.82rem;font-weight:600;cursor:pointer;
+  border:2px solid transparent;transition:var(--trans);text-decoration:none;
+}
+.chip-sup{background:rgba(99,102,241,.15);color:#a78bfa;border-color:rgba(99,102,241,.3);}
+.chip-unsup{background:rgba(16,185,129,.15);color:#34d399;border-color:rgba(16,185,129,.3);}
+.chip-rl{background:rgba(245,158,11,.15);color:#fbbf24;border-color:rgba(245,158,11,.3);}
+.chip:hover{transform:translateY(-2px);filter:brightness(1.15);}
+
+/* SECTION COMMON */
+.ml-section{
+  max-width:1100px;margin:0 auto 3rem;padding:0 1.5rem;
+}
+.section-header{
+  display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;
+  padding:1.5rem;border-radius:var(--r);
+}
+.section-header.sup{background:linear-gradient(135deg,rgba(99,102,241,.15),rgba(139,92,246,.1));border:1px solid rgba(99,102,241,.3);}
+.section-header.unsup{background:linear-gradient(135deg,rgba(16,185,129,.15),rgba(5,150,105,.1));border:1px solid rgba(16,185,129,.3);}
+.section-header.rl{background:linear-gradient(135deg,rgba(245,158,11,.15),rgba(234,88,12,.1));border:1px solid rgba(245,158,11,.3);}
+.section-num{
+  font-size:2rem;font-weight:900;
+  width:56px;height:56px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.section-num.sup{background:rgba(99,102,241,.25);color:#a78bfa;}
+.section-num.unsup{background:rgba(16,185,129,.25);color:#34d399;}
+.section-num.rl{background:rgba(245,158,11,.25);color:#fbbf24;}
+.section-header-text h2{font-size:1.5rem;font-weight:800;margin-bottom:.2rem;}
+.section-header-text .sub{color:var(--muted);font-size:.9rem;}
+
+.demo-layout{
+  display:grid;grid-template-columns:340px 1fr;gap:1.5rem;align-items:start;
+}
+@media(max-width:800px){.demo-layout{grid-template-columns:1fr;}}
+
+/* EXPLANATION CARD */
+.explain-card{
+  background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);
+  padding:1.4rem;position:sticky;top:76px;
+}
+.explain-card h3{font-size:1rem;font-weight:700;margin-bottom:.8rem;display:flex;align-items:center;gap:.5rem;}
+.explain-card p{font-size:.88rem;color:var(--muted);margin-bottom:.8rem;line-height:1.6;}
+.key-point{
+  background:var(--bg-el);border-radius:10px;padding:.8rem 1rem;
+  font-size:.85rem;margin-top:.5rem;
+}
+.key-point .label{font-weight:700;font-size:.75rem;letter-spacing:.05em;text-transform:uppercase;opacity:.7;margin-bottom:.3rem;}
+.analogy{font-style:italic;color:var(--muted);font-size:.85rem;margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--border);}
+
+/* DEMO CARD */
+.demo-card{
+  background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);
+  padding:1.4rem;
+}
+.demo-card h3{font-size:.95rem;font-weight:700;margin-bottom:1rem;}
+
+/* BUTTONS */
+.btn{
+  padding:8px 18px;border-radius:10px;font-size:.88rem;font-weight:600;
+  cursor:pointer;border:none;transition:var(--trans);font-family:var(--font);
+  display:inline-flex;align-items:center;gap:6px;
+}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.btn-sup{background:#6366f1;color:#fff;} .btn-sup:hover:not(:disabled){background:#4f46e5;}
+.btn-unsup{background:#10b981;color:#fff;} .btn-unsup:hover:not(:disabled){background:#059669;}
+.btn-rl{background:#f59e0b;color:#000;} .btn-rl:hover:not(:disabled){background:#d97706;}
+.btn-ghost{background:var(--bg-el);color:var(--text);} .btn-ghost:hover{background:var(--border);}
+.btn-row{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.8rem;}
+
+/* STATUS BAR */
+.status-bar{
+  font-size:.82rem;color:var(--muted);padding:.5rem .8rem;
+  background:var(--bg-el);border-radius:8px;margin-top:.6rem;
+  min-height:2rem;display:flex;align-items:center;gap:.5rem;
+}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--muted);flex-shrink:0;}
+.status-dot.active{background:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,.2);}
+
+/* ===== SUPERVISED LEARNING DEMO ===== */
+.emails-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:1rem;}
+@media(max-width:600px){.emails-grid{grid-template-columns:1fr;}}
+.email-card{
+  background:var(--bg-el);border-radius:10px;padding:.7rem .9rem;
+  border:1px solid transparent;transition:var(--trans);
+}
+.email-card .email-from{font-size:.72rem;color:var(--muted);margin-bottom:.2rem;}
+.email-card .email-subj{font-size:.82rem;font-weight:500;line-height:1.4;}
+.email-card .email-label{
+  display:inline-block;margin-top:.4rem;padding:2px 8px;border-radius:6px;font-size:.72rem;font-weight:700;
+}
+.label-spam{background:rgba(239,68,68,.2);color:#f87171;}
+.label-ham{background:rgba(16,185,129,.2);color:#34d399;}
+.spam-kw{background:rgba(239,68,68,.25);color:#fca5a5;border-radius:3px;padding:0 2px;font-weight:700;}
+
+.rules-box{
+  background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);
+  border-radius:10px;padding:.9rem 1rem;margin:.8rem 0;
+  display:none;
+}
+.rules-box.visible{display:block;}
+.rules-box .rules-title{font-size:.8rem;font-weight:700;color:#a78bfa;margin-bottom:.5rem;letter-spacing:.05em;text-transform:uppercase;}
+.rule-tags{display:flex;flex-wrap:wrap;gap:.35rem;}
+.rule-tag{background:rgba(239,68,68,.2);color:#f87171;padding:2px 8px;border-radius:6px;font-size:.78rem;font-weight:700;}
+
+.test-section{margin-top:1rem;}
+.test-section h4{font-size:.85rem;font-weight:700;margin-bottom:.7rem;color:var(--muted);}
+.test-email{
+  background:var(--bg-el);border-radius:10px;padding:.8rem 1rem;
+  margin-bottom:.6rem;border:2px solid transparent;transition:var(--trans);
+}
+.test-email.predicted-spam{border-color:rgba(239,68,68,.5);}
+.test-email.predicted-ham{border-color:rgba(16,185,129,.5);}
+.test-email .test-subj{font-size:.85rem;margin-bottom:.5rem;}
+.confidence-bar{
+  height:6px;background:var(--bg);border-radius:3px;margin-top:.4rem;overflow:hidden;
+}
+.confidence-fill{height:100%;border-radius:3px;transition:width .5s ease;width:0;}
+.conf-spam{background:#ef4444;}
+.conf-ham{background:#10b981;}
+.test-result{font-size:.78rem;font-weight:700;margin-top:.4rem;}
+
+/* ===== UNSUPERVISED / KMEANS ===== */
+.canvas-wrap{position:relative;display:flex;justify-content:center;}
+canvas{border-radius:10px;background:#111827;display:block;}
+.canvas-legend{display:flex;gap:1rem;margin-top:.6rem;flex-wrap:wrap;}
+.legend-item{display:flex;align-items:center;gap:.4rem;font-size:.8rem;color:var(--muted);}
+.legend-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+.kmeans-stats{
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem;margin-top:.8rem;
+}
+.stat-box{
+  background:var(--bg-el);border-radius:10px;padding:.7rem;text-align:center;
+}
+.stat-val{font-size:1.4rem;font-weight:800;color:var(--text);}
+.stat-lbl{font-size:.72rem;color:var(--muted);margin-top:.1rem;}
+
+/* ===== RL / Q-LEARNING ===== */
+.rl-layout{display:flex;flex-direction:column;gap:.8rem;}
+.rl-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;}
+.rl-legend{
+  display:flex;gap:.8rem;font-size:.78rem;color:var(--muted);flex-wrap:wrap;
+  padding:.6rem;background:var(--bg-el);border-radius:8px;
+}
+.rl-legend span{display:flex;align-items:center;gap:.3rem;}
+
+/* SUMMARY TABLE */
+.summary-section{max-width:900px;margin:0 auto 4rem;padding:0 1.5rem;}
+.summary-title{font-size:1.3rem;font-weight:700;margin-bottom:1rem;}
+.compare-table{width:100%;border-collapse:separate;border-spacing:0;border-radius:var(--r);overflow:hidden;font-size:.88rem;}
+.compare-table th{background:var(--bg-el);padding:.8rem 1rem;text-align:left;font-weight:700;border-bottom:2px solid var(--border);}
+.compare-table td{padding:.8rem 1rem;border-bottom:1px solid var(--border);background:var(--bg-card);}
+.compare-table tr:last-child td{border-bottom:none;}
+.compare-table .col-sup{color:#a78bfa;}
+.compare-table .col-unsup{color:#34d399;}
+.compare-table .col-rl{color:#fbbf24;}
+
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border-top:1px solid var(--border);}
+
+/* ===== MATH MODAL ===== */
+.m-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;
+  overflow-y:auto;padding:1.5rem 1rem;
+}
+.m-overlay.open{display:flex;align-items:flex-start;justify-content:center;}
+.m-box{
+  background:#1e293b;border:1px solid #334155;border-radius:20px;
+  width:100%;max-width:820px;position:relative;
+}
+.m-head{
+  padding:1.2rem 1.5rem;border-bottom:1px solid #334155;
+  display:flex;justify-content:space-between;align-items:center;
+  position:sticky;top:0;background:#1e293b;border-radius:20px 20px 0 0;z-index:1;
+}
+.m-head h2{font-size:1.1rem;font-weight:800;}
+.m-close{
+  background:#334155;border:none;color:#94a3b8;
+  width:30px;height:30px;border-radius:8px;cursor:pointer;
+  font-size:1rem;display:flex;align-items:center;justify-content:center;transition:.2s;
+}
+.m-close:hover{background:#475569;color:#f1f5f9;}
+.m-body{padding:1.5rem;max-height:82vh;overflow-y:auto;}
+.m-body::-webkit-scrollbar{width:6px;}
+.m-body::-webkit-scrollbar-thumb{background:#334155;border-radius:3px;}
+
+.ms{margin-bottom:1.8rem;}
+.ms h3{font-size:.95rem;font-weight:700;margin-bottom:.7rem;display:flex;align-items:center;gap:.5rem;}
+.ms p{font-size:.86rem;color:#94a3b8;line-height:1.75;margin-bottom:.5rem;}
+.ms strong{color:#e2e8f0;}
+
+.mf{
+  background:#0f172a;border:1px solid #1e293b;
+  border-left:3px solid #6366f1;border-radius:0 8px 8px 0;
+  padding:.8rem 1.1rem;
+  font-family:'Cascadia Code','Consolas','Monaco',monospace;
+  font-size:.82rem;line-height:2;margin:.6rem 0;
+  white-space:pre;overflow-x:auto;
+}
+.mf.g{border-left-color:#10b981;}
+.mf.y{border-left-color:#f59e0b;}
+.mf.r{border-left-color:#ef4444;}
+.kw{color:#a78bfa;font-weight:bold;}
+.vl{color:#f59e0b;}
+.cm{color:#475569;}
+.ok{color:#34d399;}
+.bad{color:#f87171;}
+
+.mbox{border-radius:10px;padding:.7rem 1rem;margin:.6rem 0;font-size:.84rem;line-height:1.65;}
+.mbox.warn{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:#fca5a5;}
+.mbox.good{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);color:#6ee7b7;}
+.mbox.info{background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.3);color:#c4b5fd;}
+.mbox strong{color:inherit;font-weight:700;}
+
+.btn-math{
+  display:inline-flex;align-items:center;gap:6px;
+  margin-top:.8rem;padding:6px 14px;border-radius:8px;
+  font-size:.8rem;font-weight:600;cursor:pointer;border:none;
+  background:rgba(99,102,241,.15);color:#a78bfa;
+  border:1px solid rgba(99,102,241,.3);
+  font-family:var(--font);transition:.2s;
+}
+.btn-math:hover{background:rgba(99,102,241,.3);}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-left">
+    <a class="back-btn" href="../../index.html">← <span data-i18n="nav.back">返回首页</span></a>
+    <span class="nav-title" data-i18n="nav.module">机器学习基础</span>
+  </div>
+  <button class="lang-btn" onclick="toggleLang()" data-i18n="nav.lang">English</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <h1 data-i18n="hero.title">机器学习的三种学习方式</h1>
+  <p data-i18n="hero.desc">用三个真实案例，直观理解AI如何学习。每个演示都可以亲手互动体验。</p>
+  <div class="hero-chips">
+    <a class="chip chip-sup" href="#supervised" data-i18n="chip.sup">① 监督学习</a>
+    <a class="chip chip-unsup" href="#unsupervised" data-i18n="chip.unsup">② 无监督学习</a>
+    <a class="chip chip-rl" href="#rl" data-i18n="chip.rl">③ 强化学习</a>
+  </div>
+</section>
+
+<!-- ==================== SECTION 1: SUPERVISED ==================== -->
+<section class="ml-section" id="supervised">
+  <div class="section-header sup">
+    <div class="section-num sup">①</div>
+    <div class="section-header-text">
+      <h2 data-i18n="sup.title">监督学习 Supervised Learning</h2>
+      <div class="sub" data-i18n="sup.sub">案例：邮件垃圾过滤器 · Email Spam Filter</div>
+    </div>
+  </div>
+
+  <div class="demo-layout">
+    <!-- Explanation -->
+    <div class="explain-card">
+      <h3>💡 <span data-i18n="exp.concept">核心概念</span></h3>
+      <p data-i18n="sup.exp1">就像老师批改作业：给AI看大量<strong>带有正确答案</strong>的例子，让它找规律，然后用学到的规律来判断新数据。</p>
+      <p data-i18n="sup.exp2">每条训练数据都有一个标签（Label），告诉模型"这封邮件是垃圾邮件"或"不是"。</p>
+      <div class="key-point">
+        <div class="label" data-i18n="kp.input">输入</div>
+        <div data-i18n="sup.input">标注好的数据（输入 + 正确答案）</div>
+        <div class="label" style="margin-top:.5rem;" data-i18n="kp.output">输出</div>
+        <div data-i18n="sup.output">能预测新数据的模型</div>
+        <div class="analogy" data-i18n="sup.analogy">📚 类比：做题 → 对答案 → 总结规律 → 考试</div>
+      </div>
+      <button class="btn-math" onclick="openMath('sup')" data-i18n="btn.math">📐 数学收敛原理</button>
+    </div>
+
+    <!-- Demo -->
+    <div class="demo-card">
+      <h3 data-i18n="sup.demo.title">🎮 互动演示：教AI识别垃圾邮件</h3>
+
+      <!-- Training data -->
+      <div style="font-size:.82rem;color:var(--muted);margin-bottom:.6rem;" data-i18n="sup.step1">第一步：给AI看带标签的训练数据 ↓</div>
+      <div class="emails-grid" id="training-emails">
+        <!-- populated by JS -->
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-sup" onclick="trainSpamModel()" id="train-btn" data-i18n="btn.train">🧠 训练模型</button>
+        <button class="btn btn-ghost" onclick="resetSpam()" data-i18n="btn.reset">↺ 重置</button>
+      </div>
+
+      <!-- Learned rules -->
+      <div class="rules-box" id="rules-box">
+        <div class="rules-title" data-i18n="sup.learned">模型学到的垃圾词规律</div>
+        <div class="rule-tags" id="rule-tags"></div>
+      </div>
+
+      <!-- Test emails -->
+      <div class="test-section" id="test-section" style="display:none;">
+        <h4 data-i18n="sup.step2">第二步：测试新邮件（模型未见过）</h4>
+        <div id="test-emails"></div>
+      </div>
+
+      <div class="status-bar">
+        <div class="status-dot" id="sup-dot"></div>
+        <span id="sup-status" data-i18n="status.ready">等待训练...</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== SECTION 2: UNSUPERVISED ==================== -->
+<section class="ml-section" id="unsupervised">
+  <div class="section-header unsup">
+    <div class="section-num unsup">②</div>
+    <div class="section-header-text">
+      <h2 data-i18n="unsup.title">无监督学习 Unsupervised Learning</h2>
+      <div class="sub" data-i18n="unsup.sub">案例：客户分群 · Customer Segmentation</div>
+    </div>
+  </div>
+
+  <div class="demo-layout">
+    <div class="explain-card">
+      <h3>💡 <span data-i18n="exp.concept">核心概念</span></h3>
+      <p data-i18n="unsup.exp1">数据里<strong>没有任何标签</strong>。AI自己探索数据的内部结构，发现隐藏的规律和分组。</p>
+      <p data-i18n="unsup.exp2">电商平台有几百万客户，没人手动给客户贴标签——AI自动发现"高消费年轻人"、"老年节省族"等群体。</p>
+      <div class="key-point">
+        <div class="label" data-i18n="kp.input">输入</div>
+        <div data-i18n="unsup.input">无标签的原始数据</div>
+        <div class="label" style="margin-top:.5rem;" data-i18n="kp.output">输出</div>
+        <div data-i18n="unsup.output">自动发现的数据分组/结构</div>
+        <div class="analogy" data-i18n="unsup.analogy">🗂️ 类比：图书管理员把书按相似度归类，没有预设类别</div>
+      </div>
+      <button class="btn-math" onclick="openMath('unsup')" data-i18n="btn.math">📐 数学收敛原理</button>
+    </div>
+
+    <div class="demo-card">
+      <h3 data-i18n="unsup.demo.title">🎮 互动演示：K-Means 客户自动分群</h3>
+      <div style="font-size:.82rem;color:var(--muted);margin-bottom:.8rem;" data-i18n="unsup.hint">
+        点击"生成数据"查看无标签客户点，再点"自动分群"观察AI如何找到规律↓
+      </div>
+
+      <div class="canvas-wrap">
+        <canvas id="kmeans-canvas" width="400" height="380"></canvas>
+      </div>
+
+      <div class="canvas-legend" id="kmeans-legend" style="display:none;">
+        <div class="legend-item"><div class="legend-dot" style="background:#6366f1;"></div><span data-i18n="cluster.a">群组A</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#10b981;"></div><span data-i18n="cluster.b">群组B</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f59e0b;"></div><span data-i18n="cluster.c">群组C</span></div>
+        <div class="legend-item"><div class="legend-dot" style="background:#fff;border:2px solid #666;"></div><span data-i18n="cluster.center">群中心</span></div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-unsup" onclick="kmGenerate()" data-i18n="btn.generate">📊 生成数据</button>
+        <button class="btn btn-unsup" onclick="kmRun()" id="km-run-btn" disabled data-i18n="btn.cluster">🔍 自动分群</button>
+        <button class="btn btn-ghost" onclick="kmReset()" data-i18n="btn.reset">↺ 重置</button>
+      </div>
+
+      <div class="kmeans-stats">
+        <div class="stat-box"><div class="stat-val" id="km-points">0</div><div class="stat-lbl" data-i18n="stat.points">客户数</div></div>
+        <div class="stat-box"><div class="stat-val" id="km-iter">0</div><div class="stat-lbl" data-i18n="stat.iter">迭代次数</div></div>
+        <div class="stat-box"><div class="stat-val" id="km-groups">0</div><div class="stat-lbl" data-i18n="stat.groups">发现分组</div></div>
+      </div>
+
+      <div class="status-bar">
+        <div class="status-dot" id="km-dot"></div>
+        <span id="km-status" data-i18n="status.ready">等待开始...</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== SECTION 3: REINFORCEMENT ==================== -->
+<section class="ml-section" id="rl">
+  <div class="section-header rl">
+    <div class="section-num rl">③</div>
+    <div class="section-header-text">
+      <h2 data-i18n="rl.title">强化学习 Reinforcement Learning</h2>
+      <div class="sub" data-i18n="rl.sub">案例：机器人走迷宫 · Robot Maze Navigation</div>
+    </div>
+  </div>
+
+  <div class="demo-layout">
+    <div class="explain-card">
+      <h3>💡 <span data-i18n="exp.concept">核心概念</span></h3>
+      <p data-i18n="rl.exp1">AI通过<strong>试错</strong>学习：每次行动后获得奖励或惩罚，逐渐摸索出最优策略。没有标签，没有正确答案——只有结果的反馈。</p>
+      <p data-i18n="rl.exp2">就像学骑自行车：摔倒（惩罚）→ 调整平衡（策略更新）→ 骑稳了（奖励）→ 越来越好。</p>
+      <div class="key-point">
+        <div class="label" data-i18n="kp.input">输入</div>
+        <div data-i18n="rl.input">环境 + 奖惩信号</div>
+        <div class="label" style="margin-top:.5rem;" data-i18n="kp.output">输出</div>
+        <div data-i18n="rl.output">最优行动策略（Policy）</div>
+        <div class="analogy" data-i18n="rl.analogy">🎮 类比：玩游戏 → 失败重来 → 逐渐通关</div>
+      </div>
+      <button class="btn-math" onclick="openMath('rl')" data-i18n="btn.math">📐 数学收敛原理</button>
+      <div style="margin-top:.8rem;font-size:.82rem;color:var(--muted);padding:.6rem;background:var(--bg-el);border-radius:8px;">
+        <div style="margin-bottom:.3rem;">🤖 = <span data-i18n="rl.legend.robot">机器人（从左上出发）</span></div>
+        <div style="margin-bottom:.3rem;">⭐ = <span data-i18n="rl.legend.goal">目标（右下角，+10分）</span></div>
+        <div style="margin-bottom:.3rem;">🧱 = <span data-i18n="rl.legend.wall">墙（无法通过，-1分）</span></div>
+        <div>📍 = <span data-i18n="rl.legend.step">普通移动（-0.1分）</span></div>
+      </div>
+    </div>
+
+    <div class="demo-card">
+      <h3 data-i18n="rl.demo.title">🎮 互动演示：Q-Learning 迷宫机器人</h3>
+      <div style="font-size:.82rem;color:var(--muted);margin-bottom:.8rem;" data-i18n="rl.hint">
+        先点"单步训练"观察机器人随机探索，再点"训练100轮"看AI学习后的最优路径↓
+      </div>
+
+      <div class="rl-layout">
+        <div class="canvas-wrap">
+          <canvas id="rl-canvas" width="400" height="400"></canvas>
+        </div>
+
+        <div class="rl-stats">
+          <div class="stat-box"><div class="stat-val" id="rl-ep">0</div><div class="stat-lbl" data-i18n="stat.episodes">训练轮数</div></div>
+          <div class="stat-box"><div class="stat-val" id="rl-steps">0</div><div class="stat-lbl" data-i18n="stat.steps">本轮步数</div></div>
+          <div class="stat-box"><div class="stat-val" id="rl-success">0%</div><div class="stat-lbl" data-i18n="stat.success">成功率</div></div>
+          <div class="stat-box"><div class="stat-val" id="rl-reward">0.0</div><div class="stat-lbl" data-i18n="stat.reward">本轮得分</div></div>
+          <div class="stat-box" style="grid-column:span 2;">
+            <div style="display:flex;align-items:center;gap:.6rem;">
+              <div>
+                <div class="stat-val" id="rl-eps">0.50</div>
+                <div class="stat-lbl" data-i18n="stat.epsilon">探索率 ε</div>
+              </div>
+              <div style="flex:1;">
+                <div style="font-size:.72rem;color:var(--muted);margin-bottom:.3rem;" data-i18n="stat.eps.desc">值越小 = 越相信已学知识</div>
+                <div style="height:6px;background:var(--bg);border-radius:3px;overflow:hidden;">
+                  <div id="rl-eps-bar" style="height:100%;background:linear-gradient(90deg,#10b981,#f59e0b);border-radius:3px;width:50%;transition:width .4s ease;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-rl" onclick="rlStep()" data-i18n="btn.rlstep">▶ 单步训练</button>
+          <button class="btn btn-rl" onclick="rlTrain(50)" data-i18n="btn.rltrain50">⚡ 训练50轮</button>
+          <button class="btn btn-rl" onclick="rlTrain(200)" data-i18n="btn.rltrain200">🚀 训练200轮</button>
+          <button class="btn btn-rl" onclick="rlShowBest()" id="rl-best-btn" disabled data-i18n="btn.rlbest">🏆 最优路径</button>
+          <button class="btn btn-ghost" onclick="rlReset()" data-i18n="btn.reset">↺ 重置</button>
+        </div>
+
+        <div class="status-bar">
+          <div class="status-dot" id="rl-dot"></div>
+          <span id="rl-status" data-i18n="status.ready">等待训练...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SUMMARY TABLE -->
+<section class="summary-section">
+  <h2 class="summary-title" data-i18n="summary.title">📊 三种学习方式对比</h2>
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th data-i18n="tbl.aspect">方面</th>
+        <th class="col-sup" data-i18n="tbl.sup">① 监督学习</th>
+        <th class="col-unsup" data-i18n="tbl.unsup">② 无监督学习</th>
+        <th class="col-rl" data-i18n="tbl.rl">③ 强化学习</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td data-i18n="tbl.data">训练数据</td>
+        <td data-i18n="tbl.sup.data">有标签数据</td>
+        <td data-i18n="tbl.unsup.data">无标签数据</td>
+        <td data-i18n="tbl.rl.data">环境交互</td>
+      </tr>
+      <tr>
+        <td data-i18n="tbl.learn">学习方式</td>
+        <td data-i18n="tbl.sup.learn">从正确答案中学</td>
+        <td data-i18n="tbl.unsup.learn">自己发现规律</td>
+        <td data-i18n="tbl.rl.learn">从奖惩中学</td>
+      </tr>
+      <tr>
+        <td data-i18n="tbl.example">真实应用</td>
+        <td data-i18n="tbl.sup.ex">图片分类、翻译</td>
+        <td data-i18n="tbl.unsup.ex">推荐系统、异常检测</td>
+        <td data-i18n="tbl.rl.ex">游戏AI、机器人、自驾</td>
+      </tr>
+      <tr>
+        <td data-i18n="tbl.analogy">生活类比</td>
+        <td data-i18n="tbl.sup.ana">做题对答案</td>
+        <td data-i18n="tbl.unsup.ana">自主整理归类</td>
+        <td data-i18n="tbl.rl.ana">玩游戏不断练习</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- MATH MODAL -->
+<div id="math-modal" class="m-overlay" onclick="if(event.target===this)closeMath()">
+  <div class="m-box">
+    <div class="m-head">
+      <h2 id="m-title">数学收敛原理</h2>
+      <button class="m-close" onclick="closeMath()">✕</button>
+    </div>
+    <div class="m-body" id="m-body"></div>
+  </div>
+</div>
+
+<footer>
+  <p data-i18n="footer">机器学习基础模块 · 学习中心</p>
+</footer>
+
+<script>
+// ============================================================
+// LANGUAGE SYSTEM
+// ============================================================
+const T = {
+  zh: {
+    'nav.back':'返回首页','nav.module':'机器学习基础','nav.lang':'English',
+    'hero.title':'机器学习的三种学习方式',
+    'hero.desc':'用三个真实案例，直观理解AI如何学习。每个演示都可以亲手互动体验。',
+    'chip.sup':'① 监督学习','chip.unsup':'② 无监督学习','chip.rl':'③ 强化学习',
+    'sup.title':'监督学习 Supervised Learning',
+    'sup.sub':'案例：邮件垃圾过滤器 · Email Spam Filter',
+    'exp.concept':'核心概念',
+    'sup.exp1':'就像老师批改作业：给AI看大量<strong>带有正确答案</strong>的例子，让它找规律，然后用学到的规律来判断新数据。',
+    'sup.exp2':'每条训练数据都有一个标签（Label），告诉模型"这封邮件是垃圾邮件"或"不是"。',
+    'kp.input':'输入','kp.output':'输出',
+    'sup.input':'标注好的数据（输入 + 正确答案）',
+    'sup.output':'能预测新数据的模型',
+    'sup.analogy':'📚 类比：做题 → 对答案 → 总结规律 → 考试',
+    'sup.demo.title':'🎮 互动演示：教AI识别垃圾邮件',
+    'sup.step1':'第一步：给AI看带标签的训练数据 ↓',
+    'sup.step2':'第二步：测试新邮件（模型未见过）',
+    'sup.learned':'模型学到的垃圾词规律',
+    'btn.train':'🧠 训练模型','btn.reset':'↺ 重置','btn.generate':'📊 生成数据',
+    'btn.cluster':'🔍 自动分群','btn.rlstep':'▶ 单步训练',
+    'btn.rltrain50':'⚡ 训练50轮','btn.rltrain200':'🚀 训练200轮',
+    'btn.rlbest':'🏆 最优路径',
+    'status.ready':'等待开始...','status.training':'训练中...','status.done':'训练完成！',
+    'unsup.title':'无监督学习 Unsupervised Learning',
+    'unsup.sub':'案例：客户分群 · Customer Segmentation',
+    'unsup.exp1':'数据里<strong>没有任何标签</strong>。AI自己探索数据的内部结构，发现隐藏的规律和分组。',
+    'unsup.exp2':'电商平台有几百万客户，没人手动给客户贴标签——AI自动发现"高消费年轻人"、"老年节省族"等群体。',
+    'unsup.input':'无标签的原始数据','unsup.output':'自动发现的数据分组/结构',
+    'unsup.analogy':'🗂️ 类比：图书管理员把书按相似度归类，没有预设类别',
+    'unsup.demo.title':'🎮 互动演示：K-Means 客户自动分群',
+    'unsup.hint':'点击"生成数据"查看无标签客户点，再点"自动分群"观察AI如何找到规律↓',
+    'cluster.a':'群组A（年轻节省）','cluster.b':'群组B（中年均衡）','cluster.c':'群组C（高消费）',
+    'cluster.center':'群中心',
+    'stat.points':'客户数','stat.iter':'迭代次数','stat.groups':'发现分组',
+    'rl.title':'强化学习 Reinforcement Learning',
+    'rl.sub':'案例：机器人走迷宫 · Robot Maze Navigation',
+    'rl.exp1':'AI通过<strong>试错</strong>学习：每次行动后获得奖励或惩罚，逐渐摸索出最优策略。没有标签，没有正确答案——只有结果的反馈。',
+    'rl.exp2':'就像学骑自行车：摔倒（惩罚）→ 调整平衡（策略更新）→ 骑稳了（奖励）→ 越来越好。',
+    'rl.input':'环境 + 奖惩信号','rl.output':'最优行动策略（Policy）',
+    'rl.analogy':'🎮 类比：玩游戏 → 失败重来 → 逐渐通关',
+    'rl.legend.robot':'机器人（从左上出发）','rl.legend.goal':'目标（右下角，+10分）',
+    'rl.legend.wall':'墙（无法通过，-1分）','rl.legend.step':'普通移动（-0.1分）',
+    'rl.demo.title':'🎮 互动演示：Q-Learning 迷宫机器人',
+    'rl.hint':'先点"单步训练"观察机器人随机探索，再点"训练100轮"看AI学习后的最优路径↓',
+    'stat.episodes':'训练轮数','stat.steps':'本轮步数','stat.reward':'本轮得分','stat.success':'成功率',
+    'stat.epsilon':'探索率 ε','stat.eps.desc':'值越小 = 越相信已学知识',
+    'summary.title':'📊 三种学习方式对比',
+    'tbl.aspect':'方面','tbl.sup':'① 监督学习','tbl.unsup':'② 无监督学习','tbl.rl':'③ 强化学习',
+    'tbl.data':'训练数据','tbl.learn':'学习方式','tbl.example':'真实应用','tbl.analogy':'生活类比',
+    'tbl.sup.data':'有标签数据','tbl.unsup.data':'无标签数据','tbl.rl.data':'环境交互',
+    'tbl.sup.learn':'从正确答案中学','tbl.unsup.learn':'自己发现规律','tbl.rl.learn':'从奖惩中学',
+    'tbl.sup.ex':'图片分类、垃圾邮件过滤','tbl.unsup.ex':'推荐系统、异常检测','tbl.rl.ex':'游戏AI、机器人控制、自动驾驶',
+    'tbl.sup.ana':'做题对答案','tbl.unsup.ana':'自主整理归类','tbl.rl.ana':'玩游戏不断练习',
+    'btn.math':'📐 数学收敛原理',
+    'footer':'机器学习基础模块 · 学习中心',
+  },
+  en: {
+    'nav.back':'Home','nav.module':'ML Basics','nav.lang':'中文',
+    'hero.title':'Three Ways Machines Learn',
+    'hero.desc':'Understand AI learning through 3 real-world interactive examples. Touch and explore everything.',
+    'chip.sup':'① Supervised','chip.unsup':'② Unsupervised','chip.rl':'③ Reinforcement',
+    'sup.title':'Supervised Learning',
+    'sup.sub':'Example: Email Spam Filter',
+    'exp.concept':'Core Concept',
+    'sup.exp1':'Like a teacher grading homework: show the AI many examples <strong>with correct answers</strong>, it finds patterns, then applies them to new data.',
+    'sup.exp2':'Each training item has a Label — telling the model "this is spam" or "this is not spam".',
+    'kp.input':'Input','kp.output':'Output',
+    'sup.input':'Labeled data (input + correct answer)',
+    'sup.output':'A model that predicts new data',
+    'sup.analogy':'📚 Analogy: Study examples → check answers → find rules → take test',
+    'sup.demo.title':'🎮 Demo: Teach AI to Filter Spam',
+    'sup.step1':'Step 1: Show the AI labeled training emails ↓',
+    'sup.step2':'Step 2: Test on new, unseen emails',
+    'sup.learned':'Spam patterns the model learned',
+    'btn.train':'🧠 Train Model','btn.reset':'↺ Reset','btn.generate':'📊 Generate Data',
+    'btn.cluster':'🔍 Find Groups','btn.rlstep':'▶ 1 Episode',
+    'btn.rltrain50':'⚡ Train 50x','btn.rltrain200':'🚀 Train 200x',
+    'btn.rlbest':'🏆 Best Path',
+    'status.ready':'Waiting to start...','status.training':'Training...','status.done':'Training complete!',
+    'unsup.title':'Unsupervised Learning',
+    'unsup.sub':'Example: Customer Segmentation',
+    'unsup.exp1':'The data has <strong>no labels at all</strong>. The AI explores the raw data structure to discover hidden patterns and natural groups.',
+    'unsup.exp2':'An e-commerce platform has millions of customers. Nobody labels them manually — AI auto-discovers "young high-spenders", "senior savers", etc.',
+    'unsup.input':'Unlabeled raw data','unsup.output':'Automatically discovered groups/structure',
+    'unsup.analogy':'🗂️ Analogy: A librarian groups books by similarity with no preset categories',
+    'unsup.demo.title':'🎮 Demo: K-Means Customer Segmentation',
+    'unsup.hint':'Click "Generate Data" to see unlabeled customer points, then "Find Groups" to watch AI discover patterns ↓',
+    'cluster.a':'Group A (Young savers)','cluster.b':'Group B (Mid-range)','cluster.c':'Group C (High spenders)',
+    'cluster.center':'Cluster center',
+    'stat.points':'Customers','stat.iter':'Iterations','stat.groups':'Groups found',
+    'rl.title':'Reinforcement Learning',
+    'rl.sub':'Example: Robot Maze Navigation',
+    'rl.exp1':'AI learns through <strong>trial and error</strong>: each action brings a reward or penalty, gradually discovering the best strategy. No labels, no correct answers — only outcome feedback.',
+    'rl.exp2':'Like learning to ride a bike: fall (penalty) → adjust balance (strategy update) → stay upright (reward) → keep improving.',
+    'rl.input':'Environment + reward signals','rl.output':'Optimal action policy',
+    'rl.analogy':'🎮 Analogy: Play a game → fail → retry → eventually win',
+    'rl.legend.robot':'Robot (starts top-left)','rl.legend.goal':'Goal (bottom-right, +10pts)',
+    'rl.legend.wall':'Wall (blocked, -1pt)','rl.legend.step':'Normal step (-0.1pt)',
+    'rl.demo.title':'🎮 Demo: Q-Learning Maze Robot',
+    'rl.hint':'Click "1 Episode" to watch random exploration, then "Train 200x" to see the AI master the maze ↓',
+    'stat.episodes':'Episodes','stat.steps':'Steps / ep.','stat.reward':'Last reward','stat.success':'Success rate',
+    'stat.epsilon':'Explore ε','stat.eps.desc':'Lower = trusts learned knowledge more',
+    'summary.title':'📊 Comparing the Three Approaches',
+    'tbl.aspect':'Aspect','tbl.sup':'① Supervised','tbl.unsup':'② Unsupervised','tbl.rl':'③ Reinforcement',
+    'tbl.data':'Training data','tbl.learn':'How it learns','tbl.example':'Real applications','tbl.analogy':'Life analogy',
+    'tbl.sup.data':'Labeled data','tbl.unsup.data':'Unlabeled data','tbl.rl.data':'Environment interaction',
+    'tbl.sup.learn':'From correct answers','tbl.unsup.learn':'Self-discover patterns','tbl.rl.learn':'From rewards & penalties',
+    'tbl.sup.ex':'Image classification, spam filters','tbl.unsup.ex':'Recommendation, anomaly detection','tbl.rl.ex':'Game AI, robotics, self-driving',
+    'tbl.sup.ana':'Study with answer key','tbl.unsup.ana':'Self-organize by similarity','tbl.rl.ana':'Practice a game until you win',
+    'btn.math':'📐 Math Theory',
+    'footer':'Machine Learning Basics · Learn Hub',
+  }
+};
+
+let lang = localStorage.getItem('edu-lang') || 'zh';
+
+function t(k) { return (T[lang]||{})[k] || k; }
+
+function applyLang() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.dataset.i18n;
+    const v = t(k);
+    if (!v) return;
+    if (k.endsWith('.exp1') || k.endsWith('.exp2')) el.innerHTML = v;
+    else el.textContent = v;
+  });
+  document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+  renderTrainingEmails();
+  renderTestEmails();
+  if (kmPoints.length) kmDrawCanvas();
+  rlDraw();
+}
+
+function toggleLang() {
+  lang = lang === 'en' ? 'zh' : 'en';
+  localStorage.setItem('edu-lang', lang);
+  applyLang();
+}
+
+// ============================================================
+// SUPERVISED LEARNING: EMAIL SPAM FILTER
+// ============================================================
+const SPAM_KW = ['FREE','WIN','WON','CLICK','URGENT','CLAIM','PRIZE','MONEY','LOTTERY','LUCKY','SUSPENDED','ACT NOW','GUARANTEED'];
+
+const TRAIN_EMAILS = [
+  { from:'promo@deals999.com', subj:'CONGRATULATIONS! You WON a FREE iPhone!', spam:true },
+  { from:'sarah@company.com',  subj:'Team meeting tomorrow at 10am',            spam:false },
+  { from:'alert@noreply.biz',  subj:'URGENT: Your account will be SUSPENDED',   spam:true },
+  { from:'mike@office.com',    subj:'Can we reschedule the call to Friday?',     spam:false },
+  { from:'winner@lottery.net', subj:'You are our LUCKY winner! CLAIM your PRIZE now!', spam:true },
+  { from:'anna@work.com',      subj:'Project status update for this week',       spam:false },
+  { from:'deals@spam.io',      subj:'FREE MONEY! GUARANTEED returns, ACT NOW',  spam:true },
+  { from:'boss@firm.org',      subj:'Quarterly review notes attached',           spam:false },
+];
+
+const TEST_EMAILS = [
+  { subj:'Act NOW! FREE gift waiting, CLICK to CLAIM!', expectSpam:true },
+  { subj:'Lunch menu suggestion for next week',         expectSpam:false },
+  { subj:'You WON the LOTTERY! Collect MONEY today',   expectSpam:true },
+];
+
+let spamTrained = false;
+let spamClassified = {};
+
+function detectSpam(text) {
+  const up = text.toUpperCase();
+  const found = SPAM_KW.filter(k => up.includes(k));
+  return { spam: found.length >= 2, keywords: found, score: Math.min(100, found.length * 22) };
+}
+
+function highlightKw(text, kws) {
+  let r = text;
+  kws.forEach(k => {
+    r = r.replace(new RegExp(k, 'gi'), m => `<mark class="spam-kw">${m}</mark>`);
+  });
+  return r;
+}
+
+function renderTrainingEmails() {
+  const grid = document.getElementById('training-emails');
+  if (!grid) return;
+  grid.innerHTML = TRAIN_EMAILS.map(e => {
+    const info = detectSpam(e.subj);
+    const subjDisplay = spamTrained && e.spam ? highlightKw(e.subj, info.keywords) : e.subj;
+    return `<div class="email-card">
+      <div class="email-from">${e.from}</div>
+      <div class="email-subj">${subjDisplay}</div>
+      <span class="email-label ${e.spam ? 'label-spam' : 'label-ham'}">${e.spam ? '🚫 SPAM' : '✓ 正常'}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderTestEmails() {
+  const cont = document.getElementById('test-emails');
+  if (!cont) return;
+  cont.innerHTML = TEST_EMAILS.map((e, i) => {
+    if (spamClassified[i]) {
+      const info = detectSpam(e.subj);
+      return `<div class="test-email ${info.spam?'predicted-spam':'predicted-ham'}" id="te${i}">
+        ${buildTestResult(e, i)}
+      </div>`;
+    }
+    const btnLabel = lang==='zh' ? '🔍 识别' : '🔍 Classify';
+    return `<div class="test-email" id="te${i}">
+      <div class="test-subj">${e.subj}</div>
+      ${spamTrained ? `<button class="btn btn-sup" style="font-size:.82rem;padding:5px 14px;margin-top:.5rem;" onclick="classifyEmail(${i})">${btnLabel}</button>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function buildTestResult(e, i) {
+  const info = detectSpam(e.subj);
+  const pct = info.spam ? info.score : 100 - info.score;
+  const colorClass = info.spam ? 'conf-spam' : 'conf-ham';
+  const label = info.spam ? '🚫 SPAM' : '✓ ' + (lang==='zh'?'正常邮件':'Ham');
+  const correct = info.spam === e.expectSpam;
+  return `<div class="test-subj" id="ts${i}">${highlightKw(e.subj, info.keywords)}</div>
+    <div class="confidence-bar"><div class="confidence-fill ${colorClass}" style="width:${pct}%"></div></div>
+    <div class="test-result" style="color:${info.spam?'#f87171':'#34d399'}">${label} &nbsp; ${correct?'✅':'❌'}</div>`;
+}
+
+function classifyEmail(i) {
+  if (!spamTrained) return;
+  spamClassified[i] = true;
+  const e = TEST_EMAILS[i];
+  const info = detectSpam(e.subj);
+  const card = document.getElementById(`te${i}`);
+  card.className = 'test-email ' + (info.spam ? 'predicted-spam' : 'predicted-ham');
+  card.innerHTML = buildTestResult(e, i);
+}
+
+async function trainSpamModel() {
+  const btn = document.getElementById('train-btn');
+  btn.disabled = true;
+  setStatus('sup', 'training', lang==='zh'?'正在学习训练数据...':'Learning from training data...');
+  await sleep(400);
+
+  for (let i = 0; i < 3; i++) {
+    setStatus('sup', 'training', lang==='zh'?`分析第 ${i*3+1}-${i*3+3} 封邮件...`:`Analyzing emails ${i*3+1}-${i*3+3}...`);
+    await sleep(450);
+  }
+
+  spamTrained = true;
+  renderTrainingEmails();
+
+  const box = document.getElementById('rules-box');
+  box.classList.add('visible');
+  const tags = document.getElementById('rule-tags');
+  tags.innerHTML = SPAM_KW.map(k => `<span class="rule-tag">${k}</span>`).join('');
+
+  await sleep(300);
+  document.getElementById('test-section').style.display = 'block';
+  renderTestEmails();
+
+  setStatus('sup', 'done', lang==='zh'?'✅ 训练完成！点击每封邮件旁的"识别"按钮来测试。':'✅ Training complete! Click "Classify" on each test email.');
+  btn.disabled = false;
+}
+
+function resetSpam() {
+  spamTrained = false;
+  spamClassified = {};
+  document.getElementById('rules-box').classList.remove('visible');
+  document.getElementById('test-section').style.display = 'none';
+  setStatus('sup', 'ready', lang==='zh'?'等待训练...':'Waiting to train...');
+  renderTrainingEmails();
+}
+
+// ============================================================
+// UNSUPERVISED LEARNING: K-MEANS CLUSTERING
+// ============================================================
+const KM_COLORS = ['#6366f1','#10b981','#f59e0b'];
+const KM_CLUSTER_DEFS = [
+  {cx:90,  cy:280, spread:55},  // bottom-left: young savers
+  {cx:200, cy:190, spread:55},  // center: mid-range
+  {cx:310, cy:90,  spread:55},  // top-right: high spenders
+];
+
+let kmPoints = [], kmCentroids = [], kmAssign = [], kmIter = 0, kmRunning = false;
+
+function kmGenerate() {
+  kmPoints = [];
+  KM_CLUSTER_DEFS.forEach(d => {
+    for (let i = 0; i < 12; i++) {
+      kmPoints.push({ x: d.cx + (Math.random()-.5)*d.spread*2, y: d.cy + (Math.random()-.5)*d.spread*2 });
+    }
+  });
+  kmCentroids = [{x:100,y:100},{x:200,y:300},{x:320,y:200}];
+  kmAssign = new Array(kmPoints.length).fill(-1);
+  kmIter = 0;
+  document.getElementById('km-run-btn').disabled = false;
+  document.getElementById('km-points').textContent = kmPoints.length;
+  document.getElementById('km-iter').textContent = 0;
+  document.getElementById('km-groups').textContent = 0;
+  document.getElementById('kmeans-legend').style.display = 'none';
+  setStatus('km', 'ready', lang==='zh'?'数据已生成，无标签。点击"自动分群"开始聚类。':'Data generated, no labels. Click "Find Groups" to start clustering.');
+  kmDrawCanvas();
+}
+
+function kmAssignStep() {
+  kmPoints.forEach((p, i) => {
+    let best = 0, bestD = Infinity;
+    kmCentroids.forEach((c, k) => {
+      const d = Math.hypot(p.x-c.x, p.y-c.y);
+      if (d < bestD) { bestD = d; best = k; }
+    });
+    kmAssign[i] = best;
+  });
+}
+
+function kmUpdateStep() {
+  let moved = false;
+  KM_COLORS.forEach((_, k) => {
+    const pts = kmPoints.filter((_,i) => kmAssign[i]===k);
+    if (!pts.length) return;
+    const nx = pts.reduce((s,p)=>s+p.x,0)/pts.length;
+    const ny = pts.reduce((s,p)=>s+p.y,0)/pts.length;
+    if (Math.abs(kmCentroids[k].x-nx)>.5 || Math.abs(kmCentroids[k].y-ny)>.5) moved=true;
+    kmCentroids[k] = {x:nx, y:ny};
+  });
+  return moved;
+}
+
+function kmDrawCanvas() {
+  const canvas = document.getElementById('kmeans-canvas');
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0,0,W,H);
+
+  // Axis labels
+  ctx.fillStyle = '#475569'; ctx.font='11px '+getComputedStyle(document.body).fontFamily;
+  ctx.textAlign='center';
+  ctx.fillText(lang==='zh'?'← 年龄 →':'← Age →', W/2, H-8);
+  ctx.save(); ctx.translate(12, H/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText(lang==='zh'?'← 消费金额 →':'← Spending →', 0, 0); ctx.restore();
+
+  // Draw lines from points to centroids (if assigned)
+  if (kmIter > 0) {
+    kmPoints.forEach((p,i) => {
+      if (kmAssign[i]<0) return;
+      const c = kmCentroids[kmAssign[i]];
+      ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(c.x,c.y);
+      ctx.strokeStyle = KM_COLORS[kmAssign[i]]+'33'; ctx.lineWidth=1; ctx.stroke();
+    });
+  }
+
+  // Draw points
+  kmPoints.forEach((p,i) => {
+    const color = kmAssign[i]>=0 ? KM_COLORS[kmAssign[i]] : '#475569';
+    ctx.beginPath(); ctx.arc(p.x,p.y,5,0,Math.PI*2);
+    ctx.fillStyle=color; ctx.fill();
+    ctx.strokeStyle='#0f172a'; ctx.lineWidth=1; ctx.stroke();
+  });
+
+  // Draw centroids
+  if (kmIter > 0) {
+    kmCentroids.forEach((c,k) => {
+      ctx.beginPath(); ctx.arc(c.x,c.y,11,0,Math.PI*2);
+      ctx.fillStyle=KM_COLORS[k]; ctx.fill();
+      ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
+      ctx.strokeStyle='#000'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.moveTo(c.x-5,c.y-5); ctx.lineTo(c.x+5,c.y+5);
+      ctx.moveTo(c.x+5,c.y-5); ctx.lineTo(c.x-5,c.y+5); ctx.stroke();
+    });
+  }
+}
+
+async function kmRun() {
+  if (!kmPoints.length || kmRunning) return;
+  kmRunning = true;
+  document.getElementById('km-run-btn').disabled = true;
+
+  let moved = true;
+  while (moved && kmIter < 25) {
+    kmAssignStep();
+    moved = kmUpdateStep();
+    kmIter++;
+    document.getElementById('km-iter').textContent = kmIter;
+    document.getElementById('km-groups').textContent = 3;
+    kmDrawCanvas();
+    setStatus('km','training',`${lang==='zh'?'聚类迭代':'Clustering iteration'} ${kmIter}...`);
+    await sleep(400);
+  }
+
+  document.getElementById('kmeans-legend').style.display = 'flex';
+  setStatus('km','done',lang==='zh'
+    ?`✅ 收敛！用 ${kmIter} 次迭代自动发现了 3 个客户群组。没有任何人工标签！`
+    :`✅ Converged in ${kmIter} iterations! 3 groups found automatically — zero human labels!`);
+  kmRunning = false;
+}
+
+function kmReset() {
+  kmPoints=[]; kmCentroids=[]; kmAssign=[]; kmIter=0; kmRunning=false;
+  document.getElementById('km-run-btn').disabled = true;
+  document.getElementById('km-points').textContent = 0;
+  document.getElementById('km-iter').textContent = 0;
+  document.getElementById('km-groups').textContent = 0;
+  document.getElementById('kmeans-legend').style.display = 'none';
+  const canvas = document.getElementById('kmeans-canvas');
+  canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
+  setStatus('km','ready',lang==='zh'?'已重置。':'Reset.');
+}
+
+// ============================================================
+// REINFORCEMENT LEARNING: Q-LEARNING MAZE
+// ============================================================
+const GRID = 5;
+const CELL = 80;
+const WALLS = [[1,1],[1,3],[2,2],[3,1],[3,3]];
+const START = [0,0];
+const GOAL  = [4,4];
+
+let Q = {}, rlEp = 0, rlSuccesses = 0, rlAgent = [...START], rlStepping = false;
+const ACTIONS = [[-1,0],[1,0],[0,-1],[0,1]]; // up,down,left,right
+const ACT_ARROWS = ['↑','↓','←','→'];
+
+function isWall(r,c) { return WALLS.some(w=>w[0]===r&&w[1]===c); }
+function inBounds(r,c) { return r>=0&&r<GRID&&c>=0&&c<GRID; }
+function qKey(r,c) { return `${r},${c}`; }
+function getQ(r,c,a) { return ((Q[qKey(r,c)]||{})[a])||0; }
+function setQ(r,c,a,v) { if(!Q[qKey(r,c)]) Q[qKey(r,c)]=[0,0,0,0]; Q[qKey(r,c)][a]=v; }
+function maxQ(r,c) { return Math.max(...ACTIONS.map((_,i)=>getQ(r,c,i))); }
+function bestA(r,c) { let b=0,bv=-Infinity; ACTIONS.forEach((_,i)=>{const v=getQ(r,c,i);if(v>bv){bv=v;b=i;}}); return b; }
+
+function rlStep_(r,c,a,eps=0.3) {
+  const [dr,dc]=ACTIONS[a];
+  let nr=r+dr, nc=c+dc;
+  if(!inBounds(nr,nc)||isWall(nr,nc)){nr=r;nc=c;}
+  const done = nr===GOAL[0]&&nc===GOAL[1];
+  const reward = done ? 10 : (nr===r&&nc===c ? -1 : -0.1);
+  const oldQ = getQ(r,c,a);
+  const newQ = oldQ + 0.2*(reward + 0.9*maxQ(nr,nc) - oldQ);
+  setQ(r,c,a,newQ);
+  return {nr,nc,reward,done};
+}
+
+function chooseAction(r,c,eps) {
+  if(Math.random()<eps) return Math.floor(Math.random()*4);
+  return bestA(r,c);
+}
+
+function rlUpdateEpsDisplay(eps) {
+  const el = document.getElementById('rl-eps');
+  const bar = document.getElementById('rl-eps-bar');
+  if (el) el.textContent = eps.toFixed(2);
+  if (bar) bar.style.width = (eps * 100) + '%';
+}
+
+async function rlRunEpisode(animate=true, eps=0.3) {
+  let [r,c]=[...START]; let reward=0; let steps=0; const maxSteps=80;
+  rlAgent=[r,c];
+  if(animate) rlUpdateEpsDisplay(eps);
+  while(steps<maxSteps){
+    const a=chooseAction(r,c,eps);
+    const res=rlStep_(r,c,a,eps);
+    reward+=res.reward; r=res.nr; c=res.nc; rlAgent=[r,c]; steps++;
+    if(animate){
+      document.getElementById('rl-steps').textContent = steps;
+      rlDraw();
+      await sleep(120);
+    }
+    if(res.done){rlSuccesses++;break;}
+  }
+  rlEp++;
+  rlAgent=[...START];
+  return {reward, steps};
+}
+
+async function rlStep() {
+  if(rlStepping)return;
+  rlStepping=true;
+  const eps=Math.max(0.1, 0.5-rlEp*0.01);
+  const {reward, steps}=await rlRunEpisode(true,eps);
+  document.getElementById('rl-ep').textContent=rlEp;
+  document.getElementById('rl-reward').textContent=reward.toFixed(1);
+  document.getElementById('rl-steps').textContent=steps;
+  document.getElementById('rl-success').textContent=rlEp>0?Math.round(rlSuccesses/rlEp*100)+'%':'0%';
+  rlUpdateEpsDisplay(eps);
+  if(rlEp>=5)document.getElementById('rl-best-btn').disabled=false;
+  const stepsNote = steps>=80 ? (lang==='zh' ? ' (未找到目标)' : " (didn't reach goal)") : '';
+  setStatus('rl','training',`${lang==='zh'?'第':'Ep.'} ${rlEp} · ${lang==='zh'?'走了':'walked'} ${steps} ${lang==='zh'?'步':'steps'}${stepsNote}`);
+  rlDraw();
+  rlStepping=false;
+}
+
+async function rlTrain(n) {
+  if(rlStepping)return;
+  rlStepping=true;
+  setStatus('rl','training',lang==='zh'?`快速训练 ${n} 轮中...`:`Fast training ${n} episodes...`);
+  const eps0=Math.max(0.5, 0.5-rlEp*0.01);
+  let totalR=0, totalSteps=0, finalEps=eps0;
+  for(let i=0;i<n;i++){
+    const eps=Math.max(0.05, eps0-(i/n)*eps0*0.8);
+    finalEps=eps;
+    const {reward, steps}=await rlRunEpisode(false,eps);
+    totalR+=reward; totalSteps+=steps;
+    if(i%20===19){rlDraw();await sleep(0);}
+  }
+  const avgSteps=Math.round(totalSteps/n);
+  document.getElementById('rl-ep').textContent=rlEp;
+  document.getElementById('rl-reward').textContent=(totalR/n).toFixed(1);
+  document.getElementById('rl-steps').textContent=avgSteps;
+  document.getElementById('rl-success').textContent=Math.round(rlSuccesses/rlEp*100)+'%';
+  rlUpdateEpsDisplay(finalEps);
+  document.getElementById('rl-best-btn').disabled=false;
+  setStatus('rl','done',lang==='zh'
+    ?`✅ 训练完成！成功率 ${Math.round(rlSuccesses/rlEp*100)}%，平均 ${avgSteps} 步/轮。点击"最优路径"查看。`
+    :`✅ Done! Success rate ${Math.round(rlSuccesses/rlEp*100)}%, avg ${avgSteps} steps/ep. Click "Best Path".`);
+  rlDraw();
+  rlStepping=false;
+}
+
+async function rlShowBest() {
+  if(rlStepping)return;
+  rlStepping=true;
+  let [r,c]=[...START]; rlAgent=[r,c]; let steps=0;
+  rlUpdateEpsDisplay(0);
+  document.getElementById('rl-steps').textContent=0;
+  setStatus('rl','done',lang==='zh'?'🏆 展示最优路径（ε=0，纯利用）...':'🏆 Showing best path (ε=0, pure exploitation)...');
+  while(steps<30){
+    rlDraw();await sleep(260);
+    const a=bestA(r,c);
+    const [dr,dc]=ACTIONS[a];
+    let nr=r+dr,nc=c+dc;
+    if(!inBounds(nr,nc)||isWall(nr,nc)){nr=r;nc=c;}
+    r=nr;c=nc;rlAgent=[r,c];steps++;
+    document.getElementById('rl-steps').textContent=steps;
+    if(r===GOAL[0]&&c===GOAL[1]){rlDraw();await sleep(500);break;}
+  }
+  rlAgent=[...START];
+  rlDraw();
+  setStatus('rl','done',lang==='zh'
+    ?`✅ AI用 ${steps} 步走完最优路径！`
+    :`✅ AI reached the goal in ${steps} steps!`);
+  rlStepping=false;
+}
+
+function rlReset() {
+  Q={}; rlEp=0; rlSuccesses=0; rlAgent=[...START]; rlStepping=false;
+  document.getElementById('rl-ep').textContent=0;
+  document.getElementById('rl-reward').textContent='0.0';
+  document.getElementById('rl-steps').textContent='0';
+  document.getElementById('rl-success').textContent='0%';
+  document.getElementById('rl-best-btn').disabled=true;
+  rlUpdateEpsDisplay(0.50);
+  setStatus('rl','ready',lang==='zh'?'已重置。':'Reset.');
+  rlDraw();
+}
+
+function rlDraw() {
+  const canvas=document.getElementById('rl-canvas');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+
+  // Find value range for heatmap
+  let minV=0, maxV=0;
+  for(let r=0;r<GRID;r++) for(let c=0;c<GRID;c++){
+    if(!isWall(r,c)&&!(r===GOAL[0]&&c===GOAL[1])){
+      const v=maxQ(r,c);
+      if(v>maxV)maxV=v; if(v<minV)minV=v;
+    }
+  }
+
+  for(let r=0;r<GRID;r++){
+    for(let c=0;c<GRID;c++){
+      const x=c*CELL, y=r*CELL;
+      let bg='#1e293b';
+      if(isWall(r,c)) bg='#1f2937';
+      else if(r===GOAL[0]&&c===GOAL[1]) bg='#064e3b';
+      else if(rlEp>0){
+        const v=maxQ(r,c);
+        const norm=maxV>minV?(v-minV)/(maxV-minV):0;
+        const g=Math.floor(norm*180);
+        bg=`rgb(${20+Math.floor((1-norm)*40)},${60+g},${60+Math.floor((1-norm)*40)})`;
+      }
+      ctx.fillStyle=bg; ctx.fillRect(x+1,y+1,CELL-2,CELL-2);
+      ctx.strokeStyle='#334155'; ctx.lineWidth=1; ctx.strokeRect(x,y,CELL,CELL);
+
+      // Arrows (show policy after some training)
+      if(rlEp>=3&&!isWall(r,c)&&!(r===GOAL[0]&&c===GOAL[1])){
+        const a=bestA(r,c);
+        ctx.fillStyle='rgba(255,255,255,0.35)'; ctx.font='16px sans-serif';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(ACT_ARROWS[a], x+CELL-14, y+14);
+      }
+    }
+  }
+
+  // Emoji icons
+  ctx.font=`${CELL*0.52}px serif`; ctx.textAlign='center'; ctx.textBaseline='middle';
+  // Walls
+  WALLS.forEach(([wr,wc])=>ctx.fillText('🧱',wc*CELL+CELL/2,wr*CELL+CELL/2));
+  // Goal
+  ctx.fillText('⭐',GOAL[1]*CELL+CELL/2,GOAL[0]*CELL+CELL/2);
+  // Agent
+  ctx.fillText('🤖',rlAgent[1]*CELL+CELL/2,rlAgent[0]*CELL+CELL/2);
+
+  // Labels on axes
+  ctx.fillStyle='#475569'; ctx.font='10px sans-serif';
+  ctx.textAlign='center'; ctx.textBaseline='top';
+  ctx.fillText('START', START[1]*CELL+CELL/2, START[0]*CELL+4);
+}
+
+// ============================================================
+// UTILITIES
+// ============================================================
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+
+function setStatus(id, state, msg){
+  const dot=document.getElementById(id+'-dot');
+  const txt=document.getElementById(id+'-status');
+  if(dot){
+    dot.className='status-dot'+(state==='training'?' active':'');
+    dot.style.background=state==='done'?'#10b981':state==='training'?'#6366f1':'#94a3b8';
+  }
+  if(txt) txt.textContent=msg;
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  applyLang();
+  renderTrainingEmails();
+  rlDraw();
+
+  // Init canvas placeholder text for kmeans
+  const km=document.getElementById('kmeans-canvas');
+  if(km){
+    const ctx=km.getContext('2d');
+    ctx.fillStyle='#334155'; ctx.font='14px '+getComputedStyle(document.body).fontFamily;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(lang==='zh'?'点击"生成数据"开始':'Click "Generate Data" to start', km.width/2, km.height/2);
+  }
+});
+
+// ============================================================
+// MATH MODAL
+// ============================================================
+function openMath(type) {
+  const modal = document.getElementById('math-modal');
+  const title = document.getElementById('m-title');
+  const body  = document.getElementById('m-body');
+  const titles = {
+    sup:   { zh:'监督学习的数学原理', en:'Supervised Learning: Math Theory' },
+    unsup: { zh:'K-Means 聚类的数学原理', en:'K-Means Clustering: Math Theory' },
+    rl:    { zh:'Q-Learning 的数学收敛原理', en:'Q-Learning: Convergence Theory' },
+  };
+  title.textContent = titles[type][lang];
+  body.innerHTML = MATH[lang][type];
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMath() {
+  document.getElementById('math-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeMath(); });
+
+// ============================================================
+// MATH CONTENT
+// ============================================================
+const MATH = {
+zh: {
+// -------- SUPERVISED --------
+sup: `
+<div class="ms">
+  <h3>🎯 本质：这是一个优化问题</h3>
+  <p>监督学习的核心任务是：找到一组参数 <strong>θ</strong>，使模型在所有训练样本上的预测误差尽可能小。这个"误差总量"叫做<strong>损失函数 L(θ)</strong>。</p>
+  <div class="mf">
+<span class="cm">/* 二元交叉熵损失（垃圾邮件分类的通用形式） */</span>
+<span class="kw">L(θ)</span> = <span class="vl">-1/N</span> · Σᵢ₌₁ᴺ [ yᵢ·log(<span class="kw">ŷᵢ</span>) + (1-yᵢ)·log(1-<span class="kw">ŷᵢ</span>) ]
+
+yᵢ  = 真实标签（<span class="ok">1</span>=垃圾  <span class="ok">0</span>=正常）
+<span class="kw">ŷᵢ</span>  = 模型预测的"垃圾概率"∈(0,1)
+N   = 训练样本总数
+  </div>
+  <p>当预测完全正确（ŷ=1 且 y=1）时，log(1)=0，损失为 0；预测错得越离谱，log 值越大，损失越高。</p>
+</div>
+
+<div class="ms">
+  <h3>⛷️ 梯度下降：沿最陡坡面下山</h3>
+  <p>把损失函数想象成一座山。梯度 ∇L(θ) 是当前位置"最陡上坡方向"，负梯度就是下山最快的方向。每次沿负梯度走一小步：</p>
+  <div class="mf">
+<span class="kw">θ_new</span> = <span class="kw">θ_old</span> − <span class="vl">α</span> · ∇L(<span class="kw">θ_old</span>)
+           ↑            ↑          ↑
+         旧参数       学习率    梯度（下山方向）
+
+重复直到：<span class="ok">‖∇L(θ)‖ → 0</span>（到达山谷）
+  </div>
+</div>
+
+<div class="ms">
+  <h3>✅ 收敛保证：凸函数的威力</h3>
+  <p>逻辑回归的损失函数是<strong>凸函数</strong>（碗形），只有唯一的全局最小值，梯度下降一定能找到它。</p>
+  <div class="mf g">
+凸函数定义（碗形的数学表达）：
+  ∀θ₁,θ₂, ∀λ∈[0,1]:
+  L(λθ₁ + (1-λ)θ₂) ≤ λL(θ₁) + (1-λ)L(θ₂)
+
+推论：<span class="ok">只有一个极小值 = 全局最小值</span>
+
+收敛速度（强凸函数，固定学习率 α &lt; 1/L）：
+  ‖θ_t − θ*‖² ≤ (1 − <span class="vl">2αμ</span>)ᵗ · ‖θ₀ − θ*‖²
+
+μ = 强凸系数，t = 迭代次数
+→ <span class="ok">指数速度收敛</span>到最优解 θ*
+  </div>
+</div>
+
+<div class="ms">
+  <h3>⚠️ 不收敛的三种情形</h3>
+  <div class="mbox warn">
+    <strong>情形1：学习率 α 过大</strong><br>
+    步子太大，每次都"跨过"最优点，在山谷两侧震荡甚至发散。
+  </div>
+  <div class="mf r">
+α 太小：<span class="cm">●━━━━━━━━━━━━━━━━★  收敛，但很慢</span>
+α 合适：<span class="ok">●━━━━★              收敛，快速</span>
+α 过大：<span class="bad">●⇌⇌⇌⇌⇌⇌⇌⇌⇌⇌⇌   发散，损失飙升</span>
+
+数学上：α &gt; 2/L（L=损失曲率）时梯度下降<span class="bad">不收敛</span>
+  </div>
+  <div class="mbox warn">
+    <strong>情形2：非凸损失（神经网络场景）</strong><br>
+    深度网络的损失曲面是"山地"形——存在大量局部极小值和鞍点。梯度下降可能卡在鞍点，停止更新。
+  </div>
+  <div class="mbox warn">
+    <strong>情形3：梯度消失 / 梯度爆炸</strong><br>
+    深层网络中，梯度通过链式法则逐层相乘。若每层梯度 &lt;1，连乘后趋向 0（消失）；若每层 &gt;1，连乘后趋向 ∞（爆炸）。结果：靠近输入的层几乎无法更新。
+  </div>
+  <div class="mf r">
+梯度消失（sigmoid激活，100层）：
+  (0.25)^100 ≈ <span class="bad">6×10⁻⁶¹</span> → 实际上为 0
+
+梯度爆炸（权重初始化过大）：
+  2^100 ≈ <span class="bad">10³⁰</span> → NaN
+  </div>
+</div>
+
+<div class="ms">
+  <h3>🔧 工程解决方案</h3>
+  <div class="mbox good">
+    <strong>Adam 优化器</strong>：为每个参数自适应调整学习率，兼顾动量与二阶矩估计，对学习率选择不敏感<br><br>
+    <strong>批归一化 (BatchNorm)</strong>：每层输出归一化到均值0、方差1，防止梯度消失<br><br>
+    <strong>残差连接 (ResNet)</strong>：跨层直连 <code>x + F(x)</code>，梯度可以"绕过"中间层直接回传<br><br>
+    <strong>梯度裁剪 (Gradient Clipping)</strong>：当 ‖∇L‖ > 阈值时，强制缩放梯度，防止爆炸<br><br>
+    <strong>早停 (Early Stopping)</strong>：监控验证集损失，一旦开始上升即停止，防止过拟合
+  </div>
+</div>`,
+
+// -------- UNSUPERVISED --------
+unsup: `
+<div class="ms">
+  <h3>🎯 目标函数：最小化组内离散程度</h3>
+  <p>K-Means 要最小化的是 <strong>WCSS（Within-Cluster Sum of Squares，组内平方和）</strong>——每个点到其所在组中心的距离平方之和：</p>
+  <div class="mf">
+<span class="kw">J</span> = Σₖ₌₁ᴷ Σₓ∈Cₖ ‖x − <span class="vl">μₖ</span>‖²
+
+k  = 组别编号（1,2,...,K）
+Cₖ = 第 k 组中的所有数据点
+<span class="vl">μₖ</span> = 第 k 组的中心坐标（质心）
+x  = 单个数据点
+
+目标：<span class="ok">min J</span>（越小说明组内越紧凑，分组越好）
+  </div>
+</div>
+
+<div class="ms">
+  <h3>✅ 收敛证明：两步单调递减</h3>
+  <p>K-Means 的每次迭代分两步，每步都保证 J <strong>不增大</strong>：</p>
+  <div class="mf g">
+<span class="kw">步骤 A — 分配步</span>（每个点分给最近的质心）：
+
+  对每个点 x，新分配 c(x) = argminₖ ‖x − μₖ‖²
+
+  由于选的是最近质心，J 只能 <span class="ok">减少或不变</span>：
+  J_分配后 ≤ J_分配前  ✓
+
+<span class="kw">步骤 B — 更新步</span>（质心移到组的均值位置）：
+
+  新质心 μₖ = (1/|Cₖ|) · Σₓ∈Cₖ x
+
+  数学可证：均值是使组内平方和最小的唯一点：
+  μₖ_new = argmin_μ Σₓ∈Cₖ ‖x − μ‖²
+
+  因此 J_更新后 ≤ J_分配后  ✓
+
+综合：每次完整迭代后 <span class="ok">J 单调不增</span>
+  </div>
+  <div class="mbox info">
+    <strong>有限步内必然收敛的完整论证：</strong><br>
+    ① J ≥ 0（距离平方和不可能为负，有下界）<br>
+    ② J 每次迭代单调不增（已证）<br>
+    ③ N 个点分配到 K 个组，不同分配方案总数 ≤ Kᴺ（有限）<br>
+    ④ 由②③：不可能无限循环，<strong>必在有限步内收敛</strong> ✓
+  </div>
+</div>
+
+<div class="ms">
+  <h3>⚠️ 局部最优：K-Means 的致命缺陷</h3>
+  <p>K-Means 只能保证收敛到<strong>局部最优</strong>，而非全局最优——取决于初始质心的位置：</p>
+  <div class="mf r">
+真实数据结构（全局最优）：    糟糕的初始化→局部最优：
+  <span class="ok">●●</span>        <span class="ok">○○</span>              <span class="bad">●</span><span class="bad">●</span>○        ○○
+  <span class="ok">●●</span>   <span class="ok">△△</span>   <span class="ok">○○</span>    vs     <span class="bad">●</span>   <span class="bad">△△</span><span class="bad">○</span>   <span class="bad">○○</span>
+  <span class="ok">●●</span>        <span class="ok">○○</span>              <span class="bad">△△</span>       <span class="bad">△</span>
+
+左图 J=小（分组正确）        右图 J=大（分组错误但已收敛）
+  </div>
+  <div class="mbox warn">
+    <strong>空簇问题（Empty Cluster）</strong>：若初始质心恰好很近，某个质心可能永远抢不到任何点，导致 K 个分组实际只用了 K-1 个。
+  </div>
+</div>
+
+<div class="ms">
+  <h3>🔧 解决方案</h3>
+  <div class="mbox good">
+    <strong>K-Means++ 初始化</strong>（最重要的改进）：<br>
+    ① 随机选第一个质心<br>
+    ② 每个后续质心按 <strong>D(x)²</strong> 概率选取——离现有质心越远越可能被选中<br>
+    ③ 理论保证：期望 WCSS ≤ O(log K) × 全局最优 WCSS<br><br>
+    <strong>多次重启</strong>：用不同随机初始化跑多次，取 WCSS 最小的结果<br><br>
+    <strong>选合适的 K</strong>：用"肘部法则"（Elbow Method）——画 WCSS vs K 的曲线，找曲率突变点
+  </div>
+  <div class="mf g">
+肘部法则示意：
+  K=1: WCSS=1000 ↓大幅下降
+  K=2: WCSS= 400 ↓大幅下降
+  K=3: WCSS= 120 ↓<span class="ok">明显下降 ← 肘部在这里</span>
+  K=4: WCSS= 100 →小幅下降
+  K=5: WCSS=  95 →几乎不变
+选 K=3（边际收益开始急剧降低的转折点）
+  </div>
+</div>`,
+
+// -------- RL --------
+rl: `
+<div class="ms">
+  <h3>🎯 目标：求解 Bellman 最优方程</h3>
+  <p>Q-Learning 本质上在求解一个递归方程——<strong>Bellman 最优方程</strong>，其唯一解 Q* 即为"在每个状态下，每个动作的真实最优价值"：</p>
+  <div class="mf">
+<span class="kw">Q*(s, a)</span> = r(s,a) + <span class="vl">γ</span> · max_{a'} <span class="kw">Q*(s', a')</span>
+    ↑              ↑       ↑              ↑
+  最优Q值      即时奖励  折扣因子      下一状态的最优Q值
+
+这是一个<span class="ok">不动点方程</span>：Q* 是满足此方程的唯一函数。
+代码中的即时奖励：
+  r = <span class="ok">+10</span>  （到达目标）
+  r = <span class="bad">-1</span>   （撞墙）
+  r = <span class="bad">-0.1</span> （普通移动）
+  </div>
+</div>
+
+<div class="ms">
+  <h3>📐 收敛证明：压缩映射定理</h3>
+  <p>为什么反复更新 Q 值最终能收敛到 Q*？答案在于 <strong>Bellman 算子 T 是压缩映射</strong>：</p>
+  <div class="mf g">
+定义 Bellman 算子 T：
+  (<span class="kw">TQ</span>)(s,a) = r(s,a) + <span class="vl">γ</span> · max_{a'} Q(s', a')
+
+关键性质（在 L∞ 范数下）：
+  ‖<span class="kw">TQ</span> − <span class="kw">TQ'</span>‖∞ ≤ <span class="vl">γ</span> · ‖Q − Q'‖∞
+
+解读：任意两个 Q 函数，经过一次 T 作用后，
+距离<span class="ok">至少缩短为原来的 γ 倍</span>（本项目 γ=0.9，每次缩短10%）
+
+由 Banach 不动点定理：
+  反复应用 T → <span class="ok">收敛到唯一不动点 Q*</span> ✓
+  </div>
+  <p>Q-Learning 的每次更新是这个算子的<strong>随机近似</strong>：</p>
+  <div class="mf g">
+Q_new(s,a) = Q_old(s,a) + <span class="vl">α</span>·[r + <span class="vl">γ</span>·maxQ(s') − Q_old(s,a)]
+                                   └────────────── TD误差 ──────────────┘
+                                   = 目标值 − 当前估计
+                                   = "你猜错了多少，修正这么多"
+  </div>
+</div>
+
+<div class="ms">
+  <h3>📋 严格收敛的三个数学条件</h3>
+  <div class="mf g">
+条件1：<span class="ok">所有 (s,a) 对被访问无穷次</span>
+  → 由 ε-贪心（ε&gt;0）保证
+  → ε=0 时某些格子可能永远不被探索，Q 值永远不更新
+
+条件2：<span class="ok">Σ_{t=0}^∞ αₜ = ∞</span>（步长之和无穷）
+  → 保证能"走到"最优解，不会因步长过小停滞
+
+条件3：<span class="ok">Σ_{t=0}^∞ αₜ² &lt; ∞</span>（步长平方和有限）
+  → 保证随机噪声可被"平均掉"，不会永远抖动
+
+条件2 + 条件3 ⟹ αₜ → 0，但下降足够慢
+（本项目用固定 α=0.2，为演示简化；实际系统需衰减）
+  </div>
+</div>
+
+<div class="ms">
+  <h3>⚠️ 致命三元组：Q-Learning 的失效场景</h3>
+  <p>当以下三个要素<strong>同时</strong>出现时，Q-Learning <strong>可能发散</strong>（Q值趋向±∞）：</p>
+  <div class="mf r">
+<span class="bad">致命三元组（Deadly Triad）：</span>
+
+  ① 函数近似     用神经网络存 Q(s,a)，而非查表
+                 （状态空间太大，无法穷举，必须近似）
+
+  ② 离策略学习   更新时假设未来执行贪心动作（取 max）
+                 但实际执行的是 ε-greedy（含随机性）
+
+  ③ 自举        用 Q 的当前估计来更新 Q 本身
+                 目标值 = r + γ·max Q(s') 中 Q 是自己预测的
+
+三者同时存在 → 目标值和估计值相互追逐，可能无限放大
+  </div>
+  <div class="mbox warn">
+    <strong>Baird 反例（1995）</strong>：即使用线性函数近似（最简单的情形），在离策略 + 自举下，Q 值也被证明可以<strong>无限增大</strong>——这不是实现 bug，是理论上的根本困难。
+  </div>
+</div>
+
+<div class="ms">
+  <h3>🔧 DQN 的两大核心修复</h3>
+  <p>2013年 DeepMind 的 DQN 用两个技巧解决了这个问题，让深度 Q-Learning 在 Atari 游戏上首次成功：</p>
+  <div class="mbox good">
+    <strong>① 经验回放（Experience Replay）</strong><br>
+    把每步经验 (s, a, r, s') 存入缓冲区，训练时<strong>随机采样</strong>小批量<br>
+    作用：打破时间相关性，使更新接近 i.i.d.（独立同分布），满足收敛理论假设<br><br>
+    <strong>② 目标网络（Target Network）</strong><br>
+    用一个<strong>"冻结"的 Q 网络</strong>计算目标值，每 N 步才同步一次主网络参数<br>
+    作用：目标值短期稳定，防止"追逐移动目标"导致的震荡与发散
+  </div>
+  <div class="mf g">
+DQN 更新公式：
+  目标值 y = r + γ · max_{a'} <span class="kw">Q_target</span>(s', a')  ← 用冻结网络
+
+  损失 = (y − <span class="kw">Q_main</span>(s,a))²  ← 用主网络
+
+  每 N 步：<span class="kw">Q_target</span> ← <span class="kw">Q_main</span>   ← 同步参数
+
+两个网络，一个"学习"，一个"出题"——减少自举的不稳定性
+  </div>
+  <div class="mbox info">
+    <strong>现代进展</strong>：Double DQN 进一步消除 Q 值高估偏差；Prioritized Experience Replay 优先回放"学习价值高"的经验；Dueling DQN 分离状态价值与动作优势——这些改进均从数学上针对三元组问题的不同侧面。
+  </div>
+</div>`,
+},
+
+// =============== ENGLISH VERSION ===============
+en: {
+sup: `
+<div class="ms">
+  <h3>🎯 The Core: It's an Optimization Problem</h3>
+  <p>Supervised learning is fundamentally about finding parameters <strong>θ</strong> that minimize total prediction error across all training samples — quantified by the <strong>loss function L(θ)</strong>.</p>
+  <div class="mf">
+<span class="cm">/* Binary cross-entropy loss (general form for spam classification) */</span>
+<span class="kw">L(θ)</span> = <span class="vl">-1/N</span> · Σᵢ₌₁ᴺ [ yᵢ·log(<span class="kw">ŷᵢ</span>) + (1-yᵢ)·log(1-<span class="kw">ŷᵢ</span>) ]
+
+yᵢ  = true label (<span class="ok">1</span>=spam  <span class="ok">0</span>=ham)
+<span class="kw">ŷᵢ</span>  = model's predicted "spam probability" ∈(0,1)
+N   = number of training samples
+  </div>
+  <p>When prediction is perfect (ŷ=1 and y=1), log(1)=0 → zero loss. The more wrong the prediction, the larger the loss.</p>
+</div>
+
+<div class="ms">
+  <h3>⛷️ Gradient Descent: Walking Downhill</h3>
+  <p>Think of the loss function as a mountain. The gradient ∇L(θ) points uphill. Negative gradient points downhill fastest. Take small steps in that direction:</p>
+  <div class="mf">
+<span class="kw">θ_new</span> = <span class="kw">θ_old</span> − <span class="vl">α</span> · ∇L(<span class="kw">θ_old</span>)
+           ↑            ↑          ↑
+        old params   learning   gradient (downhill dir.)
+                      rate
+
+Repeat until: <span class="ok">‖∇L(θ)‖ → 0</span>  (reached the valley)
+  </div>
+</div>
+
+<div class="ms">
+  <h3>✅ Convergence Guarantee: Convexity</h3>
+  <p>Logistic regression's loss is a <strong>convex function</strong> (bowl-shaped) — only one minimum exists, so gradient descent always finds it.</p>
+  <div class="mf g">
+Convex function definition:
+  ∀θ₁,θ₂, ∀λ∈[0,1]:
+  L(λθ₁ + (1-λ)θ₂) ≤ λL(θ₁) + (1-λ)L(θ₂)
+
+Implication: <span class="ok">only one local minimum = the global minimum</span>
+
+Convergence rate (strongly convex, fixed α &lt; 1/L):
+  ‖θ_t − θ*‖² ≤ (1 − <span class="vl">2αμ</span>)ᵗ · ‖θ₀ − θ*‖²
+
+μ = strong convexity constant, t = iterations
+→ <span class="ok">exponential convergence</span> to optimal θ*
+  </div>
+</div>
+
+<div class="ms">
+  <h3>⚠️ Three Non-Convergence Scenarios</h3>
+  <div class="mbox warn">
+    <strong>Case 1: Learning rate α too large</strong><br>
+    Steps overshoot the minimum, oscillating across the valley or diverging entirely.
+  </div>
+  <div class="mf r">
+α too small: <span class="cm">●━━━━━━━━━━━━━━━━★  converges, very slow</span>
+α just right: <span class="ok">●━━━━★              converges quickly</span>
+α too large:  <span class="bad">●⇌⇌⇌⇌⇌⇌⇌⇌⇌⇌⇌   diverges, loss spikes</span>
+
+Mathematically: diverges when α &gt; 2/L (L = loss curvature)
+  </div>
+  <div class="mbox warn">
+    <strong>Case 2: Non-convex loss (neural networks)</strong><br>
+    Deep networks have "mountain range" loss surfaces with many local minima and saddle points. Gradient descent may get stuck, never reaching the global optimum.
+  </div>
+  <div class="mbox warn">
+    <strong>Case 3: Vanishing / Exploding Gradients</strong><br>
+    Gradients multiply through layers via chain rule. If each layer's gradient &lt;1, the product → 0 (vanishing). If &gt;1, the product → ∞ (exploding). Early layers stop learning.
+  </div>
+  <div class="mf r">
+Vanishing (sigmoid activation, 100 layers):
+  (0.25)^100 ≈ <span class="bad">6×10⁻⁶¹</span> → effectively 0
+
+Exploding (large initialization):
+  2^100 ≈ <span class="bad">10³⁰</span> → NaN
+  </div>
+</div>
+
+<div class="ms">
+  <h3>🔧 Engineering Solutions</h3>
+  <div class="mbox good">
+    <strong>Adam optimizer</strong>: Adaptive per-parameter learning rates using momentum + second moment estimates. Robust to learning rate choice.<br><br>
+    <strong>Batch Normalization</strong>: Normalizes layer outputs to zero mean, unit variance. Prevents vanishing gradients.<br><br>
+    <strong>Residual connections (ResNet)</strong>: Skip connections <code>x + F(x)</code> let gradients bypass layers entirely, flowing back directly.<br><br>
+    <strong>Gradient Clipping</strong>: When ‖∇L‖ exceeds threshold, rescale gradient to prevent explosion.<br><br>
+    <strong>Early Stopping</strong>: Monitor validation loss; stop when it starts rising to prevent overfitting.
+  </div>
+</div>`,
+
+unsup: `
+<div class="ms">
+  <h3>🎯 Objective: Minimize Within-Cluster Scatter</h3>
+  <p>K-Means minimizes <strong>WCSS (Within-Cluster Sum of Squares)</strong> — the sum of squared distances from each point to its cluster centroid:</p>
+  <div class="mf">
+<span class="kw">J</span> = Σₖ₌₁ᴷ Σₓ∈Cₖ ‖x − <span class="vl">μₖ</span>‖²
+
+k  = cluster index (1,2,...,K)
+Cₖ = all points assigned to cluster k
+<span class="vl">μₖ</span> = centroid (mean position) of cluster k
+x  = individual data point
+
+Goal: <span class="ok">min J</span>  (smaller J = tighter, better-separated clusters)
+  </div>
+</div>
+
+<div class="ms">
+  <h3>✅ Convergence Proof: Two-Step Monotone Decrease</h3>
+  <p>Each K-Means iteration has two steps. Both guarantee J <strong>never increases</strong>:</p>
+  <div class="mf g">
+<span class="kw">Step A — Assignment</span> (assign each point to nearest centroid):
+
+  c(x) = argminₖ ‖x − μₖ‖²  for each x
+
+  We always pick the nearest centroid, so J can only <span class="ok">decrease or stay same</span>:
+  J_after_assign ≤ J_before_assign  ✓
+
+<span class="kw">Step B — Update</span> (move centroid to cluster mean):
+
+  μₖ_new = (1/|Cₖ|) · Σₓ∈Cₖ x
+
+  Proof: the mean minimizes sum of squared distances:
+  μₖ_new = argmin_μ Σₓ∈Cₖ ‖x − μ‖²
+
+  So J_after_update ≤ J_after_assign  ✓
+
+Combined: J is <span class="ok">monotonically non-increasing</span> each iteration.
+  </div>
+  <div class="mbox info">
+    <strong>Complete finite-step convergence argument:</strong><br>
+    ① J ≥ 0 (squared distances can't be negative — lower bounded)<br>
+    ② J is monotonically non-increasing (proved above)<br>
+    ③ N points assigned to K clusters: at most Kᴺ distinct assignments (finite)<br>
+    ④ From ② + ③: cannot cycle forever → <strong>converges in finite steps</strong> ✓
+  </div>
+</div>
+
+<div class="ms">
+  <h3>⚠️ Local Optima: K-Means' Fatal Flaw</h3>
+  <p>K-Means only guarantees convergence to a <strong>local minimum</strong>, not the global minimum — entirely dependent on initial centroid placement:</p>
+  <div class="mf r">
+True structure (global optimum):    Bad init → local optimum:
+  <span class="ok">●●</span>        <span class="ok">○○</span>              <span class="bad">●</span><span class="bad">●</span>○        ○○
+  <span class="ok">●●</span>   <span class="ok">△△</span>   <span class="ok">○○</span>    vs     <span class="bad">●</span>   <span class="bad">△△</span><span class="bad">○</span>   <span class="bad">○○</span>
+  <span class="ok">●●</span>        <span class="ok">○○</span>              <span class="bad">△△</span>       <span class="bad">△</span>
+
+Left: J=low (correct grouping)       Right: J=high (wrong but converged)
+  </div>
+  <div class="mbox warn">
+    <strong>Empty Cluster Problem</strong>: If initial centroids are too close together, one centroid may never "win" any points. Result: K clusters initialized but only K-1 actually used.
+  </div>
+</div>
+
+<div class="ms">
+  <h3>🔧 Solutions</h3>
+  <div class="mbox good">
+    <strong>K-Means++ Initialization</strong> (most important fix):<br>
+    ① Choose first centroid uniformly at random<br>
+    ② Each subsequent centroid chosen with probability ∝ <strong>D(x)²</strong> — farther from existing centroids = more likely to be chosen<br>
+    ③ Theory: expected WCSS ≤ O(log K) × global optimal WCSS<br><br>
+    <strong>Multiple restarts</strong>: Run K-Means many times with different random seeds, keep the result with lowest WCSS.<br><br>
+    <strong>Choosing K</strong>: Use the "Elbow Method" — plot WCSS vs. K, find the elbow (point of diminishing returns).
+  </div>
+  <div class="mf g">
+Elbow method illustration:
+  K=1: WCSS=1000 ↓ large drop
+  K=2: WCSS= 400 ↓ large drop
+  K=3: WCSS= 120 ↓ <span class="ok">significant drop ← elbow here</span>
+  K=4: WCSS= 100 → small drop
+  K=5: WCSS=  95 → negligible
+
+Choose K=3 (marginal gain drops sharply after this point)
+  </div>
+</div>`,
+
+rl: `
+<div class="ms">
+  <h3>🎯 Goal: Solve the Bellman Optimality Equation</h3>
+  <p>Q-Learning is solving a recursive fixed-point equation. Its unique solution Q* gives the true optimal value of every action in every state:</p>
+  <div class="mf">
+<span class="kw">Q*(s, a)</span> = r(s,a) + <span class="vl">γ</span> · max_{a'} <span class="kw">Q*(s', a')</span>
+    ↑              ↑       ↑              ↑
+ optimal Q    immediate  discount    optimal Q of
+   value       reward    factor      next state
+
+This is a <span class="ok">fixed-point equation</span>: Q* is the unique function satisfying it.
+Rewards in our maze:
+  r = <span class="ok">+10</span>  (reached goal)
+  r = <span class="bad">-1</span>   (hit a wall)
+  r = <span class="bad">-0.1</span> (normal step)
+  </div>
+</div>
+
+<div class="ms">
+  <h3>📐 Why It Converges: Contraction Mapping Theorem</h3>
+  <p>Why does repeatedly updating Q eventually reach Q*? Because the <strong>Bellman operator T is a contraction</strong>:</p>
+  <div class="mf g">
+Define the Bellman operator T:
+  (<span class="kw">TQ</span>)(s,a) = r(s,a) + <span class="vl">γ</span> · max_{a'} Q(s', a')
+
+Key property (in the L∞ norm):
+  ‖<span class="kw">TQ</span> − <span class="kw">TQ'</span>‖∞ ≤ <span class="vl">γ</span> · ‖Q − Q'‖∞
+
+Translation: any two Q-functions, after one application of T,
+are <span class="ok">at least γ-times closer together</span>
+(γ=0.9 in our code → gap shrinks by ≥10% each iteration)
+
+By Banach Fixed-Point Theorem:
+  Repeated application of T → <span class="ok">converges to unique Q*</span> ✓
+  </div>
+  <p>Q-Learning's update is a <strong>stochastic approximation</strong> of this operator:</p>
+  <div class="mf g">
+Q_new(s,a) = Q_old(s,a) + <span class="vl">α</span>·[r + <span class="vl">γ</span>·maxQ(s') − Q_old(s,a)]
+                                   └──────────── TD error ─────────────┘
+                                   = target − current estimate
+                                   = "how wrong you were; correct by this much"
+  </div>
+</div>
+
+<div class="ms">
+  <h3>📋 Three Strict Conditions for Convergence</h3>
+  <div class="mf g">
+Condition 1: <span class="ok">every (s,a) pair visited infinitely often</span>
+  → Guaranteed by ε-greedy (ε &gt; 0)
+  → With ε=0 some cells may never be explored → Q stays wrong forever
+
+Condition 2: <span class="ok">Σ_{t=0}^∞ αₜ = ∞</span>  (step sizes sum to infinity)
+  → Ensures we can "reach" the optimum, don't stall from tiny steps
+
+Condition 3: <span class="ok">Σ_{t=0}^∞ αₜ² &lt; ∞</span>  (squared step sizes finite)
+  → Ensures stochastic noise averages out; Q doesn't jitter forever
+
+Conditions 2+3 ⟹ αₜ → 0, but slowly enough
+(Our code uses fixed α=0.2 for demo simplicity; real systems use decay)
+  </div>
+</div>
+
+<div class="ms">
+  <h3>⚠️ The Deadly Triad: When Q-Learning Diverges</h3>
+  <p>When these three elements appear <strong>simultaneously</strong>, Q-Learning <strong>can diverge</strong> (Q values → ±∞):</p>
+  <div class="mf r">
+<span class="bad">The Deadly Triad:</span>
+
+  ① Function approximation   Use a neural net for Q(s,a) instead of a table
+                             (state space too large to enumerate)
+
+  ② Off-policy learning      Updates assume greedy future actions (take max)
+                             but actual behavior uses ε-greedy (random component)
+
+  ③ Bootstrapping            Use current Q estimates to update Q estimates
+                             Target = r + γ·max Q(s') where Q is self-predicted
+
+All three together → target and estimate chase each other → may grow unbounded
+  </div>
+  <div class="mbox warn">
+    <strong>Baird's Counterexample (1995)</strong>: Even with linear function approximation (simplest possible), off-policy + bootstrapping is proven to make Q values <strong>diverge to infinity</strong>. This is a fundamental theoretical limitation, not an implementation bug.
+  </div>
+</div>
+
+<div class="ms">
+  <h3>🔧 DQN's Two Core Fixes</h3>
+  <p>DeepMind's 2013 DQN used two tricks to make deep Q-Learning practically stable, achieving superhuman performance on Atari games:</p>
+  <div class="mbox good">
+    <strong>① Experience Replay</strong><br>
+    Store each transition (s, a, r, s') in a replay buffer. Train by <strong>randomly sampling</strong> mini-batches.<br>
+    Effect: breaks temporal correlations → updates approximate i.i.d. → satisfies convergence theory assumptions.<br><br>
+    <strong>② Target Network</strong><br>
+    Compute target values using a <strong>"frozen" copy</strong> of Q. Sync with main network every N steps.<br>
+    Effect: stabilizes the target — prevents "chasing a moving target" oscillation.
+  </div>
+  <div class="mf g">
+DQN update:
+  target y = r + γ · max_{a'} <span class="kw">Q_target</span>(s', a')  ← frozen network
+
+  loss = (y − <span class="kw">Q_main</span>(s,a))²  ← main network trains on this
+
+  every N steps: <span class="kw">Q_target</span> ← <span class="kw">Q_main</span>   ← sync weights
+
+Two networks: one "learns," one "sets the exam questions"
+→ reduces the self-referential instability of bootstrapping
+  </div>
+  <div class="mbox info">
+    <strong>Modern advances</strong>: Double DQN eliminates Q-value overestimation bias. Prioritized Experience Replay samples high-learning-value transitions more often. Dueling DQN separates state value from action advantage. Each targets a different mathematical aspect of the deadly triad problem.
+  </div>
+</div>`,
+},
+};
+</script>
+</body>
+</html>

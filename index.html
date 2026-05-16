@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>学习中心 · Learn Hub</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <meta name="theme-color" content="#6366f1">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="学习中心">
+  <link rel="apple-touch-icon" href="icons/icon.svg">
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+<!-- 安装横幅：仅在浏览器触发 beforeinstallprompt 事件时显示 -->
+<div id="install-banner" class="install-banner" style="display:none">
+  <span class="install-banner-icon">📲</span>
+  <span class="install-banner-text" id="install-banner-text">将本应用安装到手机主屏幕，随时离线使用</span>
+  <button class="install-banner-btn" id="install-btn" onclick="installPWA()">安装</button>
+  <button class="install-banner-close" onclick="dismissBanner()" aria-label="关闭">✕</button>
+</div>
+
+<nav class="nav">
+  <a class="nav-brand" href="index.html">
+    <span class="nav-logo">🎓</span>
+    <span class="nav-title" data-i18n="nav.title">学习中心</span>
+  </a>
+  <div class="nav-actions">
+    <button class="lang-toggle" onclick="toggleLang()" data-i18n="nav.lang">English</button>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge" data-i18n="hero.badge">互动学习平台</div>
+  <h1>
+    <span data-i18n="hero.h1a">更聪明地学习</span><br>
+    <span class="gradient-text" data-i18n="hero.h1b">通过互动演示</span>
+  </h1>
+  <p data-i18n="hero.desc">通过动手互动体验探索人工智能、数学、设计等内容。适合全家一起学习。</p>
+</section>
+
+<section class="modules-section">
+  <h2 class="section-title" data-i18n="modules.title">学习模块</h2>
+  <div class="modules-grid">
+
+    <div class="module-card">
+      <div class="module-card-header" style="--c1:#6366f1;--c2:#8b5cf6;">
+        <div class="module-icon">🤖</div>
+        <div>
+          <div class="module-card-title" data-i18n="mod.ml.title">机器学习</div>
+          <div class="module-card-subtitle" data-i18n="mod.ml.sub">人工智能与数据科学</div>
+        </div>
+      </div>
+      <div class="module-card-body">
+        <p class="module-card-desc" data-i18n="mod.ml.desc">通过三个生动的真实案例，理解监督学习、无监督学习和强化学习的核心本质。</p>
+        <div class="module-card-footer">
+          <span class="badge badge-ready" data-i18n="badge.ready">✓ 可用</span>
+          <a class="btn btn-primary" href="modules/ml-basics/index.html" data-i18n="mod.ml.btn">进入模块 →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="module-card-header" style="--c1:#e11d48;--c2:#f97316;">
+        <div class="module-icon">🎌</div>
+        <div>
+          <div class="module-card-title" data-i18n="mod.jp.title">日语速成</div>
+          <div class="module-card-subtitle" data-i18n="mod.jp.sub">旅行 · 地道表达 · 俚语</div>
+        </div>
+      </div>
+      <div class="module-card-body">
+        <p class="module-card-desc" data-i18n="mod.jp.desc">旅行必备日语短语，含地道口语、流行俚语与真人发音，附闪卡练习与文化贴士。</p>
+        <div class="module-card-footer">
+          <span class="badge badge-ready" data-i18n="badge.ready">✓ 可用</span>
+          <a class="btn btn-primary" href="modules/japanese-travel/index.html" data-i18n="mod.jp.btn">进入模块 →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="module-card">
+      <div class="module-card-header" style="--c1:#d97706;--c2:#f59e0b;">
+        <div class="module-icon">🗼</div>
+        <div>
+          <div class="module-card-title" data-i18n="mod.hanoi.title">汉诺塔</div>
+          <div class="module-card-subtitle" data-i18n="mod.hanoi.sub">逻辑与递归</div>
+        </div>
+      </div>
+      <div class="module-card-body">
+        <p class="module-card-desc" data-i18n="mod.hanoi.desc">通过互动游戏理解递归思想与指数复杂度。最多十个圆盘，内含逐步引导与数学原理讲解。</p>
+        <div class="module-card-footer">
+          <span class="badge badge-ready" data-i18n="badge.ready">✓ 可用</span>
+          <a class="btn btn-primary" href="modules/hanoi/index.html" data-i18n="mod.hanoi.btn">进入模块 →</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="module-card coming-soon">
+      <div class="module-card-header" style="--c1:#059669;--c2:#10b981;">
+        <div class="module-icon">📐</div>
+        <div>
+          <div class="module-card-title" data-i18n="mod.calc.title">微积分基础</div>
+          <div class="module-card-subtitle" data-i18n="mod.calc.sub">数学</div>
+        </div>
+      </div>
+      <div class="module-card-body">
+        <p class="module-card-desc" data-i18n="mod.calc.desc">可视化导数和积分，通过动画图形让微积分变得直观易懂。</p>
+        <div class="module-card-footer">
+          <span class="badge badge-soon" data-i18n="badge.soon">即将推出</span>
+          <button class="btn btn-outline" data-i18n="btn.soon">即将推出</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="module-card coming-soon">
+      <div class="module-card-header" style="--c1:#ea580c;--c2:#f59e0b;">
+        <div class="module-icon">🎨</div>
+        <div>
+          <div class="module-card-title" data-i18n="mod.design.title">设计基础</div>
+          <div class="module-card-subtitle" data-i18n="mod.design.sub">视觉设计</div>
+        </div>
+      </div>
+      <div class="module-card-body">
+        <p class="module-card-desc" data-i18n="mod.design.desc">色彩理论、排版、布局——学习优秀设计背后的核心原则。</p>
+        <div class="module-card-footer">
+          <span class="badge badge-soon" data-i18n="badge.soon">即将推出</span>
+          <button class="btn btn-outline" data-i18n="btn.soon">即将推出</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="module-card coming-soon">
+      <div class="module-card-header" style="--c1:#0891b2;--c2:#06b6d4;">
+        <div class="module-icon">💻</div>
+        <div>
+          <div class="module-card-title" data-i18n="mod.prog.title">编程入门</div>
+          <div class="module-card-subtitle" data-i18n="mod.prog.sub">计算机科学</div>
+        </div>
+      </div>
+      <div class="module-card-body">
+        <p class="module-card-desc" data-i18n="mod.prog.desc">通过视觉化、互动式编程练习学习编程概念，零基础友好。</p>
+        <div class="module-card-footer">
+          <span class="badge badge-soon" data-i18n="badge.soon">即将推出</span>
+          <button class="btn btn-outline" data-i18n="btn.soon">即将推出</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <p data-i18n="footer">家庭私人学习平台 · 用心制作</p>
+</footer>
+
+<script src="js/i18n.js"></script>
+<script>
+// ── PWA 安装提示 ──
+let _deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _deferredPrompt = e;
+  const banner = document.getElementById('install-banner');
+  // 若用户之前关闭过就不再显示
+  if (!sessionStorage.getItem('banner-dismissed')) {
+    banner.style.display = 'flex';
+  }
+});
+
+function installPWA() {
+  if (!_deferredPrompt) return;
+  _deferredPrompt.prompt();
+  _deferredPrompt.userChoice.then(() => {
+    _deferredPrompt = null;
+    document.getElementById('install-banner').style.display = 'none';
+  });
+}
+
+function dismissBanner() {
+  document.getElementById('install-banner').style.display = 'none';
+  sessionStorage.setItem('banner-dismissed', '1');
+}
+
+// 安装成功后隐藏横幅
+window.addEventListener('appinstalled', () => {
+  document.getElementById('install-banner').style.display = 'none';
+});
+
+// 根据语言更新横幅文字
+function updateBannerLang() {
+  const el = document.getElementById('install-banner-text');
+  const btn = document.getElementById('install-btn');
+  if (!el) return;
+  const isZh = (localStorage.getItem('edu-lang') || 'zh') === 'zh';
+  el.textContent = isZh
+    ? '将本应用安装到手机主屏幕，随时离线使用'
+    : 'Install this app to your home screen for offline access';
+  if (btn) btn.textContent = isZh ? '安装' : 'Install';
+}
+updateBannerLang();
+
+// 拦截语言切换，同步更新横幅
+const _origToggle = typeof toggleLang === 'function' ? toggleLang : null;
+if (_origToggle) {
+  window.toggleLang = function() { _origToggle(); updateBannerLang(); };
+}
+
+// ── Service Worker 注册 ──
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .catch(err => console.warn('SW registration failed:', err));
+  });
+}
+</script>
+</body>
+</html>
