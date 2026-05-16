@@ -449,10 +449,10 @@ const STEPS = [
   // 4
   {
     badge:'key',
-    zh:{title:'⑤ 平分 ∠OJP₁，得第一高斯周期 η₁',
-        desc:'用圆规作∠OJP₁的角平分线，交x轴于点E。\n\n由角平分线定理：\nOE / EP₁ = |OJ| / |JP₁| = (r/4) / (r√17/4) = 1/√17\n\n解得：OE = r(√17−1)/16\n\n这正是第一高斯周期：η₁ = (√17−1)/2（缩放后）'},
-    en:{title:'⑤ Bisect ∠OJP₁ → first Gaussian period η₁',
-        desc:'Bisect ∠OJP₁ with a compass; the bisector meets the x-axis at E.\n\nBy the angle-bisector theorem:\nOE/EP₁ = |OJ|/|JP₁| = 1/√17\n∴ OE = r(√17−1)/16\n\nThis encodes the first Gaussian period η₁ = (√17−1)/2 (scaled).'},
+    zh:{title:'⑤ 平分 ∠OJP₁，把第一高斯周期 η₁ 编码进 OE',
+        desc:'用圆规作∠OJP₁的角平分线，交x轴于点E。\n\n由角平分线定理：\nOE / EP₁ = |OJ| / |JP₁| = (r/4) / (r√17/4) = 1/√17\n\n解得：OE = r(√17−1)/16\n\n关键关系（精确比例）：\nOE = (r/8) · η₁，其中 η₁ = (−1+√17)/2 ≈ 1.5616\n\n即第一高斯周期 η₁ 被以 r/8 倍的比例编码成 x 轴上的一段长度。'},
+    en:{title:'⑤ Bisect ∠OJP₁ → encode first Gaussian period η₁ in OE',
+        desc:'Bisect ∠OJP₁ with a compass; the bisector meets the x-axis at E.\n\nBy the angle-bisector theorem:\nOE/EP₁ = |OJ|/|JP₁| = 1/√17\n∴ OE = r(√17−1)/16\n\nExact relation:\nOE = (r/8) · η₁, where η₁ = (−1+√17)/2 ≈ 1.5616\n\nSo the first Gaussian period η₁ is encoded as a length on the x-axis at scale r/8.'},
     key:'OE = r(√17−1)/16   ≈ 0.195 r',
     draw(isCur) {
       const a = isCur?1:0.4;
@@ -474,10 +474,10 @@ const STEPS = [
   // 5
   {
     badge:'key',
-    zh:{title:'⑥ 过J作JE的垂线，交x轴于F（η₂）',
-        desc:'过J作JE的垂线，交x轴负半轴于F。\n\n垂直关系意味着F是外角平分线的垂足：\nOF = r(√17+1)/16（F在O左侧）\n\nE与F分别对应两个共轭高斯周期：\nη₁ = (−1+√17)/2，η₂ = (−1−√17)/2'},
-    en:{title:'⑥ Perpendicular at J to JE → F (η₂)',
-        desc:'Through J, draw the perpendicular to JE; it meets the negative x-axis at F.\n\nOF = r(√17+1)/16 (F is to the left of O)\n\nE and F correspond to the conjugate Gaussian periods η₁ and η₂.'},
+    zh:{title:'⑥ 过J作JE的垂线，把共轭周期 η₂ 编码进 F',
+        desc:'过J作JE的垂线，交x轴负半轴于F。\n\n垂直关系意味着F是外角平分线的垂足：\nF 的横坐标 = −r(√17+1)/16\n\n关键关系（与 η₁ 同样的 r/8 比例）：\nx_F = (r/8) · η₂，其中 η₂ = (−1−√17)/2 ≈ −2.5616\n\nE 与 F 同时把两个共轭高斯周期 η₁, η₂ 以相同的 r/8 比例编码在 x 轴上——下一步只需在它们之间做几何运算即可继续分解。'},
+    en:{title:'⑥ Perpendicular at J to JE → encode η₂ in F',
+        desc:'Through J, draw the perpendicular to JE; it meets the negative x-axis at F (the external-bisector foot).\n\nF\\'s x-coordinate = −r(√17+1)/16\n\nExact relation (same r/8 scale as E):\nx_F = (r/8) · η₂, where η₂ = (−1−√17)/2 ≈ −2.5616\n\nE and F jointly encode the conjugate periods η₁ and η₂ on the x-axis at the same scale — geometric operations between them carry the next level of decomposition.'},
     key:'OF = r(√17+1)/16   ≈ 0.320 r\nη₁·η₂ = −4,  η₁+η₂ = −1',
     draw(isCur) {
       const a = isCur?1:0.4;
@@ -507,10 +507,10 @@ const STEPS = [
   // 6
   {
     badge:'key',
-    zh:{title:'⑦ 以P₁F为直径画Carlyle圆C₁，交y轴于G',
-        desc:'以P₁和F为直径两端作圆C₁（Carlyle圆）。C₁与y轴的交点G满足：\n\n|OG|² = (1+√17)/16\n∴ |OG| = √(1+√17)/4\n\nCarlyle圆是解二次方程的几何工具。此步完成了第二层高斯周期的分解。'},
-    en:{title:'⑦ Carlyle circle C₁ (diameter P₁F) → G',
-        desc:'Draw circle C₁ with diameter P₁F. It meets the y-axis at G:\n\n|OG|² = (1+√17)/16\n|OG| = √(1+√17)/4\n\nThe Carlyle circle is a geometric tool for solving quadratic equations — this step computes the 2nd-level period.'},
+    zh:{title:'⑦ 以P₁F为直径画Carlyle圆C₁，得辅助点G',
+        desc:'以P₁和F为直径两端作圆C₁（Carlyle 圆思想：x 轴上的直径端点决定一个开方运算）。C₁与y轴的交点G满足：\n\n|OG|² = −x_{P₁}·x_F = (1+√17)/16 = |η₂|/8\n∴ |OG| = √(1+√17)/4 ≈ 0.566 r\n\n说明：G 本身不是第二层高斯周期 η₁₁、η₁₂；它是一个中间几何量——把代数表达式 √(1+√17) 用一次圆规操作（圆与 y 轴的交点）实现出来，留给下一步使用。'},
+    en:{title:'⑦ Carlyle circle C₁ (diameter P₁F) → auxiliary point G',
+        desc:'Draw circle C₁ with diameter P₁F (Carlyle-circle idea: x-axis diameter endpoints realize one square-root operation). C₁ meets the y-axis at G:\n\n|OG|² = −x_{P₁}·x_F = (1+√17)/16 = |η₂|/8\n|OG| = √(1+√17)/4 ≈ 0.566 r\n\nNote: G is not itself a 2nd-level Gaussian period η₁₁ or η₁₂. It is an intermediate geometric quantity that realizes the algebraic √(1+√17) with one compass operation, ready to be used by the next step.'},
     key:'|OG| = √(1+√17)/4   ≈ 0.566 r',
     draw(isCur) {
       const a = isCur?1:0.4;
@@ -531,10 +531,10 @@ const STEPS = [
   // 7
   {
     badge:'key',
-    zh:{title:'⑧ 以G为圆心、|GE|为半径画圆C₂，交x轴于H₁、H₂',
-        desc:'以G为圆心、GE为半径作圆C₂，与x轴交于两点H₁和H₂。\n\n|OH₁| = |OH₂| = √((9−√17)/128) · r ≈ 0.195 r\n\nH₁、H₂是第三层高斯周期的几何体现，对应4个余弦值之和的进一步分解。'},
-    en:{title:'⑧ Circle C₂ (center G, radius |GE|) → H₁, H₂',
-        desc:'Draw circle C₂ centered at G with radius |GE|. It meets the x-axis at H₁ and H₂.\n\n|OH| = √((9−√17)/128)·r ≈ 0.195r\n\nThese encode the 3rd-level Gaussian period subdivision.'},
+    zh:{title:'⑧ 以G为圆心、|GE|为半径画圆C₂，得辅助点H₁、H₂',
+        desc:'以G为圆心、GE为半径作圆C₂，与x轴交于两点H₁和H₂。\n\n|OH₁| = |OH₂| = √((9−√17)/128) · r ≈ 0.195 r\n\n说明：H₁、H₂ 同样不是 Gaussian period 本身，而是再下一层嵌套根号 √(34−2√17) 的几何实现——为接下来收尾的两次 Carlyle 圆做准备，最终把 cos(2π/17) 的四重根号公式逐层"打开"。'},
+    en:{title:'⑧ Circle C₂ (center G, radius |GE|) → auxiliary H₁, H₂',
+        desc:'Draw circle C₂ centered at G with radius |GE|. It meets the x-axis at H₁ and H₂.\n\n|OH| = √((9−√17)/128)·r ≈ 0.195 r\n\nNote: like G, H₁ and H₂ are not Gaussian periods themselves — they geometrically realize the deeper nested radical √(34−2√17), setting up the final two Carlyle circles that "unpack" the 4-radical formula for cos(2π/17).'},
     key:'|OH₁| = |OH₂| ≈ 0.195 r\n(= √((9−√17)/128) · r)',
     draw(isCur) {
       const a = isCur?1:0.4;

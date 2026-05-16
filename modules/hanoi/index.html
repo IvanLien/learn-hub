@@ -1028,8 +1028,9 @@ function buildStratContent(){
         <strong>为什么是 2ⁿ − 1 步？</strong><br>
         设 f(n) = n个盘所需步数<br>
         f(1) = 1<br>
-        f(n) = f(n-1) + 1 + f(n-1) = 2×f(n-1) + 1<br>
-        解这个递推：f(n) = 2×2×...×2×1 + ... = 2ⁿ − 1 ✓
+        f(n) = f(n-1) + 1 + f(n-1) = 2·f(n-1) + 1<br>
+        展开：f(n) = 2ⁿ⁻¹·f(1) + 2ⁿ⁻² + … + 2 + 1<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 2ⁿ⁻¹ + (2ⁿ⁻¹ − 1) = 2ⁿ − 1 ✓
       </div>
     `;
   } else {
@@ -1069,7 +1070,8 @@ function buildStratContent(){
         Let f(n) = minimum moves for n disks<br>
         f(1) = 1<br>
         f(n) = f(n-1) + 1 + f(n-1) = 2·f(n-1) + 1<br>
-        Solving the recurrence: f(n) = 2ⁿ − 1 ✓
+        Unrolling: f(n) = 2ⁿ⁻¹·f(1) + 2ⁿ⁻² + … + 2 + 1<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= 2ⁿ⁻¹ + (2ⁿ⁻¹ − 1) = 2ⁿ − 1 ✓
       </div>
     `;
   }

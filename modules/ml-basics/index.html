@@ -1255,12 +1255,12 @@ N   = 训练样本总数
 
 推论：<span class="ok">只有一个极小值 = 全局最小值</span>
 
-收敛速度（μ-强凸 + L-光滑，固定学习率 α &lt; 2/L）：
-  ‖θ_t − θ*‖² ≤ (1 − <span class="vl">2αμ + α²L²</span>)ᵗ · ‖θ₀ − θ*‖²
+收敛速度（μ-强凸 + L-光滑，固定步长 α = 1/L）：
+  f(θ_t) − f* ≤ (1 − <span class="vl">μ/L</span>)ᵗ · (f(θ₀) − f*)
 
-μ = 强凸系数，L = 梯度的 Lipschitz 常数，t = 迭代次数
-当 α 取最优 α=μ/L² 时 ⟹ 收缩因子 = 1 − μ²/L² &lt; 1
-→ <span class="ok">指数速度收敛</span>到最优解 θ*
+μ = 强凸系数，L = 梯度的 Lipschitz 常数
+条件数 κ = L/μ（越接近 1 越好优化）
+→ <span class="ok">指数速度收敛</span>：达到 ε 精度只需 O(κ · log(1/ε)) 步
   </div>
 </div>
 
@@ -1397,10 +1397,11 @@ rl: `
   <p>Q-Learning 本质上在求解一个递归方程——<strong>Bellman 最优方程</strong>，其唯一解 Q* 即为"在每个状态下，每个动作的真实最优价值"：</p>
   <div class="mf">
 <span class="kw">Q*(s, a)</span> = <span class="vl">𝔼<sub>s'</sub></span>[ r(s,a) + <span class="vl">γ</span> · max_{a'} <span class="kw">Q*(s', a')</span> ]
-                ↑       ↑       ↑              ↑
-            对随机   即时奖励 折扣因子    下一状态的最优Q值
-            下一状态
-            取期望
+
+  <span class="vl">𝔼<sub>s'</sub></span>       对随机下一状态 s' 取期望
+  r(s,a)    即时奖励
+  <span class="vl">γ</span>         折扣因子（未来奖励的衰减率）
+  max Q*    在 s' 下选择最优动作的 Q 值
 
 （本项目迷宫为<span class="ok">确定性环境</span>，下一状态唯一，期望算子可省。）
 这是一个<span class="ok">不动点方程</span>：Q* 是满足此方程的唯一函数。
@@ -1543,12 +1544,12 @@ Convex function definition:
 
 Implication: <span class="ok">only one local minimum = the global minimum</span>
 
-Convergence rate (μ-strongly convex + L-smooth, fixed α &lt; 2/L):
-  ‖θ_t − θ*‖² ≤ (1 − <span class="vl">2αμ + α²L²</span>)ᵗ · ‖θ₀ − θ*‖²
+Convergence rate (μ-strongly convex + L-smooth, fixed step α = 1/L):
+  f(θ_t) − f* ≤ (1 − <span class="vl">μ/L</span>)ᵗ · (f(θ₀) − f*)
 
-μ = strong-convexity constant, L = gradient Lipschitz constant, t = iterations
-With optimal α = μ/L² ⟹ contraction factor = 1 − μ²/L² &lt; 1
-→ <span class="ok">exponential convergence</span> to optimal θ*
+μ = strong-convexity constant, L = gradient Lipschitz constant
+Condition number κ = L/μ (closer to 1 = easier to optimize)
+→ <span class="ok">exponential convergence</span>: O(κ · log(1/ε)) steps to reach ε accuracy
   </div>
 </div>
 
@@ -1684,10 +1685,11 @@ rl: `
   <p>Q-Learning is solving a recursive fixed-point equation. Its unique solution Q* gives the true optimal value of every action in every state:</p>
   <div class="mf">
 <span class="kw">Q*(s, a)</span> = <span class="vl">𝔼<sub>s'</sub></span>[ r(s,a) + <span class="vl">γ</span> · max_{a'} <span class="kw">Q*(s', a')</span> ]
-              ↑          ↑       ↑              ↑
-          expectation immediate discount   optimal Q of
-          over next    reward   factor     next state
-          state
+
+  <span class="vl">𝔼<sub>s'</sub></span>       expectation over the random next state s'
+  r(s,a)    immediate reward
+  <span class="vl">γ</span>         discount factor (decay rate for future rewards)
+  max Q*    optimal-action Q value at s'
 
 (Our maze is <span class="ok">deterministic</span> — the next state is unique, so the expectation drops out.)
 This is a <span class="ok">fixed-point equation</span>: Q* is the unique function satisfying it.
