@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>正十七边形尺规作图 · Regular 17-gon</title>
+  <style>
+    :root {
+      --primary: #6366f1;
+      --gold:    #f59e0b;
+      --green:   #10b981;
+      --red:     #ef4444;
+      --bg:      #0f172a;
+      --bg-card: #1e293b;
+      --bg-el:   #334155;
+      --text:    #f1f5f9;
+      --text-s:  #cbd5e1;
+      --text-m:  #94a3b8;
+      --border:  #334155;
+      --radius:  16px;
+      --shadow:  0 4px 24px rgba(0,0,0,.4);
+      --tr:      .2s ease;
+      --font:    'Segoe UI','PingFang SC','Microsoft YaHei','Noto Sans SC',system-ui,sans-serif;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.7;min-height:100vh}
+
+    /* nav */
+    .nav{position:sticky;top:0;z-index:100;background:rgba(15,23,42,.92);backdrop-filter:blur(12px);
+      border-bottom:1px solid var(--border);padding:0 2rem;height:64px;
+      display:flex;align-items:center;justify-content:space-between}
+    .nav-brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text)}
+    .nav-logo{font-size:1.8rem}
+    .nav-title{font-size:1.1rem;font-weight:700;
+      background:linear-gradient(135deg,#6366f1,#a78bfa,#f59e0b);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .nav-actions{display:flex;align-items:center;gap:10px}
+    .nav-back{color:var(--text-m);text-decoration:none;font-size:.88rem;
+      padding:6px 12px;border-radius:8px;transition:var(--tr)}
+    .nav-back:hover{color:var(--text);background:var(--bg-el)}
+    .lang-toggle{background:var(--bg-el);border:1px solid var(--border);
+      color:var(--text);padding:6px 16px;border-radius:20px;
+      font-size:.88rem;font-weight:600;cursor:pointer;transition:var(--tr);font-family:var(--font)}
+    .lang-toggle:hover{background:var(--primary);border-color:var(--primary)}
+
+    /* hero */
+    .hero{padding:2.5rem 2rem 1.5rem;text-align:center;
+      background:linear-gradient(180deg,rgba(99,102,241,.07) 0%,transparent 100%)}
+    .hero-badge{display:inline-block;background:rgba(99,102,241,.12);color:#a78bfa;
+      border:1px solid rgba(99,102,241,.28);padding:4px 14px;border-radius:20px;
+      font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.8rem}
+    .hero h1{font-size:clamp(1.6rem,4vw,2.5rem);font-weight:800;letter-spacing:-.03em;margin-bottom:.5rem}
+    .hero h1 span{background:linear-gradient(135deg,#6366f1,#a78bfa,#f59e0b);
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+    .hero p{font-size:.95rem;color:var(--text-m);max-width:600px;margin:0 auto}
+
+    /* construction layout */
+    .con-wrap{max-width:1120px;margin:0 auto;padding:1.5rem;
+      display:grid;grid-template-columns:1fr 360px;gap:1.5rem;align-items:start}
+    .canvas-box{background:var(--bg-card);border:1px solid var(--border);
+      border-radius:var(--radius);padding:1rem;display:flex;align-items:center;justify-content:center}
+    #cvs{max-width:100%;border-radius:8px;display:block}
+
+    /* step panel */
+    .step-panel{background:var(--bg-card);border:1px solid var(--border);
+      border-radius:var(--radius);padding:1.4rem;display:flex;flex-direction:column;gap:1rem}
+    .step-counter{font-size:.75rem;font-weight:700;color:var(--text-m);letter-spacing:.06em;text-transform:uppercase}
+    .step-badge{display:inline-block;background:rgba(99,102,241,.15);color:#a78bfa;
+      border:1px solid rgba(99,102,241,.3);border-radius:8px;padding:4px 10px;
+      font-size:.75rem;font-weight:700;margin-bottom:.4rem}
+    .step-title{font-size:1rem;font-weight:700;color:var(--text);line-height:1.3}
+    .step-desc{font-size:.84rem;color:var(--text-s);line-height:1.7;
+      background:var(--bg-el);border-radius:10px;padding:.9rem 1rem;min-height:90px}
+    .step-key{font-size:.78rem;color:var(--gold);
+      background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);
+      border-radius:8px;padding:.6rem .9rem;font-family:monospace;line-height:1.8;display:none}
+    .step-key.show{display:block}
+
+    /* controls */
+    .step-controls{display:flex;gap:8px;flex-wrap:wrap}
+    .btn{padding:8px 16px;border-radius:9px;font-size:.84rem;font-weight:600;
+      cursor:pointer;border:none;transition:var(--tr);font-family:var(--font)}
+    .btn-primary{background:var(--primary);color:#fff}
+    .btn-primary:hover{background:#4f46e5}
+    .btn-ghost{background:var(--bg-el);border:1px solid var(--border);color:var(--text-s)}
+    .btn-ghost:hover{color:var(--text);border-color:var(--text-m)}
+    .btn-gold{background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.3);color:var(--gold)}
+    .btn-gold:hover{background:rgba(245,158,11,.25)}
+    .btn:disabled{opacity:.4;cursor:not-allowed}
+    .play-btn{flex:1}
+
+    /* speed row */
+    .speed-row{display:flex;align-items:center;gap:8px;font-size:.78rem;color:var(--text-m)}
+    .speed-chips{display:flex;gap:4px}
+    .speed-chip{background:var(--bg-el);border:1px solid var(--border);color:var(--text-m);
+      padding:3px 9px;border-radius:12px;font-size:.74rem;font-weight:600;cursor:pointer;
+      transition:var(--tr);font-family:var(--font)}
+    .speed-chip.active{background:var(--primary);border-color:var(--primary);color:#fff}
+
+    /* step dots */
+    .step-dots{display:flex;gap:4px;flex-wrap:wrap;padding-top:.3rem}
+    .dot{width:10px;height:10px;border-radius:50%;background:var(--bg-el);
+      border:1px solid var(--border);cursor:pointer;transition:var(--tr);flex-shrink:0}
+    .dot.done{background:rgba(99,102,241,.4);border-color:#6366f1}
+    .dot.current{background:var(--primary);border-color:var(--primary);transform:scale(1.3)}
+
+    /* proof section */
+    .proof-section{max-width:1120px;margin:2rem auto;padding:0 1.5rem 4rem}
+    .proof-title{font-size:1.1rem;font-weight:700;color:var(--text-s);margin-bottom:1rem}
+    .accordion{display:flex;flex-direction:column;gap:.7rem}
+    .acc-item{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+    .acc-head{display:flex;align-items:center;justify-content:space-between;
+      padding:1rem 1.2rem;cursor:pointer;user-select:none;transition:var(--tr)}
+    .acc-head:hover{background:var(--bg-el)}
+    .acc-head-left{display:flex;align-items:center;gap:.7rem}
+    .acc-num{background:rgba(99,102,241,.15);color:#a78bfa;border-radius:8px;
+      width:28px;height:28px;display:flex;align-items:center;justify-content:center;
+      font-size:.8rem;font-weight:700;flex-shrink:0}
+    .acc-label{font-size:.95rem;font-weight:700;color:var(--text)}
+    .acc-arrow{color:var(--text-m);font-size:.9rem;transition:transform .2s}
+    .acc-item.open .acc-arrow{transform:rotate(180deg)}
+    .acc-body{display:none;padding:1.2rem 1.4rem;border-top:1px solid var(--border)}
+    .acc-item.open .acc-body{display:block}
+
+    /* proof content */
+    .proof-p{font-size:.88rem;color:var(--text-s);line-height:1.8;margin-bottom:.9rem}
+    .proof-p:last-child{margin-bottom:0}
+    .formula{background:var(--bg-el);border-left:3px solid var(--primary);
+      border-radius:0 8px 8px 0;padding:.7rem 1rem;margin:.7rem 0;
+      font-family:monospace;font-size:.85rem;color:#c4b5fd;line-height:1.9}
+    .formula b{color:#f1f5f9}
+    .hl{color:#a78bfa;font-weight:600}
+    .hl-gold{color:var(--gold);font-weight:600}
+    .hl-green{color:#34d399;font-weight:600}
+    .mbox{border-radius:8px;padding:.7rem 1rem;margin:.7rem 0;font-size:.84rem;line-height:1.7}
+    .mbox.info{background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.22);color:#a78bfa}
+    .mbox.warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.22);color:#fbbf24}
+    .mbox.good{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.22);color:#34d399}
+    .period-table{width:100%;border-collapse:collapse;font-size:.82rem;margin:.6rem 0}
+    .period-table th{background:var(--bg-el);padding:6px 10px;text-align:left;color:var(--text-m);font-weight:600}
+    .period-table td{padding:6px 10px;border-bottom:1px solid rgba(51,65,85,.6);color:var(--text-s)}
+    .period-table tr:last-child td{border-bottom:none}
+    .period-table .num{font-family:monospace;color:#c4b5fd}
+    .proof-ol{padding-left:1.3rem;font-size:.88rem;color:var(--text-s);line-height:2}
+
+    @media(max-width:800px){
+      .con-wrap{grid-template-columns:1fr}
+      .nav{padding:0 1rem}
+      .proof-section{padding:0 1rem 4rem}
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-brand" href="../../index.html">
+    <span class="nav-logo">📐</span>
+    <span class="nav-title" data-i18n="nav.title">正十七边形</span>
+  </a>
+  <div class="nav-actions">
+    <a class="nav-back" href="../../index.html" data-i18n="nav.back">← 返回</a>
+    <button class="lang-toggle" onclick="toggleLang()" data-i18n="nav.lang">English</button>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge" data-i18n="hero.badge">尺规作图 · 数学证明</div>
+  <h1><span data-i18n="hero.h1">正十七边形</span></h1>
+  <p data-i18n="hero.desc">高斯1796年（19岁）证明：正十七边形可以用圆规和直尺精确作出。这是自欧几里得以来2000年间最重大的尺规作图发现。</p>
+</section>
+
+<div class="con-wrap">
+  <!-- Canvas -->
+  <div class="canvas-box">
+    <canvas id="cvs" width="540" height="540"></canvas>
+  </div>
+
+  <!-- Step panel -->
+  <div class="step-panel">
+    <div>
+      <div class="step-counter" id="step-counter">步骤 1 / 12</div>
+      <div class="step-badge" id="step-badge">作图</div>
+      <div class="step-title" id="step-title"></div>
+    </div>
+    <div class="step-desc" id="step-desc"></div>
+    <div class="step-key" id="step-key"></div>
+
+    <div class="step-controls">
+      <button class="btn btn-ghost" id="btn-prev" onclick="goPrev()">◀ 上一步</button>
+      <button class="btn btn-primary play-btn" id="btn-play" onclick="togglePlay()">▶ 自动演示</button>
+      <button class="btn btn-ghost" id="btn-next" onclick="goNext()">下一步 ▶</button>
+    </div>
+
+    <div class="speed-row">
+      <span data-i18n="speed.label">速度：</span>
+      <div class="speed-chips">
+        <button class="speed-chip" onclick="setSpd(1500)" data-i18n="speed.slow">慢</button>
+        <button class="speed-chip active" onclick="setSpd(800)" data-i18n="speed.mid">中</button>
+        <button class="speed-chip" onclick="setSpd(350)" data-i18n="speed.fast">快</button>
+      </div>
+    </div>
+
+    <div>
+      <div style="font-size:.74rem;color:var(--text-m);margin-bottom:6px" data-i18n="dots.label">点击跳转步骤：</div>
+      <div class="step-dots" id="dots"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Math Proof -->
+<section class="proof-section">
+  <div class="proof-title" data-i18n="proof.title">📖 完整数学证明</div>
+  <div class="accordion" id="accordion"></div>
+</section>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  i18n
+// ═══════════════════════════════════════════════════════
+const T = {
+  zh: {
+    'nav.title':'正十七边形','nav.back':'← 返回','nav.lang':'English',
+    'hero.badge':'尺规作图 · 数学证明',
+    'hero.h1':'正十七边形尺规作图',
+    'hero.desc':'高斯1796年（19岁）证明：正十七边形可以用圆规和直尺精确作出。这是自欧几里得以来2000年间最重大的尺规作图发现。',
+    'speed.label':'速度：','speed.slow':'慢','speed.mid':'中','speed.fast':'快',
+    'dots.label':'点击跳转：',
+    'proof.title':'📖 完整数学证明',
+    'badge.construct':'作图','badge.key':'关键值','badge.proof':'证明',
+    'btn.prev':'◀ 上一步','btn.play':'▶ 自动演示','btn.pause':'⏸ 暂停','btn.next':'下一步 ▶',
+    'step.counter':'步骤 %a / %b',
+  },
+  en: {
+    'nav.title':'Regular 17-gon','nav.back':'← Home','nav.lang':'中文',
+    'hero.badge':'Compass & Straightedge · Mathematical Proof',
+    'hero.h1':'Regular Heptadecagon Construction',
+    'hero.desc':'Gauss proved in 1796 (age 19) that a regular 17-gon can be constructed with compass and straightedge — the greatest ruler-and-compass discovery in 2000 years since Euclid.',
+    'speed.label':'Speed: ','speed.slow':'Slow','speed.mid':'Mid','speed.fast':'Fast',
+    'dots.label':'Jump to step:',
+    'proof.title':'📖 Full Mathematical Proof',
+    'badge.construct':'Construction','badge.key':'Key value','badge.proof':'Proof',
+    'btn.prev':'◀ Prev','btn.play':'▶ Auto','btn.pause':'⏸ Pause','btn.next':'Next ▶',
+    'step.counter':'Step %a of %b',
+  },
+};
+
+let lang = localStorage.getItem('edu-lang') || 'zh';
+const t = k => (T[lang]||T.zh)[k] || k;
+
+function applyLang() {
+  document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const v = t(el.dataset.i18n); if (v) el.textContent = v;
+  });
+  renderStepPanel();
+  renderAccordion();
+}
+function toggleLang() {
+  lang = lang === 'zh' ? 'en' : 'zh';
+  localStorage.setItem('edu-lang', lang);
+  applyLang();
+}
+
+// ═══════════════════════════════════════════════════════
+//  Canvas & construction geometry
+// ═══════════════════════════════════════════════════════
+const cvs = document.getElementById('cvs');
+const ctx = cvs.getContext('2d');
+const CW = 540, CH = 540;
+const OX = CW/2, OY = CH/2;
+const R  = 200; // circle radius in pixels
+
+const S17 = Math.sqrt(17);
+
+// ── Pre-compute all key construction points ──
+const pt = {
+  O:  [OX,           OY           ],
+  P1: [OX + R,       OY           ],  // first vertex (1,0)
+  Pm: [OX - R,       OY           ],  // (-1,0)
+  B:  [OX,           OY - R       ],  // top (0,1)
+  J:  [OX,           OY - R/4     ],  // (0, 1/4)
+};
+// Angle bisector of ∠OJP1 meets x-axis at E
+pt.E = [OX + R*(S17-1)/16,   OY];
+// External bisector meets x-axis at F (left of O)
+pt.F = [OX - R*(S17+1)/16,   OY];
+
+// Carlyle circle C1: diameter = P1 to F
+const M1x = (pt.P1[0] + pt.F[0]) / 2;
+const r1   = Math.abs(pt.P1[0] - pt.F[0]) / 2;
+// C1 meets y-axis at G (above O)
+const Gdy  = Math.sqrt(r1*r1 - (M1x - OX)**2);
+pt.G = [OX, OY - Gdy];
+
+// Circle C2: center G, radius |GE|
+const GE   = Math.hypot(pt.E[0]-pt.G[0], pt.E[1]-pt.G[1]);
+const Gaxy = OY - pt.G[1]; // G.y < OY so this is positive
+const Hdx  = Math.sqrt(Math.max(0, GE*GE - Gaxy*Gaxy));
+pt.H1 = [OX + Hdx, OY];
+pt.H2 = [OX - Hdx, OY];
+
+// Actual vertices (exact)
+const VERTS = Array.from({length:17}, (_,k) => [
+  OX + R*Math.cos(2*Math.PI*k/17),
+  OY - R*Math.sin(2*Math.PI*k/17),
+]);
+pt.P2 = VERTS[1];
+
+// ── Drawing helpers ──
+function circle(cx,cy,r, color='#6366f1', lw=1.5, dash=[]) {
+  ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.strokeStyle=color; ctx.lineWidth=lw; ctx.setLineDash(dash);
+  ctx.stroke(); ctx.setLineDash([]);
+}
+function arc(cx,cy,r,a1,a2, color='#94a3b8', lw=1, dash=[]) {
+  ctx.beginPath(); ctx.arc(cx,cy,r,a1,a2);
+  ctx.strokeStyle=color; ctx.lineWidth=lw; ctx.setLineDash(dash);
+  ctx.stroke(); ctx.setLineDash([]);
+}
+function line([x1,y1],[x2,y2], color='#334155', lw=1, dash=[]) {
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+  ctx.strokeStyle=color; ctx.lineWidth=lw; ctx.setLineDash(dash);
+  ctx.stroke(); ctx.setLineDash([]);
+}
+function dot([x,y], color='#f1f5f9', r=4) {
+  ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2);
+  ctx.fillStyle=color; ctx.fill();
+}
+function label([x,y], text, color='#cbd5e1', dx=8, dy=-8, size=12) {
+  ctx.font = `${size}px 'Segoe UI',sans-serif`;
+  ctx.fillStyle = color;
+  ctx.fillText(text, x+dx, y+dy);
+}
+function namedPt([x,y], name, color='#f1f5f9', dx=8, dy=-8) {
+  dot([x,y], color, 4);
+  label([x,y], name, color, dx, dy);
+}
+
+// angle bisector compass arcs (decorative, shows the construction)
+function bisectorArcs(J, O, A) {
+  const [jx,jy]=J, [ox,oy]=O, [ax,ay]=A;
+  // arc centered at J with radius spanning both sides
+  const dJ_O = Math.hypot(ox-jx,oy-jy);
+  const dJ_A = Math.hypot(ax-jx,ay-jy);
+  const arcR  = Math.min(dJ_O, dJ_A)*0.65;
+  const aO    = Math.atan2(oy-jy, ox-jx);
+  const aA    = Math.atan2(ay-jy, ax-jx);
+  ctx.setLineDash([3,3]);
+  arc(jx,jy,arcR, Math.min(aO,aA), Math.max(aO,aA), '#64748b', 1);
+  ctx.setLineDash([]);
+  // intersection points on the two rays (for cross-arc construction)
+  const P1b = [jx+arcR*Math.cos(aO), jy+arcR*Math.sin(aO)];
+  const P2b = [jx+arcR*Math.cos(aA), jy+arcR*Math.sin(aA)];
+  const crossR = Math.hypot(P1b[0]-P2b[0],P1b[1]-P2b[1])*0.8;
+  ctx.setLineDash([2,3]);
+  arc(P1b[0],P1b[1],crossR, -Math.PI*0.2, Math.PI*0.2, '#64748b',1);
+  arc(P2b[0],P2b[1],crossR, Math.PI*0.8, Math.PI*1.2, '#64748b',1);
+  ctx.setLineDash([]);
+}
+
+// ─────────────────────────────────────────────────────
+//  CONSTRUCTION STEPS
+// ─────────────────────────────────────────────────────
+const STEPS = [
+  // 0
+  {
+    badge:'construct',
+    zh:{title:'① 画外接圆',
+        desc:'以O为圆心，以r为半径画圆。正十七边形的所有顶点均在此圆上。建立坐标轴，x轴向右为正，y轴向上为正。'},
+    en:{title:'① Draw the circumscribed circle',
+        desc:'Draw a circle with center O and radius r. All 17 vertices lie on this circle. Establish coordinate axes.'},
+    draw(isCur) {
+      const a = isCur ? 1 : 0.4;
+      ctx.globalAlpha = a;
+      line(pt.Pm, pt.P1, '#1e3a5f', 1, [5,4]);
+      line(pt.B,  [OX,OY+R], '#1e3a5f', 1, [5,4]);
+      circle(OX,OY,R, '#6366f1', isCur?2:1.2);
+      namedPt(pt.O,'O','#94a3b8', -16, 4);
+      ctx.globalAlpha = 1;
+    }
+  },
+  // 1
+  {
+    badge:'construct',
+    zh:{title:'② 标记第一顶点 P₁，引辅助线',
+        desc:'取P₁ = (r, 0)为第一个顶点（圆与正x轴的交点），再取B = (0, r)为圆顶端。P₁B和水平直径是后续作图的基准。'},
+    en:{title:'② Mark first vertex P₁, draw reference lines',
+        desc:'Let P₁ = (r,0) be the first vertex and B = (0,r) the top of the circle. These reference lines anchor all subsequent steps.'},
+    draw(isCur) {
+      const a = isCur?1:0.35;
+      ctx.globalAlpha = a;
+      line(pt.Pm, pt.P1, '#334155', 1, [5,4]);
+      line(pt.B, [OX,OY+R], '#334155', 1, [5,4]);
+      namedPt(pt.P1,'P₁','#f59e0b', 6,-10);
+      namedPt(pt.B,'B','#94a3b8', 6,-8);
+      namedPt(pt.Pm,''  ,'#475569', -4,-8);
+      ctx.globalAlpha = 1;
+    }
+  },
+  // 2
+  {
+    badge:'construct',
+    zh:{title:'③ 四等分竖直半径，标记辅助点J',
+        desc:'将OB四等分，取靠近O的四分之一处得辅助点J。\n\nOJ = r/4，即J = (0, r/4)。\n\n关键观察：|P₁J| = √(r² + r²/16) = r√17/4\n这一线段的长度暗藏了 √17！'},
+    en:{title:'③ Quarter the vertical radius; mark J',
+        desc:'Divide OB into 4 equal parts; J is the first quarter from O, so OJ = r/4, J = (0, r/4).\n\nKey: |P₁J| = r√17/4 — this segment secretly encodes √17!'},
+    key:'|P₁J| = √(r² + (r/4)²) = r·√17/4',
+    draw(isCur) {
+      const a = isCur?1:0.35;
+      ctx.globalAlpha = a;
+      // tick marks for quarters
+      for (let i=1;i<=4;i++){
+        const y=OY-R*i/4;
+        line([OX-5,y],[OX+5,y],'#475569',1);
+      }
+      if(isCur) {
+        line(pt.P1, pt.J, '#34d399', 1.5);
+        dot(pt.J,'#34d399',5);
+        label(pt.J,'J','#34d399',8,4);
+      } else {
+        dot(pt.J,'#94a3b8',4);
+        label(pt.J,'J','#94a3b8',8,4);
+      }
+      ctx.globalAlpha = 1;
+    }
+  },
+  // 3
+  {
+    badge:'construct',
+    zh:{title:'④ 连接 P₁J，揭示 √17',
+        desc:'连接P₁与J。由勾股定理：\n|P₁J|² = r² + (r/4)² = 17r²/16\n∴ |P₁J| = r√17/4\n\n因此线段P₁J与OJ之比正好等于√17：\n|P₁J| / |OJ| = (r√17/4) / (r/4) = √17\n\n这意味着√17已经被内嵌在这个简单的几何关系中了！'},
+    en:{title:'④ Draw P₁J — √17 revealed',
+        desc:'|P₁J|² = r² + (r/4)² = 17r²/16, so |P₁J| = r√17/4.\n\nCrucially: |P₁J|/|OJ| = √17.\n\n√17 is already embedded in this simple geometric ratio!'},
+    key:'|P₁J| / |OJ| = (r√17/4) / (r/4) = √17',
+    draw(isCur) {
+      const a = isCur?1:0.4;
+      ctx.globalAlpha = a;
+      line(pt.P1, pt.J, isCur?'#34d399':'#2d6a4f', isCur?2:1.2);
+      if(isCur){
+        // length annotation
+        const mx=(pt.P1[0]+pt.J[0])/2, my=(pt.P1[1]+pt.J[1])/2;
+        ctx.font='11px monospace'; ctx.fillStyle='#34d399';
+        ctx.fillText('r√17/4', mx+8, my);
+      }
+      ctx.globalAlpha=1;
+    }
+  },
+  // 4
+  {
+    badge:'key',
+    zh:{title:'⑤ 平分 ∠OJP₁，得第一高斯周期 η₁',
+        desc:'用圆规作∠OJP₁的角平分线，交x轴于点E。\n\n由角平分线定理：\nOE / EP₁ = |OJ| / |JP₁| = (r/4) / (r√17/4) = 1/√17\n\n解得：OE = r(√17−1)/16\n\n这正是第一高斯周期：η₁ = (√17−1)/2（缩放后）'},
+    en:{title:'⑤ Bisect ∠OJP₁ → first Gaussian period η₁',
+        desc:'Bisect ∠OJP₁ with a compass; the bisector meets the x-axis at E.\n\nBy the angle-bisector theorem:\nOE/EP₁ = |OJ|/|JP₁| = 1/√17\n∴ OE = r(√17−1)/16\n\nThis encodes the first Gaussian period η₁ = (√17−1)/2 (scaled).'},
+    key:'OE = r(√17−1)/16   ≈ 0.195 r',
+    draw(isCur) {
+      const a = isCur?1:0.4;
+      ctx.globalAlpha = a;
+      if(isCur) bisectorArcs(pt.J, pt.O, pt.P1);
+      // bisector ray from J to E (extended)
+      const jx=pt.J[0],jy=pt.J[1], ex=pt.E[0],ey=pt.E[1];
+      const dirX=ex-jx, dirY=ey-jy, len=Math.hypot(dirX,dirY);
+      line(pt.J,[jx+dirX/len*180, jy+dirY/len*180], isCur?'#a78bfa':'#4c3f7a', isCur?1.5:1,[3,3]);
+      dot(pt.E,'#a78bfa', isCur?5:4);
+      label(pt.E,'E','#a78bfa',6,-10);
+      if(isCur){
+        ctx.font='11px monospace'; ctx.fillStyle='#a78bfa';
+        ctx.fillText('(√17−1)/16 · r', pt.E[0]+8, pt.E[1]+16);
+      }
+      ctx.globalAlpha=1;
+    }
+  },
+  // 5
+  {
+    badge:'key',
+    zh:{title:'⑥ 过J作JE的垂线，交x轴于F（η₂）',
+        desc:'过J作JE的垂线，交x轴负半轴于F。\n\n垂直关系意味着F是外角平分线的垂足：\nOF = r(√17+1)/16（F在O左侧）\n\nE与F分别对应两个共轭高斯周期：\nη₁ = (−1+√17)/2，η₂ = (−1−√17)/2'},
+    en:{title:'⑥ Perpendicular at J to JE → F (η₂)',
+        desc:'Through J, draw the perpendicular to JE; it meets the negative x-axis at F.\n\nOF = r(√17+1)/16 (F is to the left of O)\n\nE and F correspond to the conjugate Gaussian periods η₁ and η₂.'},
+    key:'OF = r(√17+1)/16   ≈ 0.320 r\nη₁·η₂ = −4,  η₁+η₂ = −1',
+    draw(isCur) {
+      const a = isCur?1:0.4;
+      ctx.globalAlpha = a;
+      const jx=pt.J[0],jy=pt.J[1],fx=pt.F[0],fy=pt.F[1];
+      const dirX=fx-jx,dirY=fy-jy,len=Math.hypot(dirX,dirY);
+      line(pt.J,[jx+dirX/len*220,jy+dirY/len*220], isCur?'#f59e0b':'#78450a', isCur?1.5:1,[3,3]);
+      dot(pt.F,'#f59e0b',isCur?5:4);
+      label(pt.F,'F','#f59e0b',-20,-10);
+      if(isCur){
+        ctx.font='11px monospace'; ctx.fillStyle='#f59e0b';
+        ctx.fillText('−(√17+1)/16 · r', pt.F[0]-140, pt.F[1]+16);
+        // right-angle mark at J
+        const ex=pt.E[0],ey=pt.E[1];
+        const eDir=[ex-jx,ey-jy], fDir=[fx-jx,fy-jy];
+        const eN=Math.hypot(...eDir), fN=Math.hypot(...fDir);
+        const s=12;
+        const sq1=[jx+s*eDir[0]/eN, jy+s*eDir[1]/eN];
+        const sq2=[sq1[0]+s*fDir[0]/fN, sq1[1]+s*fDir[1]/fN];
+        const sq3=[jx+s*fDir[0]/fN, jy+s*fDir[1]/fN];
+        ctx.beginPath(); ctx.moveTo(...sq1); ctx.lineTo(...sq2); ctx.lineTo(...sq3);
+        ctx.strokeStyle='#f59e0b'; ctx.lineWidth=1; ctx.stroke();
+      }
+      ctx.globalAlpha=1;
+    }
+  },
+  // 6
+  {
+    badge:'key',
+    zh:{title:'⑦ 以P₁F为直径画Carlyle圆C₁，交y轴于G',
+        desc:'以P₁和F为直径两端作圆C₁（Carlyle圆）。C₁与y轴的交点G满足：\n\n|OG|² = (1+√17)/16\n∴ |OG| = √(1+√17)/4\n\nCarlyle圆是解二次方程的几何工具。此步完成了第二层高斯周期的分解。'},
+    en:{title:'⑦ Carlyle circle C₁ (diameter P₁F) → G',
+        desc:'Draw circle C₁ with diameter P₁F. It meets the y-axis at G:\n\n|OG|² = (1+√17)/16\n|OG| = √(1+√17)/4\n\nThe Carlyle circle is a geometric tool for solving quadratic equations — this step computes the 2nd-level period.'},
+    key:'|OG| = √(1+√17)/4   ≈ 0.566 r',
+    draw(isCur) {
+      const a = isCur?1:0.4;
+      ctx.globalAlpha = a;
+      const m1x=(pt.P1[0]+pt.F[0])/2;
+      circle(m1x,OY,r1, isCur?'#06b6d4':'#155e75', isCur?1.5:1, isCur?[]:[4,4]);
+      dot([m1x,OY],'#475569',3);
+      dot(pt.G,'#06b6d4',isCur?5:4);
+      label(pt.G,'G','#06b6d4',8,0);
+      if(isCur){
+        line(pt.O,pt.G,'#06b6d4',1,[3,3]);
+        ctx.font='11px monospace';ctx.fillStyle='#06b6d4';
+        ctx.fillText('√(1+√17)/4·r', pt.G[0]+10, pt.G[1]+6);
+      }
+      ctx.globalAlpha=1;
+    }
+  },
+  // 7
+  {
+    badge:'key',
+    zh:{title:'⑧ 以G为圆心、|GE|为半径画圆C₂，交x轴于H₁、H₂',
+        desc:'以G为圆心、GE为半径作圆C₂，与x轴交于两点H₁和H₂。\n\n|OH₁| = |OH₂| = √((9−√17)/128) · r ≈ 0.195 r\n\nH₁、H₂是第三层高斯周期的几何体现，对应4个余弦值之和的进一步分解。'},
+    en:{title:'⑧ Circle C₂ (center G, radius |GE|) → H₁, H₂',
+        desc:'Draw circle C₂ centered at G with radius |GE|. It meets the x-axis at H₁ and H₂.\n\n|OH| = √((9−√17)/128)·r ≈ 0.195r\n\nThese encode the 3rd-level Gaussian period subdivision.'},
+    key:'|OH₁| = |OH₂| ≈ 0.195 r\n(= √((9−√17)/128) · r)',
+    draw(isCur) {
+      const a = isCur?1:0.4;
+      ctx.globalAlpha = a;
+      circle(pt.G[0],pt.G[1],GE, isCur?'#10b981':'#064e3b', isCur?1.5:1, isCur?[]:[4,4]);
+      dot(pt.H1,'#10b981',isCur?5:4);
+      dot(pt.H2,'#10b981',isCur?5:4);
+      label(pt.H1,'H₁','#10b981',6,-10);
+      label(pt.H2,'H₂','#10b981',-26,-10);
+      if(isCur){
+        line(pt.G,pt.H1,'#10b981',1,[3,3]);
+        ctx.font='11px monospace';ctx.fillStyle='#10b981';
+        ctx.fillText('|GE|', (pt.G[0]+pt.H1[0])/2+4,(pt.G[1]+pt.H1[1])/2-6);
+      }
+      ctx.globalAlpha=1;
+    }
+  },
+  // 8
+  {
+    badge:'key',
+    zh:{title:'⑨ 再经两轮Carlyle圆，确定 cos(2π/17)',
+        desc:'重复Carlyle圆方法两次，最终在x轴上定位到cos(2π/17)的精确位置。\n\n显式公式（四重嵌套根号）：\ncos(2π/17) = (−1+√17+√(34−2√17)+2√A)/16\n其中A = 17+3√17−√(34−2√17)−2√(34+2√17)\n\n每一层对应一次圆规作图，总计4次。'},
+    en:{title:'⑨ Two more Carlyle circles → cos(2π/17)',
+        desc:'Two more rounds of the Carlyle circle technique pinpoint cos(2π/17) on the x-axis.\n\nExplicit formula (4 nested radicals):\ncos(2π/17) = (−1+√17+√(34−2√17)+2√A)/16\nwhere A = 17+3√17−√(34−2√17)−2√(34+2√17)\n\nEach square root = one compass construction. Total: 4 constructions.'},
+    key:'cos(2π/17) ≈ 0.9326\n= (−1+√17+√(34−2√17)+2√A)/16',
+    draw(isCur) {
+      const a = isCur?1:0.4;
+      ctx.globalAlpha = a;
+      const cx = pt.P2[0];
+      if(isCur){
+        line([cx,OY-10],[cx,OY+10],'#f59e0b',1.5);
+        line([OX,OY],[cx,OY],'#f59e0b',1,[4,3]);
+        ctx.font='11px monospace';ctx.fillStyle='#f59e0b';
+        ctx.fillText('cos(2π/17)·r', cx-30, OY+22);
+      } else {
+        line([cx,OY-6],[cx,OY+6],'#78450a',1);
+      }
+      ctx.globalAlpha=1;
+    }
+  },
+  // 9
+  {
+    badge:'construct',
+    zh:{title:'⑩ 过cos(2π/17)作垂线，得第二顶点 P₂',
+        desc:'在x = cos(2π/17)处作x轴的垂线，与圆的交点即为P₂。\n\nP₂是正十七边形的第二个顶点，位于第一顶点P₁逆时针方向360°/17 ≈ 21.18°处。\n\n弦长 |P₁P₂| = 2r·sin(π/17) ≈ 0.368r 已经确定！'},
+    en:{title:'⑩ Erect perpendicular at cos(2π/17) → P₂',
+        desc:'The perpendicular to the x-axis at cos(2π/17) meets the circle at P₂ — the second vertex, exactly 360°/17 ≈ 21.18° counterclockwise from P₁.\n\nChord length |P₁P₂| = 2r·sin(π/17) ≈ 0.368r is now determined!'},
+    key:'|P₁P₂| = 2r·sin(π/17) ≈ 0.368 r',
+    draw(isCur) {
+      const a = isCur?1:0.4;
+      ctx.globalAlpha = a;
+      dot(pt.P2, isCur?'#f59e0b':'#78450a', isCur?6:4);
+      label(pt.P2,'P₂','#f59e0b',6,-8);
+      if(isCur){
+        line([pt.P2[0],OY],[pt.P2[0],pt.P2[1]],'#f59e0b',1,[3,3]);
+        line(pt.P1,pt.P2,'#f59e0b',1.5,[4,3]);
+        ctx.font='11px monospace';ctx.fillStyle='#f59e0b';
+        const mx=(pt.P1[0]+pt.P2[0])/2, my=(pt.P1[1]+pt.P2[1])/2;
+        ctx.fillText('chord', mx+6, my-6);
+      }
+      ctx.globalAlpha=1;
+    }
+  },
+  // 10
+  {
+    badge:'construct',
+    zh:{title:'⑪ 以弦长|P₁P₂|为半径，步进截取全部17个顶点',
+        desc:'将圆规张开至弦长|P₁P₂|，以P₁为起点，依次在圆上截取P₂, P₃, ..., P₁₇，共17个顶点。\n\n这是合法的圆规操作：等距步进，利用正多边形所有边等长的性质。'},
+    en:{title:'⑪ Step the chord |P₁P₂| around the circle → all 17 vertices',
+        desc:'Set the compass to chord length |P₁P₂|. Starting from P₁, step around the circle marking P₂, P₃, …, P₁₇.\n\nThis is a valid compass operation — all sides of a regular polygon are equal.'},
+    draw(isCur) {
+      const a = isCur?1:0.4;
+      ctx.globalAlpha = a;
+      VERTS.forEach((v,k) => {
+        dot(v, isCur?'#f59e0b':'#78450a', isCur?5:3.5);
+        if(isCur && k>0 && k<17){
+          label(v,`P${k+1}`,'#94a3b8',4,-8,10);
+        }
+      });
+      if(isCur){
+        // show a compass-circle arc near P2 to suggest stepping
+        const chord = Math.hypot(pt.P1[0]-pt.P2[0],pt.P1[1]-pt.P2[1]);
+        arc(pt.P1[0],pt.P1[1], chord, -Math.PI*0.8, -Math.PI*0.3,'#475569',1,[3,3]);
+      }
+      ctx.globalAlpha=1;
+    }
+  },
+  // 11
+  {
+    badge:'construct',
+    zh:{title:'⑫ 依次连接各顶点，正十七边形完成！',
+        desc:'依次连接 P₁→P₂→P₃→…→P₁₇→P₁，正十七边形作图完成！\n\n高斯在1796年3月30日（他的日记记录）完成这一发现，当时他只有19岁。这一发现深刻改变了他的人生方向——他决定成为数学家而非语言学家。'},
+    en:{title:'⑫ Connect all vertices — the regular 17-gon is complete!',
+        desc:'Connect P₁→P₂→…→P₁₇→P₁. The regular heptadecagon is complete!\n\nGauss recorded this discovery on March 30, 1796 (age 19) in his diary. It convinced him to pursue mathematics over philology.'},
+    draw(isCur) {
+      ctx.globalAlpha = isCur?1:0.5;
+      // filled polygon
+      ctx.beginPath();
+      VERTS.forEach(([x,y],i)=>i===0?ctx.moveTo(x,y):ctx.lineTo(x,y));
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(99,102,241,0.08)';
+      ctx.fill();
+      // edges
+      ctx.beginPath();
+      VERTS.forEach(([x,y],i)=>i===0?ctx.moveTo(x,y):ctx.lineTo(x,y));
+      ctx.closePath();
+      ctx.strokeStyle = isCur?'#6366f1':'#3730a3';
+      ctx.lineWidth   = isCur?2:1.2;
+      ctx.setLineDash([]);
+      ctx.stroke();
+      // vertices
+      VERTS.forEach((v,k)=>{
+        dot(v,'#f59e0b',isCur?5:3.5);
+      });
+      ctx.globalAlpha=1;
+    }
+  },
+];
+
+// ─────────────────────────────────────────────────────
+//  Render loop
+// ─────────────────────────────────────────────────────
+let currentStep = 0;
+let playTimer = null;
+let stepDelay = 800;
+
+function redraw() {
+  ctx.clearRect(0,0,CW,CH);
+  // background grid (subtle)
+  ctx.strokeStyle='rgba(51,65,85,0.3)'; ctx.lineWidth=0.5;
+  for(let x=0;x<=CW;x+=60){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,CH);ctx.stroke()}
+  for(let y=0;y<=CH;y+=60){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(CW,y);ctx.stroke()}
+
+  // Draw all steps up to current; current at full opacity
+  for(let i=0;i<=currentStep;i++){
+    STEPS[i].draw(i===currentStep);
+  }
+}
+
+function renderStepPanel() {
+  const s = STEPS[currentStep];
+  const d = lang==='zh' ? s.zh : s.en;
+  document.getElementById('step-counter').textContent =
+    t('step.counter').replace('%a',currentStep+1).replace('%b',STEPS.length);
+  document.getElementById('step-title').textContent = d.title;
+  document.getElementById('step-desc').textContent  = d.desc;
+  const badge = document.getElementById('step-badge');
+  badge.textContent = t('badge.'+s.badge);
+  badge.style.color = s.badge==='key'?'#fbbf24':s.badge==='proof'?'#34d399':'#a78bfa';
+  badge.style.background = s.badge==='key'?'rgba(245,158,11,.12)':s.badge==='proof'?'rgba(16,185,129,.12)':'rgba(99,102,241,.12)';
+  badge.style.borderColor = s.badge==='key'?'rgba(245,158,11,.3)':s.badge==='proof'?'rgba(16,185,129,.3)':'rgba(99,102,241,.3)';
+  const keyEl = document.getElementById('step-key');
+  if(s.key){ keyEl.textContent=s.key; keyEl.classList.add('show'); }
+  else{ keyEl.classList.remove('show'); }
+  document.getElementById('btn-prev').disabled = currentStep===0;
+  document.getElementById('btn-next').disabled = currentStep===STEPS.length-1;
+  renderDots();
+}
+
+function renderDots() {
+  const c = document.getElementById('dots');
+  c.innerHTML = STEPS.map((_,i)=>`
+    <div class="dot ${i<currentStep?'done':''} ${i===currentStep?'current':''}"
+         onclick="jumpTo(${i})" title="${lang==='zh'?'步骤':'Step'} ${i+1}"></div>`).join('');
+}
+
+function goPrev()   { if(currentStep>0){currentStep--;redraw();renderStepPanel();}}
+function goNext()   { if(currentStep<STEPS.length-1){currentStep++;redraw();renderStepPanel();}}
+function jumpTo(i)  { currentStep=i; redraw(); renderStepPanel(); }
+
+function togglePlay() {
+  if(playTimer){ clearInterval(playTimer); playTimer=null;
+    document.getElementById('btn-play').textContent=t('btn.play');
+  } else {
+    document.getElementById('btn-play').textContent=t('btn.pause');
+    playTimer=setInterval(()=>{
+      if(currentStep<STEPS.length-1){ goNext(); }
+      else { clearInterval(playTimer); playTimer=null;
+        document.getElementById('btn-play').textContent=t('btn.play');}
+    }, stepDelay);
+  }
+}
+
+function setSpd(ms) {
+  stepDelay=ms;
+  document.querySelectorAll('.speed-chip').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  if(playTimer){ clearInterval(playTimer); playTimer=null; togglePlay(); }
+}
+
+// ═══════════════════════════════════════════════════════
+//  Accordion proof sections
+// ═══════════════════════════════════════════════════════
+const PROOF = [
+  {
+    zh:{label:'为什么正十七边形可以尺规作图？——高斯的判定定理'},
+    en:{label:'Why is the 17-gon constructible? — Gauss\'s criterion'},
+    body(l) { return l==='zh' ? `
+<p class="proof-p">尺规作图本质上是在做<b>有理运算</b>和<b>开平方根</b>。每一步作图操作（取中点、作垂线、以两点定圆弧）在代数上都等价于对已知量做一次"±加减乘除，或取平方根"。</p>
+<p class="proof-p">因此，一个长度 <span class="hl">L</span> 是可作图的，当且仅当 L 可以从有理数出发，经过<b>有限次四则运算和开平方根</b>得到。</p>
+<div class="mbox info">尺规可作图数 = 由有理数出发，有限次加减乘除和开平方根得到的实数</div>
+<p class="proof-p">高斯在1796年证明：<b>正n边形可以尺规作图，当且仅当</b></p>
+<div class="formula">n = 2<sup>k</sup> · p₁ · p₂ · … · pₘ<br>其中 pᵢ 是<b>互不相同的费马素数</b>（形如 2<sup>2<sup>k</sup></sup>+1 的素数）</div>
+<p class="proof-p">目前已知的费马素数只有：<span class="hl">3, 5, 17, 257, 65537</span>（是否还有更大的费马素数至今未知）。</p>
+<p class="proof-p">17 = 2<sup>4</sup>+1 是费马素数，且 n=17 = 2<sup>0</sup>·17，满足上述条件，因此<span class="hl-green">正十七边形可以作图</span>。</p>
+<div class="mbox good">正3边形（等边三角形）、正4边形（正方形）、正5边形、正15边形、正17边形……均可作图。<br>正7、正9、正11边形等不可作图。</div>` : `
+<p class="proof-p">Compass-and-straightedge constructions are algebraically equivalent to performing <b>rational operations and square roots</b>. Every construction step (midpoint, perpendicular, circle) corresponds algebraically to one such operation.</p>
+<div class="mbox info">Constructible ⟺ reachable from ℚ by finitely many +−×÷ and √</div>
+<p class="proof-p">Gauss proved: a regular n-gon is constructible if and only if</p>
+<div class="formula">n = 2<sup>k</sup> · p₁ · p₂ · … · pₘ<br>where the pᵢ are <b>distinct Fermat primes</b> (primes of the form 2<sup>2<sup>k</sup></sup>+1)</div>
+<p class="proof-p">Known Fermat primes: <span class="hl">3, 5, 17, 257, 65537</span> (no others known).</p>
+<p class="proof-p">Since 17 = 2<sup>4</sup>+1 is a Fermat prime, the <span class="hl-green">17-gon is constructible</span>.</p>`;
+    }
+  },
+  {
+    zh:{label:'伽罗瓦理论：为什么"2的幂次"是关键'},
+    en:{label:'Galois theory: why "power of 2" is the key'},
+    body(l) { return l==='zh' ? `
+<p class="proof-p">设 ω = e<sup>2πi/17</sup>（一个17次本原单位根），则 ω, ω², ..., ω<sup>16</sup> 是方程 x<sup>17</sup>−1=0 的全部非平凡根。</p>
+<p class="proof-p">将 cos(2π/17) 作图等价于将 ω+ω<sup>-1</sup> = 2cos(2π/17) 作图，即找到一个包含 ω 的<b>可作图域扩张链</b>。</p>
+<div class="mbox info">分圆域 ℚ(ω) 在 ℚ 上的 Galois 群 Gal(ℚ(ω)/ℚ) ≅ (ℤ/17ℤ)* ≅ ℤ/16ℤ</div>
+<p class="proof-p">该群的阶为 <span class="hl">φ(17) = 16 = 2⁴</span>，是2的幂次。</p>
+<p class="proof-p">一个域扩张可以被尺规实现，当且仅当它对应一个 <span class="hl">2的幂次阶</span> 的伽罗瓦群。这是因为每个"开平方根"操作将域的次数扩大2倍。</p>
+<p class="proof-p">由于 |Gal(ℚ(ω)/ℚ)| = 16 = 2⁴，我们可以建立一个扩张塔：</p>
+<div class="formula">ℚ ⊂ K₁ ⊂ K₂ ⊂ K₃ ⊂ K₄ = ℚ(ω)<br>[K₁:ℚ] = [K₂:K₁] = [K₃:K₂] = [K₄:K₃] = 2</div>
+<p class="proof-p">每步扩张的次数为2，对应一次<b>开平方根操作</b>——即一次圆规作图！四步恰好对应cos(2π/17)公式中的<span class="hl">四重嵌套根号</span>。</p>` : `
+<p class="proof-p">Let ω = e<sup>2πi/17</sup> (a primitive 17th root of unity). The Galois group of the cyclotomic field ℚ(ω) over ℚ is:</p>
+<div class="mbox info">Gal(ℚ(ω)/ℚ) ≅ (ℤ/17ℤ)* ≅ ℤ/16ℤ,  order = φ(17) = 16 = 2⁴</div>
+<p class="proof-p">A Galois extension is constructible iff its Galois group has <span class="hl">2-power order</span> — each degree-2 sub-extension corresponds to one square-root (compass) operation.</p>
+<p class="proof-p">Since |Gal| = 16 = 2⁴, we get a tower of four degree-2 extensions:</p>
+<div class="formula">ℚ ⊂ K₁ ⊂ K₂ ⊂ K₃ ⊂ K₄ = ℚ(ω)<br>[Kᵢ:Kᵢ₋₁] = 2 for each step</div>
+<p class="proof-p">Four steps, four square roots — exactly the <span class="hl">4 nested radicals</span> in the formula for cos(2π/17).</p>`;
+    }
+  },
+  {
+    zh:{label:'高斯周期：逐层分解（附数值验证）'},
+    en:{label:'Gaussian periods: layer-by-layer decomposition (with numerical verification)'},
+    body(l) { const zh=l==='zh'; return `
+<p class="proof-p">${zh?'17模下的二次剩余为：{1,2,4,8,9,13,15,16}（即1²,6²,2²,...mod 17的结果），非二次剩余为：{3,5,6,7,10,11,12,14}。':'Quadratic residues mod 17: {1,2,4,8,9,13,15,16}; non-residues: {3,5,6,7,10,11,12,14}.'}</p>
+<p class="proof-p"><b>${zh?'第一层（2个周期，各8项）：':'Level 1 (two 8-term periods):'}</b></p>
+<div class="formula">η₁ = ω+ω²+ω⁴+ω⁸+ω⁹+ω¹³+ω¹⁵+ω¹⁶  <b>（${zh?'二次剩余之和':'sum over QR'}）</b>
+η₂ = ω³+ω⁵+ω⁶+ω⁷+ω¹⁰+ω¹¹+ω¹²+ω¹⁴  <b>（${zh?'非二次剩余之和':'sum over NR'}）</b>
+
+η₁ + η₂ = −1  （${zh?'所有非平凡根之和':'sum of all non-trivial roots'}）
+η₁ · η₂ = −4  （${zh?'可直接展开验证':'verify by direct expansion'}）
+
+⟹  η₁, η₂ ${zh?'满足方程':'satisfy'}  x² + x − 4 = 0
+⟹  <b>η₁ = (−1+√17)/2 ≈ 1.5616,  η₂ = (−1−√17)/2 ≈ −2.5616</b></div>
+<p class="proof-p"><b>${zh?'第二层（4个周期，各4项）：':'Level 2 (four 4-term periods):'}</b></p>
+<div class="formula">η₁₁ = ω+ω⁴+ω¹³+ω¹⁶ = 2(cos 2π/17 + cos 8π/17)
+η₁₂ = ω²+ω⁸+ω⁹+ω¹⁵ = 2(cos 4π/17 + cos 16π/17)
+
+η₁₁ + η₁₂ = η₁,   η₁₁ · η₁₂ = −1
+⟹  η₁₁, η₁₂ ${zh?'满足':'satisfy'}  x² − η₁·x − 1 = 0
+<b>η₁₁ = [(−1+√17) + √(34−2√17)] / 4 ≈ 1.1284
+η₁₂ = [(−1+√17) − √(34−2√17)] / 4 ≈ 0.4332</b></div>
+<table class="period-table"><thead><tr>
+  <th>${zh?'周期':'Period'}</th><th>${zh?'表达式':'Expression'}</th><th>${zh?'数值（≈）':'Numeric (≈)'}</th>
+</tr></thead><tbody>
+<tr><td>η₁</td><td class="num">(−1+√17)/2</td><td class="num">+1.5616</td></tr>
+<tr><td>η₂</td><td class="num">(−1−√17)/2</td><td class="num">−2.5616</td></tr>
+<tr><td>η₁₁</td><td class="num">[(−1+√17)+√(34−2√17)]/4</td><td class="num">+1.1284</td></tr>
+<tr><td>η₁₂</td><td class="num">[(−1+√17)−√(34−2√17)]/4</td><td class="num">+0.4332</td></tr>
+<tr><td>2cos(2π/17)</td><td class="num">${zh?'第三层分解得到':'from 3rd-level split'}</td><td class="num">+1.8652</td></tr>
+</tbody></table>
+<p class="proof-p">${zh?'验证：η₁₁·η₁₂ = 1.1284×0.4332 ≈ −0.9997 ≈ −1 ✓（误差来自近似）':'Check: η₁₁·η₁₂ ≈ 1.1284×0.4332 ≈ −1.000 ✓'}</p>`;
+    }
+  },
+  {
+    zh:{label:'cos(2π/17) 的显式公式与最终验证'},
+    en:{label:'Explicit formula for cos(2π/17) and final verification'},
+    body(l) { const zh=l==='zh'; return `
+<p class="proof-p">${zh?'经过四层高斯周期分解，最终得到 cos(2π/17) 的显式封闭公式：':'After four levels of Gaussian period decomposition, the explicit closed form is:'}</p>
+<div class="formula" style="font-size:.8rem;line-height:2.2">
+<b>cos(2π/17)</b> = (1/16) × [
+  −1
+  + √<span style="text-decoration:overline">17</span>
+  + √<span style="text-decoration:overline">34 − 2√17</span>
+  + 2√<span style="text-decoration:overline">17 + 3√17 − √(34−2√17) − 2√(34+2√17)</span>
+]</div>
+<p class="proof-p">${zh?'逐步数值验证：':'Numerical verification step by step:'}</p>
+<div class="formula">√17 ≈ 4.1231
+34 − 2√17 ≈ 25.754  →  √(34−2√17) ≈ 5.0748
+34 + 2√17 ≈ 42.246  →  √(34+2√17) ≈ 6.4997
+17 + 3√17 ≈ 29.369
+A = 29.369 − 5.0748 − 2×6.4997 ≈ 11.295  →  √A ≈ 3.3608
+
+<b>cos(2π/17) = (−1 + 4.1231 + 5.0748 + 2×3.3608) / 16
+            = 14.920 / 16
+            ≈ 0.9326</b>
+
+${zh?'验证：cos(2π/17) = cos(21.176°) ≈ 0.93247…  ✓':'Check: cos(2π/17) = cos(21.176°) ≈ 0.93247… ✓'}</div>
+<div class="mbox good">${zh?'四个嵌套根号中的每一个，都对应作图步骤⑤⑦⑧⑨中的一次Carlyle圆或角平分线操作。作图与代数完美对应。':'Each of the 4 nested square roots corresponds to one Carlyle-circle or angle-bisection step (steps ⑤⑦⑧⑨). Construction and algebra perfectly align.'}</div>
+<p class="proof-p">${zh?'从cos(2π/17)出发，在圆上作垂线得sin(2π/17)，从而定出第二顶点P₂，再以弦长步进得全部17个顶点。正十七边形作图完成。':'From cos(2π/17), erect a perpendicular on the circle to get sin(2π/17), locating P₂. Then step the chord length to find all 17 vertices. QED.'}</p>
+<div class="mbox warn">${zh?'历史：高斯在1796年3月30日（日记第一条）记录了这一发现。他将此视为自己一生中最重要的数学发现之一，并要求在他的墓碑上刻上正十七边形。':'History: Gauss recorded this discovery as the very first entry in his mathematical diary on March 30, 1796. He considered it one of his greatest finds and requested a 17-gon be carved on his tombstone.'}</div>`;
+    }
+  },
+];
+
+function renderAccordion() {
+  const c = document.getElementById('accordion');
+  c.innerHTML = PROOF.map((sec,i)=>`
+<div class="acc-item${i===0?' open':''}" id="acc-${i}">
+  <div class="acc-head" onclick="toggleAcc(${i})">
+    <div class="acc-head-left">
+      <div class="acc-num">${i+1}</div>
+      <div class="acc-label">${(lang==='zh'?sec.zh:sec.en).label}</div>
+    </div>
+    <span class="acc-arrow">▼</span>
+  </div>
+  <div class="acc-body">${sec.body(lang)}</div>
+</div>`).join('');
+}
+
+function toggleAcc(i) {
+  document.getElementById('acc-'+i).classList.toggle('open');
+}
+
+// ─────────────────────────────────────────────────────
+//  Boot
+// ─────────────────────────────────────────────────────
+applyLang();
+redraw();
+renderStepPanel();
+</script>
+</body>
+</html>

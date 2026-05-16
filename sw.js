@@ -3,7 +3,7 @@
 //  每次更新内容后，将 CACHE_VERSION 改成新版本号
 //  例如 'v2'、'v3'，这样用户下次访问会自动拉取新内容
 // ─────────────────────────────────────────────────────
-const CACHE_VERSION = 'v1';
+const CACHE_VERSION = 'v2';
 const CACHE_NAME = `learnhub-${CACHE_VERSION}`;
 
 const ASSETS = [
@@ -17,6 +17,7 @@ const ASSETS = [
   './modules/ml-basics/index.html',
   './modules/hanoi/index.html',
   './modules/japanese-travel/index.html',
+  './modules/heptadecagon/index.html',
 ];
 
 // ── 安装：预缓存所有页面和资源 ──
