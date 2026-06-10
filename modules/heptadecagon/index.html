@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>正十七边形尺规作图 · Regular 17-gon</title>
+  <link rel="stylesheet" href="../../vendor/katex/katex.min.css">
+  <script defer src="../../vendor/katex/katex.min.js"></script>
   <style>
     :root {
       --primary: #6366f1;
@@ -31,7 +33,11 @@
       border-bottom:1px solid var(--border);padding:0 2rem;height:64px;
       display:flex;align-items:center;justify-content:space-between}
     .nav-brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text)}
-    .nav-logo{font-size:1.8rem}
+    .nav-logo{display:inline-flex;align-items:center;justify-content:center;
+      width:34px;height:34px;border-radius:8px;
+      background:linear-gradient(135deg,#4f46e5,#7c3aed);
+      color:#fff;font-weight:800;font-size:.95rem;letter-spacing:.02em;
+      font-family:'Cambria Math','Times New Roman',serif}
     .nav-title{font-size:1.1rem;font-weight:700;
       background:linear-gradient(135deg,#6366f1,#a78bfa,#f59e0b);
       -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
@@ -71,10 +77,14 @@
       font-size:.75rem;font-weight:700;margin-bottom:.4rem}
     .step-title{font-size:1rem;font-weight:700;color:var(--text);line-height:1.3}
     .step-desc{font-size:.84rem;color:var(--text-s);line-height:1.7;
-      background:var(--bg-el);border-radius:10px;padding:.9rem 1rem;min-height:90px}
+      background:var(--bg-el);border-radius:10px;padding:.9rem 1rem;min-height:90px;
+      white-space:pre-line}
+    .step-desc .katex{font-size:1em}
     .step-key{font-size:.78rem;color:var(--gold);
       background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);
-      border-radius:8px;padding:.6rem .9rem;font-family:monospace;line-height:1.8;display:none}
+      border-radius:8px;padding:.6rem .9rem;font-family:monospace;line-height:1.8;display:none;
+      white-space:pre-line}
+    .step-key .katex{font-size:1em;color:var(--gold)}
     .step-key.show{display:block}
 
     /* controls */
@@ -155,7 +165,7 @@
 
 <nav class="nav">
   <a class="nav-brand" href="../../index.html">
-    <span class="nav-logo">📐</span>
+    <span class="nav-logo">17</span>
     <span class="nav-title" data-i18n="nav.title">正十七边形</span>
   </a>
   <div class="nav-actions">
@@ -215,6 +225,21 @@
 </section>
 
 <script>
+// ═══════════════════════════════════════════════════════
+//  KaTeX helpers — $..$ inline / $$..$$ display
+// ═══════════════════════════════════════════════════════
+function tex(latex, display=false){
+  if(typeof katex==='undefined') return latex;
+  try { return katex.renderToString(latex,{throwOnError:false,displayMode:display}); }
+  catch(e){ return latex; }
+}
+function mathify(s){
+  if(!s) return '';
+  return s
+    .replace(/\$\$([\s\S]+?)\$\$/g, (_,m)=>tex(m,true))
+    .replace(/\$([^$\n]+?)\$/g,     (_,m)=>tex(m,false));
+}
+
 // ═══════════════════════════════════════════════════════
 //  i18n
 // ═══════════════════════════════════════════════════════
@@ -383,10 +408,10 @@ const STEPS = [
   // 1
   {
     badge:'construct',
-    zh:{title:'② 标记第一顶点 P₁，引辅助线',
-        desc:'取P₁ = (r, 0)为第一个顶点（圆与正x轴的交点），再取B = (0, r)为圆顶端。P₁B和水平直径是后续作图的基准。'},
-    en:{title:'② Mark first vertex P₁, draw reference lines',
-        desc:'Let P₁ = (r,0) be the first vertex and B = (0,r) the top of the circle. These reference lines anchor all subsequent steps.'},
+    zh:{title:'② 标记第一顶点 $P_1$，引辅助线',
+        desc:'取 $P_1 = (r,\\,0)$ 为第一个顶点（圆与正 $x$ 轴的交点），再取 $B = (0,\\,r)$ 为圆顶端。$P_1 B$ 和水平直径是后续作图的基准。'},
+    en:{title:'② Mark first vertex $P_1$, draw reference lines',
+        desc:'Let $P_1 = (r,0)$ be the first vertex and $B = (0,r)$ the top of the circle. These reference lines anchor all subsequent steps.'},
     draw(isCur) {
       const a = isCur?1:0.35;
       ctx.globalAlpha = a;
@@ -401,11 +426,11 @@ const STEPS = [
   // 2
   {
     badge:'construct',
-    zh:{title:'③ 四等分竖直半径，标记辅助点J',
-        desc:'将OB四等分，取靠近O的四分之一处得辅助点J。\n\nOJ = r/4，即J = (0, r/4)。\n\n关键观察：|P₁J| = √(r² + r²/16) = r√17/4\n这一线段的长度暗藏了 √17！'},
-    en:{title:'③ Quarter the vertical radius; mark J',
-        desc:'Divide OB into 4 equal parts; J is the first quarter from O, so OJ = r/4, J = (0, r/4).\n\nKey: |P₁J| = r√17/4 — this segment secretly encodes √17!'},
-    key:'|P₁J| = √(r² + (r/4)²) = r·√17/4',
+    zh:{title:'③ 四等分竖直半径，标记辅助点 $J$',
+        desc:'将 $OB$ 四等分，取靠近 $O$ 的四分之一处得辅助点 $J$。\n\n$OJ = r/4$，即 $J = (0,\\,r/4)$。\n\n关键观察：$|P_1 J| = \\sqrt{r^2 + r^2/16} = r\\sqrt{17}/4$\n这一线段的长度暗藏了 $\\sqrt{17}$！'},
+    en:{title:'③ Quarter the vertical radius; mark $J$',
+        desc:'Divide $OB$ into 4 equal parts; $J$ is the first quarter from $O$, so $OJ = r/4$, $J = (0,\\,r/4)$.\n\nKey: $|P_1 J| = r\\sqrt{17}/4$ — this segment secretly encodes $\\sqrt{17}$!'},
+    key:'$|P_1 J| = \\sqrt{r^2 + (r/4)^2} = r\\sqrt{17}/4$',
     draw(isCur) {
       const a = isCur?1:0.35;
       ctx.globalAlpha = a;
@@ -428,11 +453,11 @@ const STEPS = [
   // 3
   {
     badge:'construct',
-    zh:{title:'④ 连接 P₁J，揭示 √17',
-        desc:'连接P₁与J。由勾股定理：\n|P₁J|² = r² + (r/4)² = 17r²/16\n∴ |P₁J| = r√17/4\n\n因此线段P₁J与OJ之比正好等于√17：\n|P₁J| / |OJ| = (r√17/4) / (r/4) = √17\n\n这意味着√17已经被内嵌在这个简单的几何关系中了！'},
-    en:{title:'④ Draw P₁J — √17 revealed',
-        desc:'|P₁J|² = r² + (r/4)² = 17r²/16, so |P₁J| = r√17/4.\n\nCrucially: |P₁J|/|OJ| = √17.\n\n√17 is already embedded in this simple geometric ratio!'},
-    key:'|P₁J| / |OJ| = (r√17/4) / (r/4) = √17',
+    zh:{title:'④ 连接 $P_1 J$，揭示 $\\sqrt{17}$',
+        desc:'连接 $P_1$ 与 $J$。由勾股定理：\n$|P_1 J|^2 = r^2 + (r/4)^2 = 17 r^2 / 16$\n$\\therefore |P_1 J| = r\\sqrt{17}/4$\n\n因此线段 $P_1 J$ 与 $OJ$ 之比正好等于 $\\sqrt{17}$：\n$|P_1 J| / |OJ| = (r\\sqrt{17}/4) / (r/4) = \\sqrt{17}$\n\n这意味着 $\\sqrt{17}$ 已经被内嵌在这个简单的几何关系中了！'},
+    en:{title:'④ Draw $P_1 J$ — $\\sqrt{17}$ revealed',
+        desc:'$|P_1 J|^2 = r^2 + (r/4)^2 = 17 r^2 / 16$, so $|P_1 J| = r\\sqrt{17}/4$.\n\nCrucially: $|P_1 J| / |OJ| = \\sqrt{17}$.\n\n$\\sqrt{17}$ is already embedded in this simple geometric ratio!'},
+    key:'$|P_1 J| / |OJ| = (r\\sqrt{17}/4) / (r/4) = \\sqrt{17}$',
     draw(isCur) {
       const a = isCur?1:0.4;
       ctx.globalAlpha = a;
@@ -449,11 +474,11 @@ const STEPS = [
   // 4
   {
     badge:'key',
-    zh:{title:'⑤ 平分 ∠OJP₁，把第一高斯周期 η₁ 编码进 OE',
-        desc:'用圆规作∠OJP₁的角平分线，交x轴于点E。\n\n由角平分线定理：\nOE / EP₁ = |OJ| / |JP₁| = (r/4) / (r√17/4) = 1/√17\n\n解得：OE = r(√17−1)/16\n\n关键关系（精确比例）：\nOE = (r/8) · η₁，其中 η₁ = (−1+√17)/2 ≈ 1.5616\n\n即第一高斯周期 η₁ 被以 r/8 倍的比例编码成 x 轴上的一段长度。'},
-    en:{title:'⑤ Bisect ∠OJP₁ → encode first Gaussian period η₁ in OE',
-        desc:'Bisect ∠OJP₁ with a compass; the bisector meets the x-axis at E.\n\nBy the angle-bisector theorem:\nOE/EP₁ = |OJ|/|JP₁| = 1/√17\n∴ OE = r(√17−1)/16\n\nExact relation:\nOE = (r/8) · η₁, where η₁ = (−1+√17)/2 ≈ 1.5616\n\nSo the first Gaussian period η₁ is encoded as a length on the x-axis at scale r/8.'},
-    key:'OE = r(√17−1)/16   ≈ 0.195 r',
+    zh:{title:'⑤ 平分 $\\angle OJP_1$，把第一高斯周期 $\\eta_1$ 编码进 $OE$',
+        desc:'用圆规作 $\\angle OJP_1$ 的角平分线，交 $x$ 轴于点 $E$。\n\n由角平分线定理：\n$OE / EP_1 = |OJ| / |JP_1| = (r/4) / (r\\sqrt{17}/4) = 1/\\sqrt{17}$\n\n解得：$OE = r(\\sqrt{17}-1)/16$\n\n关键关系（精确比例）：\n$OE = (r/8)\\cdot\\eta_1$，其中 $\\eta_1 = (-1+\\sqrt{17})/2 \\approx 1.5616$\n\n即第一高斯周期 $\\eta_1$ 被以 $r/8$ 倍的比例编码成 $x$ 轴上的一段长度。'},
+    en:{title:'⑤ Bisect $\\angle OJP_1$ → encode first Gaussian period $\\eta_1$ in $OE$',
+        desc:'Bisect $\\angle OJP_1$ with a compass; the bisector meets the $x$-axis at $E$.\n\nBy the angle-bisector theorem:\n$OE / EP_1 = |OJ| / |JP_1| = 1/\\sqrt{17}$\n$\\therefore OE = r(\\sqrt{17}-1)/16$\n\nExact relation:\n$OE = (r/8)\\cdot\\eta_1$, where $\\eta_1 = (-1+\\sqrt{17})/2 \\approx 1.5616$\n\nSo the first Gaussian period $\\eta_1$ is encoded as a length on the $x$-axis at scale $r/8$.'},
+    key:'$OE = r(\\sqrt{17}-1)/16 \\approx 0.195\\,r$',
     draw(isCur) {
       const a = isCur?1:0.4;
       ctx.globalAlpha = a;
@@ -474,11 +499,11 @@ const STEPS = [
   // 5
   {
     badge:'key',
-    zh:{title:'⑥ 过J作JE的垂线，把共轭周期 η₂ 编码进 F',
-        desc:'过J作JE的垂线，交x轴负半轴于F。\n\n垂直关系意味着F是外角平分线的垂足：\nF 的横坐标 = −r(√17+1)/16\n\n关键关系（与 η₁ 同样的 r/8 比例）：\nx_F = (r/8) · η₂，其中 η₂ = (−1−√17)/2 ≈ −2.5616\n\nE 与 F 同时把两个共轭高斯周期 η₁, η₂ 以相同的 r/8 比例编码在 x 轴上——下一步只需在它们之间做几何运算即可继续分解。'},
-    en:{title:'⑥ Perpendicular at J to JE → encode η₂ in F',
-        desc:'Through J, draw the perpendicular to JE; it meets the negative x-axis at F (the external-bisector foot).\n\nx-coordinate of F = −r(√17+1)/16\n\nExact relation (same r/8 scale as E):\nx_F = (r/8) · η₂, where η₂ = (−1−√17)/2 ≈ −2.5616\n\nE and F jointly encode the conjugate periods η₁ and η₂ on the x-axis at the same scale — geometric operations between them carry the next level of decomposition.'},
-    key:'OF = r(√17+1)/16   ≈ 0.320 r\nη₁·η₂ = −4,  η₁+η₂ = −1',
+    zh:{title:'⑥ 过 $J$ 作 $JE$ 的垂线，把共轭周期 $\\eta_2$ 编码进 $F$',
+        desc:'过 $J$ 作 $JE$ 的垂线，交 $x$ 轴负半轴于 $F$。\n\n垂直关系意味着 $F$ 是外角平分线的垂足：\n$F$ 的横坐标 $= -r(\\sqrt{17}+1)/16$\n\n关键关系（与 $\\eta_1$ 同样的 $r/8$ 比例）：\n$x_F = (r/8)\\cdot\\eta_2$，其中 $\\eta_2 = (-1-\\sqrt{17})/2 \\approx -2.5616$\n\n$E$ 与 $F$ 同时把两个共轭高斯周期 $\\eta_1, \\eta_2$ 以相同的 $r/8$ 比例编码在 $x$ 轴上——下一步只需在它们之间做几何运算即可继续分解。'},
+    en:{title:'⑥ Perpendicular at $J$ to $JE$ → encode $\\eta_2$ in $F$',
+        desc:'Through $J$, draw the perpendicular to $JE$; it meets the negative $x$-axis at $F$ (the external-bisector foot).\n\nx-coordinate of $F = -r(\\sqrt{17}+1)/16$\n\nExact relation (same $r/8$ scale as $E$):\n$x_F = (r/8)\\cdot\\eta_2$, where $\\eta_2 = (-1-\\sqrt{17})/2 \\approx -2.5616$\n\n$E$ and $F$ jointly encode the conjugate periods $\\eta_1$ and $\\eta_2$ on the $x$-axis at the same scale — geometric operations between them carry the next level of decomposition.'},
+    key:'$OF = r(\\sqrt{17}+1)/16 \\approx 0.320\\,r$\n$\\eta_1\\cdot\\eta_2 = -4,\\quad \\eta_1+\\eta_2 = -1$',
     draw(isCur) {
       const a = isCur?1:0.4;
       ctx.globalAlpha = a;
@@ -507,11 +532,11 @@ const STEPS = [
   // 6
   {
     badge:'key',
-    zh:{title:'⑦ 以P₁F为直径画Carlyle圆C₁，得辅助点G',
-        desc:'以P₁和F为直径两端作圆C₁（Carlyle 圆思想：x 轴上的直径端点决定一个开方运算）。C₁与y轴的交点G满足：\n\n|OG|² = −x_{P₁}·x_F = (1+√17)/16 = |η₂|/8\n∴ |OG| = √(1+√17)/4 ≈ 0.566 r\n\n说明：G 本身不是第二层高斯周期 η₁₁、η₁₂；它是一个中间几何量——把代数表达式 √(1+√17) 用一次圆规操作（圆与 y 轴的交点）实现出来，留给下一步使用。'},
-    en:{title:'⑦ Carlyle circle C₁ (diameter P₁F) → auxiliary point G',
-        desc:'Draw circle C₁ with diameter P₁F (Carlyle-circle idea: x-axis diameter endpoints realize one square-root operation). C₁ meets the y-axis at G:\n\n|OG|² = −x_{P₁}·x_F = (1+√17)/16 = |η₂|/8\n|OG| = √(1+√17)/4 ≈ 0.566 r\n\nNote: G is not itself a 2nd-level Gaussian period η₁₁ or η₁₂. It is an intermediate geometric quantity that realizes the algebraic √(1+√17) with one compass operation, ready to be used by the next step.'},
-    key:'|OG| = √(1+√17)/4   ≈ 0.566 r',
+    zh:{title:'⑦ 以 $P_1 F$ 为直径画 Carlyle 圆 $C_1$，得辅助点 $G$',
+        desc:'以 $P_1$ 和 $F$ 为直径两端作圆 $C_1$（Carlyle 圆思想：$x$ 轴上的直径端点决定一个开方运算）。$C_1$ 与 $y$ 轴的交点 $G$ 满足：\n\n$|OG|^2 = -x_{P_1}\\cdot x_F = (1+\\sqrt{17})/16 = |\\eta_2|/8$\n$\\therefore |OG| = \\sqrt{1+\\sqrt{17}}/4 \\approx 0.566\\,r$\n\n说明：$G$ 本身不是第二层高斯周期 $\\eta_{11}, \\eta_{12}$；它是一个中间几何量——把代数表达式 $\\sqrt{1+\\sqrt{17}}$ 用一次圆规操作（圆与 $y$ 轴的交点）实现出来，留给下一步使用。'},
+    en:{title:'⑦ Carlyle circle $C_1$ (diameter $P_1 F$) → auxiliary point $G$',
+        desc:'Draw circle $C_1$ with diameter $P_1 F$ (Carlyle-circle idea: $x$-axis diameter endpoints realize one square-root operation). $C_1$ meets the $y$-axis at $G$:\n\n$|OG|^2 = -x_{P_1}\\cdot x_F = (1+\\sqrt{17})/16 = |\\eta_2|/8$\n$|OG| = \\sqrt{1+\\sqrt{17}}/4 \\approx 0.566\\,r$\n\nNote: $G$ is not itself a 2nd-level Gaussian period $\\eta_{11}$ or $\\eta_{12}$. It is an intermediate geometric quantity that realizes the algebraic $\\sqrt{1+\\sqrt{17}}$ with one compass operation, ready to be used by the next step.'},
+    key:'$|OG| = \\sqrt{1+\\sqrt{17}}/4 \\approx 0.566\\,r$',
     draw(isCur) {
       const a = isCur?1:0.4;
       ctx.globalAlpha = a;
@@ -531,11 +556,11 @@ const STEPS = [
   // 7
   {
     badge:'key',
-    zh:{title:'⑧ 以G为圆心、|GE|为半径画圆C₂，得辅助点H₁、H₂',
-        desc:'以G为圆心、GE为半径作圆C₂，与x轴交于两点H₁和H₂。\n\n|OH₁| = |OH₂| = √((9−√17)/128) · r ≈ 0.195 r\n\n说明：H₁、H₂ 同样不是 Gaussian period 本身，而是再下一层嵌套根号 √(34−2√17) 的几何实现——为接下来收尾的两次 Carlyle 圆做准备，最终把 cos(2π/17) 的四重根号公式逐层"打开"。'},
-    en:{title:'⑧ Circle C₂ (center G, radius |GE|) → auxiliary H₁, H₂',
-        desc:'Draw circle C₂ centered at G with radius |GE|. It meets the x-axis at H₁ and H₂.\n\n|OH| = √((9−√17)/128)·r ≈ 0.195 r\n\nNote: like G, H₁ and H₂ are not Gaussian periods themselves — they geometrically realize the deeper nested radical √(34−2√17), setting up the final two Carlyle circles that "unpack" the 4-radical formula for cos(2π/17).'},
-    key:'|OH₁| = |OH₂| ≈ 0.195 r\n(= √((9−√17)/128) · r)',
+    zh:{title:'⑧ 以 $G$ 为圆心、$|GE|$ 为半径画圆 $C_2$，得辅助点 $H_1, H_2$',
+        desc:'以 $G$ 为圆心、$GE$ 为半径作圆 $C_2$，与 $x$ 轴交于两点 $H_1$ 和 $H_2$。\n\n$|OH_1| = |OH_2| = \\sqrt{(9-\\sqrt{17})/128}\\cdot r \\approx 0.195\\,r$\n\n说明：$H_1, H_2$ 同样不是 Gaussian period 本身，而是再下一层嵌套根号 $\\sqrt{34-2\\sqrt{17}}$ 的几何实现——为接下来收尾的两次 Carlyle 圆做准备，最终把 $\\cos(2\\pi/17)$ 的四重根号公式逐层"打开"。'},
+    en:{title:'⑧ Circle $C_2$ (center $G$, radius $|GE|$) → auxiliary $H_1, H_2$',
+        desc:'Draw circle $C_2$ centered at $G$ with radius $|GE|$. It meets the $x$-axis at $H_1$ and $H_2$.\n\n$|OH| = \\sqrt{(9-\\sqrt{17})/128}\\cdot r \\approx 0.195\\,r$\n\nNote: like $G$, $H_1$ and $H_2$ are not Gaussian periods themselves — they geometrically realize the deeper nested radical $\\sqrt{34-2\\sqrt{17}}$, setting up the final two Carlyle circles that "unpack" the 4-radical formula for $\\cos(2\\pi/17)$.'},
+    key:'$|OH_1| = |OH_2| \\approx 0.195\\,r$\n$(= \\sqrt{(9-\\sqrt{17})/128}\\cdot r)$',
     draw(isCur) {
       const a = isCur?1:0.4;
       ctx.globalAlpha = a;
@@ -555,11 +580,11 @@ const STEPS = [
   // 8
   {
     badge:'key',
-    zh:{title:'⑨ 再经两轮Carlyle圆，确定 cos(2π/17)',
-        desc:'对 H₁、H₂ 再作两次 Carlyle 圆，最终在x轴上定位到 cos(2π/17) 的精确位置。\n\n（为保持画面整洁，图中略去后两次 Carlyle 圆的具体作图细节，直接标出最终落点。）\n\n显式公式（四重嵌套根号）：\ncos(2π/17) = (−1+√17+√(34−2√17)+2√A)/16\n其中 A = 17+3√17−√(34−2√17)−2√(34+2√17)\n\n每一层对应一次圆规作图，总计4次。'},
-    en:{title:'⑨ Two more Carlyle circles → cos(2π/17)',
-        desc:'Two more Carlyle-circle rounds applied to H₁, H₂ pinpoint cos(2π/17) on the x-axis.\n\n(For visual clarity the last two Carlyle circles are not drawn — only the final landing point is marked.)\n\nExplicit formula (4 nested radicals):\ncos(2π/17) = (−1+√17+√(34−2√17)+2√A)/16\nwhere A = 17+3√17−√(34−2√17)−2√(34+2√17)\n\nEach square root = one compass construction. Total: 4 constructions.'},
-    key:'cos(2π/17) ≈ 0.9326\n= (−1+√17+√(34−2√17)+2√A)/16',
+    zh:{title:'⑨ 再经两轮 Carlyle 圆，确定 $\\cos(2\\pi/17)$',
+        desc:'对 $H_1, H_2$ 再作两次 Carlyle 圆，最终在 $x$ 轴上定位到 $\\cos(2\\pi/17)$ 的精确位置。\n\n（为保持画面整洁，图中略去后两次 Carlyle 圆的具体作图细节，直接标出最终落点。）\n\n显式公式（四重嵌套根号）：\n$\\cos(2\\pi/17) = \\dfrac{-1+\\sqrt{17}+\\sqrt{34-2\\sqrt{17}}+2\\sqrt{A}}{16}$\n其中 $A = 17+3\\sqrt{17}-\\sqrt{34-2\\sqrt{17}}-2\\sqrt{34+2\\sqrt{17}}$\n\n每一层对应一次圆规作图，总计 4 次。'},
+    en:{title:'⑨ Two more Carlyle circles → $\\cos(2\\pi/17)$',
+        desc:'Two more Carlyle-circle rounds applied to $H_1, H_2$ pinpoint $\\cos(2\\pi/17)$ on the $x$-axis.\n\n(For visual clarity the last two Carlyle circles are not drawn — only the final landing point is marked.)\n\nExplicit formula (4 nested radicals):\n$\\cos(2\\pi/17) = \\dfrac{-1+\\sqrt{17}+\\sqrt{34-2\\sqrt{17}}+2\\sqrt{A}}{16}$\nwhere $A = 17+3\\sqrt{17}-\\sqrt{34-2\\sqrt{17}}-2\\sqrt{34+2\\sqrt{17}}$\n\nEach square root = one compass construction. Total: 4.'},
+    key:'$\\cos(2\\pi/17) \\approx 0.9326$\n$= (-1+\\sqrt{17}+\\sqrt{34-2\\sqrt{17}}+2\\sqrt{A})/16$',
     draw(isCur) {
       const a = isCur?1:0.4;
       ctx.globalAlpha = a;
@@ -578,11 +603,11 @@ const STEPS = [
   // 9
   {
     badge:'construct',
-    zh:{title:'⑩ 过cos(2π/17)作垂线，得第二顶点 P₂',
-        desc:'在x = cos(2π/17)处作x轴的垂线，与圆的交点即为P₂。\n\nP₂是正十七边形的第二个顶点，位于第一顶点P₁逆时针方向360°/17 ≈ 21.18°处。\n\n弦长 |P₁P₂| = 2r·sin(π/17) ≈ 0.368r 已经确定！'},
-    en:{title:'⑩ Erect perpendicular at cos(2π/17) → P₂',
-        desc:'The perpendicular to the x-axis at cos(2π/17) meets the circle at P₂ — the second vertex, exactly 360°/17 ≈ 21.18° counterclockwise from P₁.\n\nChord length |P₁P₂| = 2r·sin(π/17) ≈ 0.368r is now determined!'},
-    key:'|P₁P₂| = 2r·sin(π/17) ≈ 0.368 r',
+    zh:{title:'⑩ 过 $\\cos(2\\pi/17)$ 作垂线，得第二顶点 $P_2$',
+        desc:'在 $x = \\cos(2\\pi/17)$ 处作 $x$ 轴的垂线，与圆的交点即为 $P_2$。\n\n$P_2$ 是正十七边形的第二个顶点，位于第一顶点 $P_1$ 逆时针方向 $360°/17 \\approx 21.18°$ 处。\n\n弦长 $|P_1 P_2| = 2r\\sin(\\pi/17) \\approx 0.368\\,r$ 已经确定！'},
+    en:{title:'⑩ Erect perpendicular at $\\cos(2\\pi/17)$ → $P_2$',
+        desc:'The perpendicular to the $x$-axis at $\\cos(2\\pi/17)$ meets the circle at $P_2$ — the second vertex, exactly $360°/17 \\approx 21.18°$ counterclockwise from $P_1$.\n\nChord length $|P_1 P_2| = 2r\\sin(\\pi/17) \\approx 0.368\\,r$ is now determined!'},
+    key:'$|P_1 P_2| = 2r\\sin(\\pi/17) \\approx 0.368\\,r$',
     draw(isCur) {
       const a = isCur?1:0.4;
       ctx.globalAlpha = a;
@@ -601,10 +626,10 @@ const STEPS = [
   // 10
   {
     badge:'construct',
-    zh:{title:'⑪ 以弦长|P₁P₂|为半径，步进截取全部17个顶点',
-        desc:'将圆规张开至弦长|P₁P₂|，以P₁为起点，依次在圆上截取P₂, P₃, ..., P₁₇，共17个顶点。\n\n这是合法的圆规操作：等距步进，利用正多边形所有边等长的性质。'},
-    en:{title:'⑪ Step the chord |P₁P₂| around the circle → all 17 vertices',
-        desc:'Set the compass to chord length |P₁P₂|. Starting from P₁, step around the circle marking P₂, P₃, …, P₁₇.\n\nThis is a valid compass operation — all sides of a regular polygon are equal.'},
+    zh:{title:'⑪ 以弦长 $|P_1 P_2|$ 为半径，步进截取全部 17 个顶点',
+        desc:'将圆规张开至弦长 $|P_1 P_2|$，以 $P_1$ 为起点，依次在圆上截取 $P_2, P_3, \\ldots, P_{17}$，共 17 个顶点。\n\n这是合法的圆规操作：等距步进，利用正多边形所有边等长的性质。'},
+    en:{title:'⑪ Step the chord $|P_1 P_2|$ around the circle → all 17 vertices',
+        desc:'Set the compass to chord length $|P_1 P_2|$. Starting from $P_1$, step around the circle marking $P_2, P_3, \\ldots, P_{17}$.\n\nThis is a valid compass operation — all sides of a regular polygon are equal.'},
     draw(isCur) {
       const a = isCur?1:0.4;
       ctx.globalAlpha = a;
@@ -626,9 +651,9 @@ const STEPS = [
   {
     badge:'construct',
     zh:{title:'⑫ 依次连接各顶点，正十七边形完成！',
-        desc:'依次连接 P₁→P₂→P₃→…→P₁₇→P₁，正十七边形作图完成！\n\n高斯在1796年3月30日（他的日记记录）完成这一发现，当时他只有19岁。这一发现深刻改变了他的人生方向——他决定成为数学家而非语言学家。'},
+        desc:'依次连接 $P_1 \\to P_2 \\to P_3 \\to \\cdots \\to P_{17} \\to P_1$，正十七边形作图完成！\n\n高斯在 1796 年 3 月 30 日（他的日记记录）完成这一发现，当时他只有 19 岁。这一发现深刻改变了他的人生方向——他决定成为数学家而非语言学家。'},
     en:{title:'⑫ Connect all vertices — the regular 17-gon is complete!',
-        desc:'Connect P₁→P₂→…→P₁₇→P₁. The regular heptadecagon is complete!\n\nGauss recorded this discovery on March 30, 1796 (age 19) in his diary. It convinced him to pursue mathematics over philology.'},
+        desc:'Connect $P_1 \\to P_2 \\to \\cdots \\to P_{17} \\to P_1$. The regular heptadecagon is complete!\n\nGauss recorded this discovery on March 30, 1796 (age 19) in his diary. It convinced him to pursue mathematics over philology.'},
     draw(isCur) {
       ctx.globalAlpha = isCur?1:0.5;
       // filled polygon
@@ -679,15 +704,15 @@ function renderStepPanel() {
   const d = lang==='zh' ? s.zh : s.en;
   document.getElementById('step-counter').textContent =
     t('step.counter').replace('%a',currentStep+1).replace('%b',STEPS.length);
-  document.getElementById('step-title').textContent = d.title;
-  document.getElementById('step-desc').textContent  = d.desc;
+  document.getElementById('step-title').innerHTML    = mathify(d.title);
+  document.getElementById('step-desc').innerHTML    = mathify(d.desc);
   const badge = document.getElementById('step-badge');
   badge.textContent = t('badge.'+s.badge);
   badge.style.color = s.badge==='key'?'#fbbf24':s.badge==='proof'?'#34d399':'#a78bfa';
   badge.style.background = s.badge==='key'?'rgba(245,158,11,.12)':s.badge==='proof'?'rgba(16,185,129,.12)':'rgba(99,102,241,.12)';
   badge.style.borderColor = s.badge==='key'?'rgba(245,158,11,.3)':s.badge==='proof'?'rgba(16,185,129,.3)':'rgba(99,102,241,.3)';
   const keyEl = document.getElementById('step-key');
-  if(s.key){ keyEl.textContent=s.key; keyEl.classList.add('show'); }
+  if(s.key){ keyEl.innerHTML=mathify(s.key); keyEl.classList.add('show'); }
   else{ keyEl.classList.remove('show'); }
   document.getElementById('btn-prev').disabled = currentStep===0;
   document.getElementById('btn-next').disabled = currentStep===STEPS.length-1;
@@ -734,102 +759,88 @@ const PROOF = [
     en:{label:'Why is the 17-gon constructible? — Gauss\'s criterion'},
     body(l) { return l==='zh' ? `
 <p class="proof-p">尺规作图本质上是在做<b>有理运算</b>和<b>开平方根</b>。每一步作图操作（取中点、作垂线、以两点定圆弧）在代数上都等价于对已知量做一次"±加减乘除，或取平方根"。</p>
-<p class="proof-p">因此，一个长度 <span class="hl">L</span> 是可作图的，当且仅当 L 可以从有理数出发，经过<b>有限次四则运算和开平方根</b>得到。</p>
-<div class="mbox info">尺规可作图数 = 由有理数出发，有限次加减乘除和开平方根得到的实数</div>
-<p class="proof-p">高斯在1796年证明：<b>正n边形可以尺规作图，当且仅当</b></p>
-<div class="formula">n = 2<sup>k</sup> · p₁ · p₂ · … · pₘ<br>其中 pᵢ 是<b>互不相同的费马素数</b>（形如 2<sup>2<sup>k</sup></sup>+1 的素数）</div>
-<p class="proof-p">目前已知的费马素数只有：<span class="hl">3, 5, 17, 257, 65537</span>（是否还有更大的费马素数至今未知）。</p>
-<p class="proof-p">17 = 2<sup>4</sup>+1 是费马素数，且 n=17 = 2<sup>0</sup>·17，满足上述条件，因此<span class="hl-green">正十七边形可以作图</span>。</p>
-<div class="mbox good">正3边形（等边三角形）、正4边形（正方形）、正5边形、正15边形、正17边形……均可作图。<br>正7、正9、正11边形等不可作图。</div>` : `
+<p class="proof-p">因此，一个长度 <span class="hl">$L$</span> 是可作图的，当且仅当 $L$ 可以从有理数出发，经过<b>有限次四则运算和开平方根</b>得到。</p>
+<div class="mbox info">尺规可作图数 = 由有理数 $\\mathbb{Q}$ 出发，有限次 $+,-,\\times,\\div$ 与 $\\sqrt{\\,\\cdot\\,}$ 得到的实数</div>
+<p class="proof-p">高斯在 1796 年证明：<b>正 $n$ 边形可以尺规作图，当且仅当</b></p>
+<div class="formula">$$n = 2^k \\cdot p_1 \\cdot p_2 \\cdots p_m$$<div style="margin-top:.4rem">其中 $p_i$ 是<b>互不相同的费马素数</b>（形如 $2^{2^k}+1$ 的素数）</div></div>
+<p class="proof-p">目前已知的费马素数只有：<span class="hl">$3, 5, 17, 257, 65537$</span>（是否还有更大的费马素数至今未知）。</p>
+<p class="proof-p">$17 = 2^4 + 1$ 是费马素数，且 $n = 17 = 2^0 \\cdot 17$，满足上述条件，因此<span class="hl-green">正十七边形可以作图</span>。</p>
+<div class="mbox good">正 3、4、5、15、17 边形……均可作图。<br>正 7、9、11 边形等不可作图。</div>` : `
 <p class="proof-p">Compass-and-straightedge constructions are algebraically equivalent to performing <b>rational operations and square roots</b>. Every construction step (midpoint, perpendicular, circle) corresponds algebraically to one such operation.</p>
-<div class="mbox info">Constructible ⟺ reachable from ℚ by finitely many +−×÷ and √</div>
-<p class="proof-p">Gauss proved: a regular n-gon is constructible if and only if</p>
-<div class="formula">n = 2<sup>k</sup> · p₁ · p₂ · … · pₘ<br>where the pᵢ are <b>distinct Fermat primes</b> (primes of the form 2<sup>2<sup>k</sup></sup>+1)</div>
-<p class="proof-p">Known Fermat primes: <span class="hl">3, 5, 17, 257, 65537</span> (no others known).</p>
-<p class="proof-p">Since 17 = 2<sup>4</sup>+1 is a Fermat prime, the <span class="hl-green">17-gon is constructible</span>.</p>`;
+<div class="mbox info">Constructible $\\iff$ reachable from $\\mathbb{Q}$ by finitely many $+,-,\\times,\\div$ and $\\sqrt{\\,\\cdot\\,}$</div>
+<p class="proof-p">Gauss proved: a regular $n$-gon is constructible if and only if</p>
+<div class="formula">$$n = 2^k \\cdot p_1 \\cdot p_2 \\cdots p_m$$<div style="margin-top:.4rem">where the $p_i$ are <b>distinct Fermat primes</b> (primes of the form $2^{2^k}+1$)</div></div>
+<p class="proof-p">Known Fermat primes: <span class="hl">$3, 5, 17, 257, 65537$</span> (no others known).</p>
+<p class="proof-p">Since $17 = 2^4 + 1$ is a Fermat prime, the <span class="hl-green">17-gon is constructible</span>.</p>`;
     }
   },
   {
     zh:{label:'伽罗瓦理论：为什么"2的幂次"是关键'},
     en:{label:'Galois theory: why "power of 2" is the key'},
     body(l) { return l==='zh' ? `
-<p class="proof-p">设 ω = e<sup>2πi/17</sup>（一个17次本原单位根），则 ω, ω², ..., ω<sup>16</sup> 是方程 x<sup>17</sup>−1=0 的全部非平凡根。</p>
-<p class="proof-p">将 cos(2π/17) 作图等价于将 ω+ω<sup>-1</sup> = 2cos(2π/17) 作图，即找到一个包含 ω 的<b>可作图域扩张链</b>。</p>
-<div class="mbox info">分圆域 ℚ(ω) 在 ℚ 上的 Galois 群 Gal(ℚ(ω)/ℚ) ≅ (ℤ/17ℤ)* ≅ ℤ/16ℤ</div>
-<p class="proof-p">该群的阶为 <span class="hl">φ(17) = 16 = 2⁴</span>，是2的幂次。</p>
-<p class="proof-p">一个域扩张可以被尺规实现，当且仅当它对应一个 <span class="hl">2的幂次阶</span> 的伽罗瓦群。这是因为每个"开平方根"操作将域的次数扩大2倍。</p>
-<p class="proof-p">由于 |Gal(ℚ(ω)/ℚ)| = 16 = 2⁴，我们可以建立一个扩张塔：</p>
-<div class="formula">ℚ ⊂ K₁ ⊂ K₂ ⊂ K₃ ⊂ K₄ = ℚ(ω)<br>[K₁:ℚ] = [K₂:K₁] = [K₃:K₂] = [K₄:K₃] = 2</div>
-<p class="proof-p">每步扩张的次数为2，对应一次<b>开平方根操作</b>——即一次圆规作图！四步恰好对应cos(2π/17)公式中的<span class="hl">四重嵌套根号</span>。</p>` : `
-<p class="proof-p">Let ω = e<sup>2πi/17</sup> (a primitive 17th root of unity). The Galois group of the cyclotomic field ℚ(ω) over ℚ is:</p>
-<div class="mbox info">Gal(ℚ(ω)/ℚ) ≅ (ℤ/17ℤ)* ≅ ℤ/16ℤ,  order = φ(17) = 16 = 2⁴</div>
+<p class="proof-p">设 $\\omega = e^{2\\pi i/17}$（一个 17 次本原单位根），则 $\\omega, \\omega^2, \\ldots, \\omega^{16}$ 是方程 $x^{17}-1=0$ 的全部非平凡根。</p>
+<p class="proof-p">将 $\\cos(2\\pi/17)$ 作图等价于将 $\\omega + \\omega^{-1} = 2\\cos(2\\pi/17)$ 作图，即找到一个包含 $\\omega$ 的<b>可作图域扩张链</b>。</p>
+<div class="mbox info">分圆域 $\\mathbb{Q}(\\omega)$ 在 $\\mathbb{Q}$ 上的 Galois 群 $\\mathrm{Gal}(\\mathbb{Q}(\\omega)/\\mathbb{Q}) \\cong (\\mathbb{Z}/17\\mathbb{Z})^\\times \\cong \\mathbb{Z}/16\\mathbb{Z}$</div>
+<p class="proof-p">该群的阶为 <span class="hl">$\\varphi(17) = 16 = 2^4$</span>，是 2 的幂次。</p>
+<p class="proof-p">一个域扩张可以被尺规实现，当且仅当它对应一个 <span class="hl">2 的幂次阶</span> 的伽罗瓦群。这是因为每个"开平方根"操作将域的次数扩大 2 倍。</p>
+<p class="proof-p">由于 $|\\mathrm{Gal}(\\mathbb{Q}(\\omega)/\\mathbb{Q})| = 16 = 2^4$，我们可以建立一个扩张塔：</p>
+<div class="formula">$$\\mathbb{Q} \\subset K_1 \\subset K_2 \\subset K_3 \\subset K_4 = \\mathbb{Q}(\\omega)$$<div style="margin-top:.4rem">$[K_1:\\mathbb{Q}] = [K_2:K_1] = [K_3:K_2] = [K_4:K_3] = 2$</div></div>
+<p class="proof-p">每步扩张的次数为 2，对应一次<b>开平方根操作</b>——即一次圆规作图！四步恰好对应 $\\cos(2\\pi/17)$ 公式中的<span class="hl">四重嵌套根号</span>。</p>` : `
+<p class="proof-p">Let $\\omega = e^{2\\pi i/17}$ (a primitive 17th root of unity). The Galois group of the cyclotomic field $\\mathbb{Q}(\\omega)$ over $\\mathbb{Q}$ is:</p>
+<div class="mbox info">$\\mathrm{Gal}(\\mathbb{Q}(\\omega)/\\mathbb{Q}) \\cong (\\mathbb{Z}/17\\mathbb{Z})^\\times \\cong \\mathbb{Z}/16\\mathbb{Z}$, &nbsp; order $= \\varphi(17) = 16 = 2^4$</div>
 <p class="proof-p">A Galois extension is constructible iff its Galois group has <span class="hl">2-power order</span> — each degree-2 sub-extension corresponds to one square-root (compass) operation.</p>
-<p class="proof-p">Since |Gal| = 16 = 2⁴, we get a tower of four degree-2 extensions:</p>
-<div class="formula">ℚ ⊂ K₁ ⊂ K₂ ⊂ K₃ ⊂ K₄ = ℚ(ω)<br>[Kᵢ:Kᵢ₋₁] = 2 for each step</div>
-<p class="proof-p">Four steps, four square roots — exactly the <span class="hl">4 nested radicals</span> in the formula for cos(2π/17).</p>`;
+<p class="proof-p">Since $|\\mathrm{Gal}| = 16 = 2^4$, we get a tower of four degree-2 extensions:</p>
+<div class="formula">$$\\mathbb{Q} \\subset K_1 \\subset K_2 \\subset K_3 \\subset K_4 = \\mathbb{Q}(\\omega)$$<div style="margin-top:.4rem">$[K_i:K_{i-1}] = 2$ for each step</div></div>
+<p class="proof-p">Four steps, four square roots — exactly the <span class="hl">4 nested radicals</span> in the formula for $\\cos(2\\pi/17)$.</p>`;
     }
   },
   {
     zh:{label:'高斯周期：逐层分解（附数值验证）'},
     en:{label:'Gaussian periods: layer-by-layer decomposition (with numerical verification)'},
     body(l) { const zh=l==='zh'; return `
-<p class="proof-p">${zh?'17模下的二次剩余为：{1,2,4,8,9,13,15,16}（即1²,6²,2²,...mod 17的结果），非二次剩余为：{3,5,6,7,10,11,12,14}。':'Quadratic residues mod 17: {1,2,4,8,9,13,15,16}; non-residues: {3,5,6,7,10,11,12,14}.'}</p>
-<p class="proof-p"><b>${zh?'第一层（2个周期，各8项）：':'Level 1 (two 8-term periods):'}</b></p>
-<div class="formula">η₁ = ω+ω²+ω⁴+ω⁸+ω⁹+ω¹³+ω¹⁵+ω¹⁶  <b>（${zh?'二次剩余之和':'sum over QR'}）</b>
-η₂ = ω³+ω⁵+ω⁶+ω⁷+ω¹⁰+ω¹¹+ω¹²+ω¹⁴  <b>（${zh?'非二次剩余之和':'sum over NR'}）</b>
-
-η₁ + η₂ = −1  （${zh?'所有非平凡根之和':'sum of all non-trivial roots'}）
-η₁ · η₂ = −4  （${zh?'可直接展开验证':'verify by direct expansion'}）
-
-⟹  η₁, η₂ ${zh?'满足方程':'satisfy'}  x² + x − 4 = 0
-⟹  <b>η₁ = (−1+√17)/2 ≈ 1.5616,  η₂ = (−1−√17)/2 ≈ −2.5616</b></div>
-<p class="proof-p"><b>${zh?'第二层（4个周期，各4项）：':'Level 2 (four 4-term periods):'}</b></p>
-<div class="formula">η₁₁ = ω+ω⁴+ω¹³+ω¹⁶ = 2(cos 2π/17 + cos 8π/17)
-η₁₂ = ω²+ω⁸+ω⁹+ω¹⁵ = 2(cos 4π/17 + cos 16π/17)
-
-η₁₁ + η₁₂ = η₁,   η₁₁ · η₁₂ = −1
-⟹  η₁₁, η₁₂ ${zh?'满足':'satisfy'}  x² − η₁·x − 1 = 0
-<b>η₁₁ = [(−1+√17) + √(34−2√17)] / 4 ≈ +2.0495
-η₁₂ = [(−1+√17) − √(34−2√17)] / 4 ≈ −0.4878</b></div>
+<p class="proof-p">${zh?'17 模下的二次剩余为 $\\{1,2,4,8,9,13,15,16\\}$（即 $1^2, 2^2, \\ldots \\pmod{17}$ 的结果），非二次剩余为 $\\{3,5,6,7,10,11,12,14\\}$。':'Quadratic residues mod 17: $\\{1,2,4,8,9,13,15,16\\}$; non-residues: $\\{3,5,6,7,10,11,12,14\\}$.'}</p>
+<p class="proof-p"><b>${zh?'第一层（2 个周期，各 8 项）：':'Level 1 (two 8-term periods):'}</b></p>
+<div class="formula">$$\\begin{aligned}\\eta_1 &= \\omega + \\omega^2 + \\omega^4 + \\omega^8 + \\omega^9 + \\omega^{13} + \\omega^{15} + \\omega^{16} \\\\ \\eta_2 &= \\omega^3 + \\omega^5 + \\omega^6 + \\omega^7 + \\omega^{10} + \\omega^{11} + \\omega^{12} + \\omega^{14}\\end{aligned}$$
+<div style="margin-top:.3rem">$\\eta_1 + \\eta_2 = -1$ &nbsp; (${zh?'所有非平凡根之和':'sum of all non-trivial roots'})<br>
+$\\eta_1 \\cdot \\eta_2 = -4$ &nbsp; (${zh?'可直接展开验证':'verify by direct expansion'})<br>
+$\\Longrightarrow \\eta_1, \\eta_2$ ${zh?'满足方程':'satisfy'} $x^2 + x - 4 = 0$<br>
+<b>$\\eta_1 = \\dfrac{-1+\\sqrt{17}}{2} \\approx 1.5616, \\quad \\eta_2 = \\dfrac{-1-\\sqrt{17}}{2} \\approx -2.5616$</b></div></div>
+<p class="proof-p"><b>${zh?'第二层（4 个周期，各 4 项）：':'Level 2 (four 4-term periods):'}</b></p>
+<div class="formula">$$\\begin{aligned}\\eta_{11} &= \\omega + \\omega^4 + \\omega^{13} + \\omega^{16} = 2(\\cos\\tfrac{2\\pi}{17} + \\cos\\tfrac{8\\pi}{17}) \\\\ \\eta_{12} &= \\omega^2 + \\omega^8 + \\omega^9 + \\omega^{15} = 2(\\cos\\tfrac{4\\pi}{17} + \\cos\\tfrac{16\\pi}{17})\\end{aligned}$$
+<div style="margin-top:.3rem">$\\eta_{11} + \\eta_{12} = \\eta_1, \\quad \\eta_{11}\\cdot\\eta_{12} = -1$<br>
+$\\Longrightarrow \\eta_{11}, \\eta_{12}$ ${zh?'满足':'satisfy'} $x^2 - \\eta_1 x - 1 = 0$<br>
+<b>$\\eta_{11} = \\dfrac{(-1+\\sqrt{17}) + \\sqrt{34-2\\sqrt{17}}}{4} \\approx +2.0495$</b><br>
+<b>$\\eta_{12} = \\dfrac{(-1+\\sqrt{17}) - \\sqrt{34-2\\sqrt{17}}}{4} \\approx -0.4878$</b></div></div>
 <table class="period-table"><thead><tr>
   <th>${zh?'周期':'Period'}</th><th>${zh?'表达式':'Expression'}</th><th>${zh?'数值（≈）':'Numeric (≈)'}</th>
 </tr></thead><tbody>
-<tr><td>η₁</td><td class="num">(−1+√17)/2</td><td class="num">+1.5616</td></tr>
-<tr><td>η₂</td><td class="num">(−1−√17)/2</td><td class="num">−2.5616</td></tr>
-<tr><td>η₁₁</td><td class="num">[(−1+√17)+√(34−2√17)]/4</td><td class="num">+2.0495</td></tr>
-<tr><td>η₁₂</td><td class="num">[(−1+√17)−√(34−2√17)]/4</td><td class="num">−0.4878</td></tr>
-<tr><td>2cos(2π/17)</td><td class="num">${zh?'第三层分解得到':'from 3rd-level split'}</td><td class="num">+1.8652</td></tr>
+<tr><td>$\\eta_1$</td><td class="num">$(-1+\\sqrt{17})/2$</td><td class="num">+1.5616</td></tr>
+<tr><td>$\\eta_2$</td><td class="num">$(-1-\\sqrt{17})/2$</td><td class="num">−2.5616</td></tr>
+<tr><td>$\\eta_{11}$</td><td class="num">$[(-1+\\sqrt{17})+\\sqrt{34-2\\sqrt{17}}]/4$</td><td class="num">+2.0495</td></tr>
+<tr><td>$\\eta_{12}$</td><td class="num">$[(-1+\\sqrt{17})-\\sqrt{34-2\\sqrt{17}}]/4$</td><td class="num">−0.4878</td></tr>
+<tr><td>$2\\cos(2\\pi/17)$</td><td class="num">${zh?'第三层分解得到':'from 3rd-level split'}</td><td class="num">+1.8652</td></tr>
 </tbody></table>
-<p class="proof-p">${zh?'验证：η₁₁·η₁₂ ≈ 2.0495 × (−0.4878) ≈ −0.9998 ≈ −1 ✓（与 Vieta 公式 η₁₁·η₁₂ = −1 一致）':'Check: η₁₁·η₁₂ ≈ 2.0495 × (−0.4878) ≈ −0.9998 ≈ −1 ✓ (matches the Vieta relation η₁₁·η₁₂ = −1)'}</p>`;
+<p class="proof-p">${zh?'验证：$\\eta_{11}\\cdot\\eta_{12} \\approx 2.0495 \\times (-0.4878) \\approx -0.9998 \\approx -1$ ✓（与 Vieta 公式 $\\eta_{11}\\cdot\\eta_{12} = -1$ 一致）':'Check: $\\eta_{11}\\cdot\\eta_{12} \\approx 2.0495 \\times (-0.4878) \\approx -0.9998 \\approx -1$ ✓ (matches the Vieta relation $\\eta_{11}\\cdot\\eta_{12} = -1$)'}</p>`;
     }
   },
   {
-    zh:{label:'cos(2π/17) 的显式公式与最终验证'},
-    en:{label:'Explicit formula for cos(2π/17) and final verification'},
+    zh:{label:'$\\cos(2\\pi/17)$ 的显式公式与最终验证'},
+    en:{label:'Explicit formula for $\\cos(2\\pi/17)$ and final verification'},
     body(l) { const zh=l==='zh'; return `
-<p class="proof-p">${zh?'经过四层高斯周期分解，最终得到 cos(2π/17) 的显式封闭公式：':'After four levels of Gaussian period decomposition, the explicit closed form is:'}</p>
-<div class="formula" style="font-size:.8rem;line-height:2.2">
-<b>cos(2π/17)</b> = (1/16) × [
-  −1
-  + √<span style="text-decoration:overline">17</span>
-  + √<span style="text-decoration:overline">34 − 2√17</span>
-  + 2√<span style="text-decoration:overline">17 + 3√17 − √(34−2√17) − 2√(34+2√17)</span>
-]</div>
+<p class="proof-p">${zh?'经过四层高斯周期分解，最终得到 $\\cos(2\\pi/17)$ 的显式封闭公式：':'After four levels of Gaussian period decomposition, the explicit closed form is:'}</p>
+<div class="formula">$$\\cos\\!\\Big(\\tfrac{2\\pi}{17}\\Big) = \\tfrac{1}{16}\\Big[\\,-1 + \\sqrt{17} + \\sqrt{34 - 2\\sqrt{17}} + 2\\sqrt{A}\\,\\Big]$$
+<div style="margin-top:.3rem">${zh?'其中':'where'} $A = 17 + 3\\sqrt{17} - \\sqrt{34 - 2\\sqrt{17}} - 2\\sqrt{34 + 2\\sqrt{17}}$</div></div>
 <p class="proof-p">${zh?'逐步数值验证：':'Numerical verification step by step:'}</p>
-<div class="formula">√17 ≈ 4.1231
-34 − 2√17 ≈ 25.754  →  √(34−2√17) ≈ 5.0748
-34 + 2√17 ≈ 42.246  →  √(34+2√17) ≈ 6.4997
-17 + 3√17 ≈ 29.369
-A = 29.369 − 5.0748 − 2×6.4997 ≈ 11.295  →  √A ≈ 3.3608
-
-<b>cos(2π/17) = (−1 + 4.1231 + 5.0748 + 2×3.3608) / 16
-            = 14.920 / 16
-            ≈ 0.9326</b>
-
-${zh?'验证：cos(2π/17) = cos(21.176°) ≈ 0.93247…  ✓':'Check: cos(2π/17) = cos(21.176°) ≈ 0.93247… ✓'}</div>
-<div class="mbox good">${zh?'四个嵌套根号中的每一个，都对应作图步骤⑤⑦⑧⑨中的一次Carlyle圆或角平分线操作。作图与代数完美对应。':'Each of the 4 nested square roots corresponds to one Carlyle-circle or angle-bisection step (steps ⑤⑦⑧⑨). Construction and algebra perfectly align.'}</div>
-<p class="proof-p">${zh?'从cos(2π/17)出发，在圆上作垂线得sin(2π/17)，从而定出第二顶点P₂，再以弦长步进得全部17个顶点。正十七边形作图完成。':'From cos(2π/17), erect a perpendicular on the circle to get sin(2π/17), locating P₂. Then step the chord length to find all 17 vertices. QED.'}</p>
-<div class="mbox warn">${zh?'历史：高斯在1796年3月30日（日记第一条）记录了这一发现。他将此视为自己一生中最重要的数学发现之一，并要求在他的墓碑上刻上正十七边形。':'History: Gauss recorded this discovery as the very first entry in his mathematical diary on March 30, 1796. He considered it one of his greatest finds and requested a 17-gon be carved on his tombstone.'}</div>`;
+<div class="formula">$\\sqrt{17} \\approx 4.1231$<br>
+$34 - 2\\sqrt{17} \\approx 25.754 \\;\\Longrightarrow\\; \\sqrt{34 - 2\\sqrt{17}} \\approx 5.0748$<br>
+$34 + 2\\sqrt{17} \\approx 42.246 \\;\\Longrightarrow\\; \\sqrt{34 + 2\\sqrt{17}} \\approx 6.4997$<br>
+$17 + 3\\sqrt{17} \\approx 29.369$<br>
+$A = 29.369 - 5.0748 - 2 \\times 6.4997 \\approx 11.295 \\;\\Longrightarrow\\; \\sqrt{A} \\approx 3.3608$
+<div style="margin-top:.4rem"><b>$\\cos(2\\pi/17) = (-1 + 4.1231 + 5.0748 + 2 \\times 3.3608) / 16 = 14.920 / 16 \\approx 0.9326$</b></div>
+<div style="margin-top:.3rem">${zh?'验证：':'Check: '}$\\cos(2\\pi/17) = \\cos(21.176°) \\approx 0.93247\\ldots$ ✓</div></div>
+<div class="mbox good">${zh?'四个嵌套根号中的每一个，都对应作图步骤⑤⑦⑧⑨中的一次 Carlyle 圆或角平分线操作。作图与代数完美对应。':'Each of the 4 nested square roots corresponds to one Carlyle-circle or angle-bisection step (steps ⑤⑦⑧⑨). Construction and algebra perfectly align.'}</div>
+<p class="proof-p">${zh?'从 $\\cos(2\\pi/17)$ 出发，在圆上作垂线得 $\\sin(2\\pi/17)$，从而定出第二顶点 $P_2$，再以弦长步进得全部 17 个顶点。正十七边形作图完成。':'From $\\cos(2\\pi/17)$, erect a perpendicular on the circle to get $\\sin(2\\pi/17)$, locating $P_2$. Then step the chord length to find all 17 vertices. QED.'}</p>
+<div class="mbox warn">${zh?'历史：高斯在 1796 年 3 月 30 日（日记第一条）记录了这一发现。他将此视为自己一生中最重要的数学发现之一，并要求在他的墓碑上刻上正十七边形。':'History: Gauss recorded this discovery as the very first entry in his mathematical diary on March 30, 1796. He considered it one of his greatest finds and requested a 17-gon be carved on his tombstone.'}</div>`;
     }
   },
 ];
@@ -841,11 +852,11 @@ function renderAccordion() {
   <div class="acc-head" onclick="toggleAcc(${i})">
     <div class="acc-head-left">
       <div class="acc-num">${i+1}</div>
-      <div class="acc-label">${(lang==='zh'?sec.zh:sec.en).label}</div>
+      <div class="acc-label">${mathify((lang==='zh'?sec.zh:sec.en).label)}</div>
     </div>
     <span class="acc-arrow">▼</span>
   </div>
-  <div class="acc-body">${sec.body(lang)}</div>
+  <div class="acc-body">${mathify(sec.body(lang))}</div>
 </div>`).join('');
 }
 
@@ -856,9 +867,13 @@ function toggleAcc(i) {
 // ─────────────────────────────────────────────────────
 //  Boot
 // ─────────────────────────────────────────────────────
-applyLang();
-redraw();
-renderStepPanel();
+function boot(){
+  applyLang();   // 内部会调 renderStepPanel + renderAccordion
+  redraw();
+}
+// defer 脚本（KaTeX）会在 DOMContentLoaded 前跑完，因此放这里能保证 katex 已就绪
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+else boot();
 </script>
 </body>
 </html>
