@@ -3,7 +3,7 @@
 //  每次更新内容后，将 CACHE_VERSION 改成新版本号
 //  例如 'v2'、'v3'，这样用户下次访问会自动拉取新内容
 // ─────────────────────────────────────────────────────
-const CACHE_VERSION = 'v5';
+const CACHE_VERSION = 'v6';
 const CACHE_NAME = `learnhub-${CACHE_VERSION}`;
 
 const ASSETS = [
@@ -18,6 +18,30 @@ const ASSETS = [
   './modules/hanoi/index.html',
   './modules/japanese-travel/index.html',
   './modules/heptadecagon/index.html',
+  './modules/linalg/index.html',
+  // KaTeX 数学渲染（线性代数模块及后续模块共用）
+  './vendor/katex/katex.min.css',
+  './vendor/katex/katex.min.js',
+  './vendor/katex/fonts/KaTeX_AMS-Regular.woff2',
+  './vendor/katex/fonts/KaTeX_Caligraphic-Bold.woff2',
+  './vendor/katex/fonts/KaTeX_Caligraphic-Regular.woff2',
+  './vendor/katex/fonts/KaTeX_Fraktur-Bold.woff2',
+  './vendor/katex/fonts/KaTeX_Fraktur-Regular.woff2',
+  './vendor/katex/fonts/KaTeX_Main-Bold.woff2',
+  './vendor/katex/fonts/KaTeX_Main-BoldItalic.woff2',
+  './vendor/katex/fonts/KaTeX_Main-Italic.woff2',
+  './vendor/katex/fonts/KaTeX_Main-Regular.woff2',
+  './vendor/katex/fonts/KaTeX_Math-BoldItalic.woff2',
+  './vendor/katex/fonts/KaTeX_Math-Italic.woff2',
+  './vendor/katex/fonts/KaTeX_SansSerif-Bold.woff2',
+  './vendor/katex/fonts/KaTeX_SansSerif-Italic.woff2',
+  './vendor/katex/fonts/KaTeX_SansSerif-Regular.woff2',
+  './vendor/katex/fonts/KaTeX_Script-Regular.woff2',
+  './vendor/katex/fonts/KaTeX_Size1-Regular.woff2',
+  './vendor/katex/fonts/KaTeX_Size2-Regular.woff2',
+  './vendor/katex/fonts/KaTeX_Size3-Regular.woff2',
+  './vendor/katex/fonts/KaTeX_Size4-Regular.woff2',
+  './vendor/katex/fonts/KaTeX_Typewriter-Regular.woff2',
 ];
 
 // ── 安装：预缓存所有页面和资源 ──

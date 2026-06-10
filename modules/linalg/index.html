@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>线性代数精要 · Linear Algebra Essentials</title>
+<link rel="stylesheet" href="../../vendor/katex/katex.min.css">
+<script defer src="../../vendor/katex/katex.min.js"></script>
+<style>
+:root{
+  --bg:#0f172a;--bg-card:#1e293b;--bg-el:#334155;
+  --text:#f1f5f9;--text-s:#cbd5e1;--text-m:#94a3b8;
+  --border:#334155;
+  --c-i:#22d3ee;       /* basis i — cyan */
+  --c-j:#34d399;       /* basis j — emerald */
+  --c-v:#a78bfa;       /* general vector — violet */
+  --c-w:#fbbf24;       /* secondary vector — amber */
+  --c-sum:#f472b6;     /* sum / result — pink */
+  --c-eig:#10b981;     /* eigenvector highlight */
+  --c-neg:#ef4444;     /* negative / collapsed */
+  --primary:#06b6d4;
+  --primary-dark:#0891b2;
+  --radius:14px;
+  --shadow:0 4px 24px rgba(0,0,0,.4);
+  --tr:.2s ease;
+  --font:'Segoe UI','PingFang SC','Microsoft YaHei','Noto Sans SC',system-ui,sans-serif;
+  --mono:'Cascadia Code','Consolas','Source Code Pro',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh;font-size:16px}
+
+/* NAV */
+nav.topnav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(15,23,42,.93);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  padding:0 1.5rem;height:60px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text)}
+.nav-logo{font-size:1.5rem;font-weight:800;font-style:italic;
+  background:linear-gradient(135deg,#22d3ee,#06b6d4,#0891b2);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nav-title{font-size:1rem;font-weight:700}
+.nav-actions{display:flex;gap:8px;align-items:center}
+.back-btn{color:var(--text-m);text-decoration:none;font-size:.88rem;padding:6px 12px;border-radius:8px;transition:var(--tr)}
+.back-btn:hover{color:var(--text);background:var(--bg-el)}
+.lang-btn{background:var(--bg-el);border:1px solid var(--border);color:var(--text);
+  padding:6px 14px;border-radius:18px;font-size:.85rem;font-weight:600;
+  cursor:pointer;font-family:var(--font);transition:var(--tr)}
+.lang-btn:hover{background:var(--primary);border-color:var(--primary)}
+
+/* HERO */
+.hero{padding:2rem 1.5rem 1rem;text-align:center;max-width:760px;margin:0 auto}
+.hero-badge{display:inline-block;background:rgba(6,182,212,.13);color:#67e8f9;
+  border:1px solid rgba(6,182,212,.3);padding:3px 12px;border-radius:18px;
+  font-size:.74rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.6rem}
+.hero h1{font-size:clamp(1.5rem,3.6vw,2.2rem);font-weight:800;letter-spacing:-.02em;margin-bottom:.4rem}
+.hero h1 .hl{background:linear-gradient(135deg,#22d3ee,#34d399);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:.92rem;color:var(--text-m);max-width:560px;margin:0 auto}
+
+/* TAB BAR */
+.tab-bar{
+  display:flex;gap:6px;padding:.6rem 1rem;max-width:1100px;margin:0 auto;
+  overflow-x:auto;scrollbar-width:thin;justify-content:center;flex-wrap:wrap;
+}
+.tab{
+  background:var(--bg-card);border:1px solid var(--border);color:var(--text-m);
+  padding:8px 16px;border-radius:20px;font-size:.86rem;font-weight:600;
+  cursor:pointer;white-space:nowrap;font-family:var(--font);transition:var(--tr);
+}
+.tab:hover{color:var(--text);border-color:var(--text-m)}
+.tab.active{background:var(--primary);border-color:var(--primary);color:#fff}
+
+/* DEMO LAYOUT */
+.demo-wrap{display:none;max-width:1100px;margin:0 auto;padding:.6rem 1rem 1.5rem}
+.demo-wrap.active{display:block}
+.demo-grid{display:grid;grid-template-columns:1fr 320px;gap:1rem;align-items:start}
+@media(max-width:780px){.demo-grid{grid-template-columns:1fr}}
+.canvas-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:.9rem;display:flex;align-items:center;justify-content:center;min-height:360px}
+.canvas-card canvas{max-width:100%;height:auto;display:block;border-radius:8px;touch-action:none;cursor:grab}
+.canvas-card canvas:active{cursor:grabbing}
+.ctrl-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:1rem 1.1rem;display:flex;flex-direction:column;gap:.9rem}
+
+.ctrl-title{font-size:.95rem;font-weight:700;color:var(--text);display:flex;align-items:center;gap:.5rem}
+.ctrl-desc{font-size:.83rem;color:var(--text-s);line-height:1.7;background:var(--bg-el);border-radius:8px;padding:.7rem .9rem}
+.ctrl-desc .katex{font-size:1em}
+.kbd{background:var(--bg-el);border:1px solid var(--border);border-radius:5px;padding:1px 6px;font-family:var(--mono);font-size:.78rem;color:var(--text-s)}
+
+/* MATRIX INPUT */
+.mat-input{display:grid;grid-template-columns:auto repeat(2,1fr) auto;gap:4px;align-items:center;font-family:var(--mono)}
+.mat-bracket{font-size:2.6rem;color:var(--text-m);line-height:.8;font-family:serif}
+.mat-cell{background:var(--bg-el);border:1px solid var(--border);color:var(--text);
+  padding:6px 10px;border-radius:6px;font-family:var(--mono);font-size:.92rem;
+  text-align:center;outline:none;width:100%;min-width:60px}
+.mat-cell:focus{border-color:var(--primary)}
+.mat-row-label{font-size:.78rem;color:var(--text-m);padding:0 6px}
+
+/* SLIDER GROUP */
+.slider-row{display:grid;grid-template-columns:30px 1fr 60px;gap:8px;align-items:center;font-size:.85rem}
+.slider-row label{color:var(--text-m);font-family:var(--mono)}
+.slider-row input[type=range]{accent-color:var(--primary);width:100%}
+.slider-row .val{font-family:var(--mono);color:var(--text-s);text-align:right;font-size:.85rem}
+
+/* PRESET BUTTONS */
+.presets{display:flex;flex-wrap:wrap;gap:5px}
+.preset-btn{
+  background:var(--bg-el);border:1px solid var(--border);color:var(--text-s);
+  padding:5px 10px;border-radius:14px;font-size:.78rem;cursor:pointer;
+  font-family:var(--font);transition:var(--tr);
+}
+.preset-btn:hover{background:var(--primary);border-color:var(--primary);color:#fff}
+
+/* STATUS / OUTPUT BOX */
+.out-box{
+  background:#0a1322;border:1px solid var(--border);border-radius:8px;
+  padding:.7rem .9rem;font-family:var(--mono);font-size:.88rem;
+  color:var(--text-s);line-height:1.8;min-height:60px;
+}
+.out-box .lbl{color:var(--text-m);font-size:.78rem}
+.out-box .val{color:#67e8f9}
+.out-box .ok{color:#34d399}
+.out-box .bad{color:#f87171}
+.out-box .warn{color:#fbbf24}
+.out-box .katex{font-size:1em}
+
+/* SUB TABS for demo 6 */
+.subtab-bar{display:flex;gap:4px;padding:.5rem 0;justify-content:center;flex-wrap:wrap;margin-bottom:.6rem}
+.subtab{
+  background:var(--bg-el);border:1px solid var(--border);color:var(--text-m);
+  padding:6px 14px;border-radius:14px;font-size:.82rem;font-weight:600;
+  cursor:pointer;font-family:var(--font);transition:var(--tr);
+}
+.subtab.active{background:var(--c-i);border-color:var(--c-i);color:#0a1322}
+.subdemo{display:none}.subdemo.active{display:block}
+
+/* PROOF SECTION */
+.proof-section{max-width:1100px;margin:1.5rem auto;padding:0 1rem 4rem}
+.proof-title{font-size:1.05rem;font-weight:700;color:var(--text-s);margin-bottom:.8rem}
+.accordion{display:flex;flex-direction:column;gap:.5rem}
+.acc-item{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.acc-head{display:flex;align-items:center;justify-content:space-between;
+  padding:.9rem 1.1rem;cursor:pointer;user-select:none;transition:var(--tr)}
+.acc-head:hover{background:var(--bg-el)}
+.acc-head-l{display:flex;align-items:center;gap:.7rem}
+.acc-num{background:rgba(6,182,212,.15);color:#67e8f9;border-radius:7px;
+  width:26px;height:26px;display:flex;align-items:center;justify-content:center;
+  font-size:.78rem;font-weight:700;flex-shrink:0;font-family:var(--mono)}
+.acc-label{font-size:.92rem;font-weight:700;color:var(--text)}
+.acc-arrow{color:var(--text-m);font-size:.85rem;transition:transform .2s}
+.acc-item.open .acc-arrow{transform:rotate(180deg)}
+.acc-body{display:none;padding:1.1rem 1.3rem;border-top:1px solid var(--border)}
+.acc-item.open .acc-body{display:block}
+.acc-body p{font-size:.88rem;color:var(--text-s);margin-bottom:.7rem;line-height:1.8}
+.acc-body p:last-child{margin-bottom:0}
+.acc-body .katex-display{margin:.8rem 0;background:#0a1322;border-left:3px solid var(--primary);
+  border-radius:0 8px 8px 0;padding:.7rem 1rem}
+.acc-body .katex-display>.katex{font-size:1.05em}
+.acc-body strong{color:var(--text)}
+.mbox{border-radius:8px;padding:.6rem .9rem;margin:.7rem 0;font-size:.85rem;line-height:1.7}
+.mbox.info{background:rgba(6,182,212,.08);border:1px solid rgba(6,182,212,.22);color:#67e8f9}
+.mbox.good{background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.22);color:#34d399}
+.mbox.warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.22);color:#fbbf24}
+
+footer{text-align:center;padding:2rem;color:var(--text-m);font-size:.84rem;border-top:1px solid var(--border);margin-top:2rem}
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <a class="nav-brand" href="../../index.html">
+    <span class="nav-logo">𝐀</span>
+    <span class="nav-title" data-i18n="nav.title">线性代数精要</span>
+  </a>
+  <div class="nav-actions">
+    <a class="back-btn" href="../../index.html"><span data-i18n="nav.back">← 返回</span></a>
+    <button class="lang-btn" onclick="toggleLang()" data-i18n="nav.lang">English</button>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge" data-i18n="hero.badge">几何直觉 + 符号严谨</div>
+  <h1><span class="hl" data-i18n="hero.h1">把矩阵当成"动作"，把向量当成"箭头"</span></h1>
+  <p data-i18n="hero.desc">6 个互动 demo 配 3 个真实应用——拖一拖、调一调，看代数符号怎么变成几何动作。</p>
+</section>
+
+<!-- TAB BAR -->
+<div class="tab-bar" id="tab-bar">
+  <button class="tab active" data-tab="1" onclick="showTab(1)"><span data-i18n="tab.1">① 向量</span></button>
+  <button class="tab" data-tab="2" onclick="showTab(2)"><span data-i18n="tab.2">② 线性变换</span></button>
+  <button class="tab" data-tab="3" onclick="showTab(3)"><span data-i18n="tab.3">③ 行列式</span></button>
+  <button class="tab" data-tab="4" onclick="showTab(4)"><span data-i18n="tab.4">④ 线性方程组</span></button>
+  <button class="tab" data-tab="5" onclick="showTab(5)"><span data-i18n="tab.5">⑤ 特征值</span></button>
+  <button class="tab" data-tab="6" onclick="showTab(6)"><span data-i18n="tab.6">⑥ 真实应用</span></button>
+</div>
+
+<!-- ============ DEMO 1 : VECTORS ============ -->
+<div class="demo-wrap active" id="demo-1">
+  <div class="demo-grid">
+    <div class="canvas-card"><canvas id="cv1" width="540" height="500"></canvas></div>
+    <div class="ctrl-card">
+      <div class="ctrl-title"><span data-i18n="d1.title">① 向量与线性组合</span></div>
+      <div class="ctrl-desc" data-i18n="d1.desc">直接拖动 <b style="color:#a78bfa">v</b>、<b style="color:#fbbf24">w</b> 的箭头头部；下面的滑块控制系数，得到线性组合 a·v + b·w（粉色箭头）。</div>
+      <div class="slider-row"><label>a</label><input type="range" id="d1-a" min="-3" max="3" step="0.1" value="1"><span class="val" id="d1-a-v">1.0</span></div>
+      <div class="slider-row"><label>b</label><input type="range" id="d1-b" min="-3" max="3" step="0.1" value="1"><span class="val" id="d1-b-v">1.0</span></div>
+      <div class="presets">
+        <button class="preset-btn" onclick="d1Preset('add')" data-i18n="d1.p1">v + w</button>
+        <button class="preset-btn" onclick="d1Preset('sub')" data-i18n="d1.p2">v − w</button>
+        <button class="preset-btn" onclick="d1Preset('2v')" data-i18n="d1.p3">2v</button>
+        <button class="preset-btn" onclick="d1Preset('reset')" data-i18n="d1.p4">↺ 重置</button>
+      </div>
+      <div class="out-box" id="d1-out"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ DEMO 2 : LINEAR TRANSFORMATIONS ============ -->
+<div class="demo-wrap" id="demo-2">
+  <div class="demo-grid">
+    <div class="canvas-card"><canvas id="cv2" width="540" height="500"></canvas></div>
+    <div class="ctrl-card">
+      <div class="ctrl-title"><span data-i18n="d2.title">② 矩阵 = 线性变换</span></div>
+      <div class="ctrl-desc" data-i18n="d2.desc">矩阵的两列就是变换后的基向量 <b style="color:#22d3ee">i</b>、<b style="color:#34d399">j</b>。调下面 4 个数，看单位方格如何被"扭"成新形状。</div>
+      <div class="mat-input">
+        <div class="mat-bracket">[</div>
+        <input class="mat-cell" id="d2-a" value="1" type="number" step="0.1">
+        <input class="mat-cell" id="d2-b" value="0" type="number" step="0.1">
+        <div class="mat-bracket">]</div>
+        <div class="mat-row-label"></div>
+        <input class="mat-cell" id="d2-c" value="0" type="number" step="0.1">
+        <input class="mat-cell" id="d2-d" value="1" type="number" step="0.1">
+        <div class="mat-row-label"></div>
+      </div>
+      <div class="presets">
+        <button class="preset-btn" onclick="d2Preset('I')" data-i18n="d2.p1">单位矩阵 I</button>
+        <button class="preset-btn" onclick="d2Preset('rot')" data-i18n="d2.p2">旋转 90°</button>
+        <button class="preset-btn" onclick="d2Preset('shear')" data-i18n="d2.p3">剪切</button>
+        <button class="preset-btn" onclick="d2Preset('scale')" data-i18n="d2.p4">缩放 2×</button>
+        <button class="preset-btn" onclick="d2Preset('refl')" data-i18n="d2.p5">x 轴镜像</button>
+        <button class="preset-btn" onclick="d2Preset('proj')" data-i18n="d2.p6">投影到 x 轴</button>
+      </div>
+      <div class="out-box" id="d2-out"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ DEMO 3 : DETERMINANT ============ -->
+<div class="demo-wrap" id="demo-3">
+  <div class="demo-grid">
+    <div class="canvas-card"><canvas id="cv3" width="540" height="500"></canvas></div>
+    <div class="ctrl-card">
+      <div class="ctrl-title"><span data-i18n="d3.title">③ 行列式 = 面积缩放</span></div>
+      <div class="ctrl-desc" data-i18n="d3.desc">单位方格变换后变成平行四边形，它的<b>有向</b>面积就是 det(A)。det &gt; 0 保持朝向（绿），det &lt; 0 翻面（红），det = 0 坍缩成线（不可逆）。</div>
+      <div class="mat-input">
+        <div class="mat-bracket">[</div>
+        <input class="mat-cell" id="d3-a" value="2" type="number" step="0.1">
+        <input class="mat-cell" id="d3-b" value="1" type="number" step="0.1">
+        <div class="mat-bracket">]</div><div></div>
+        <input class="mat-cell" id="d3-c" value="0" type="number" step="0.1">
+        <input class="mat-cell" id="d3-d" value="1" type="number" step="0.1">
+        <div></div>
+      </div>
+      <div class="presets">
+        <button class="preset-btn" onclick="d3Preset('pos')" data-i18n="d3.p1">det &gt; 0</button>
+        <button class="preset-btn" onclick="d3Preset('neg')" data-i18n="d3.p2">det &lt; 0</button>
+        <button class="preset-btn" onclick="d3Preset('zero')" data-i18n="d3.p3">det = 0</button>
+        <button class="preset-btn" onclick="d3Preset('big')" data-i18n="d3.p4">放大 3×</button>
+      </div>
+      <div class="out-box" id="d3-out"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ DEMO 4 : LINEAR SYSTEMS ============ -->
+<div class="demo-wrap" id="demo-4">
+  <div class="demo-grid">
+    <div class="canvas-card"><canvas id="cv4" width="540" height="500"></canvas></div>
+    <div class="ctrl-card">
+      <div class="ctrl-title"><span data-i18n="d4.title">④ 方程组的几何意义</span></div>
+      <div class="ctrl-desc" data-i18n="d4.desc">两个二元一次方程 = 平面上两条直线。两线交点 = 方程组的解。系数行列式为 0 时直线平行，要么无解，要么有无穷多解。</div>
+      <div style="font-family:var(--mono);font-size:.88rem;color:var(--text-s);background:var(--bg-el);padding:.6rem .8rem;border-radius:8px">
+        <div style="margin-bottom:4px"><span style="color:#a78bfa">eq 1:</span> <span id="d4-eq1">2x + 1y = 4</span></div>
+        <div><span style="color:#fbbf24">eq 2:</span> <span id="d4-eq2">1x − 1y = 1</span></div>
+      </div>
+      <div class="slider-row"><label>a₁</label><input type="range" id="d4-a1" min="-3" max="3" step="0.1" value="2"><span class="val" id="d4-a1-v">2.0</span></div>
+      <div class="slider-row"><label>b₁</label><input type="range" id="d4-b1" min="-3" max="3" step="0.1" value="1"><span class="val" id="d4-b1-v">1.0</span></div>
+      <div class="slider-row"><label>e₁</label><input type="range" id="d4-e1" min="-5" max="5" step="0.1" value="4"><span class="val" id="d4-e1-v">4.0</span></div>
+      <div class="slider-row"><label>a₂</label><input type="range" id="d4-a2" min="-3" max="3" step="0.1" value="1"><span class="val" id="d4-a2-v">1.0</span></div>
+      <div class="slider-row"><label>b₂</label><input type="range" id="d4-b2" min="-3" max="3" step="0.1" value="-1"><span class="val" id="d4-b2-v">-1.0</span></div>
+      <div class="slider-row"><label>e₂</label><input type="range" id="d4-e2" min="-5" max="5" step="0.1" value="1"><span class="val" id="d4-e2-v">1.0</span></div>
+      <div class="presets">
+        <button class="preset-btn" onclick="d4Preset('unique')" data-i18n="d4.p1">唯一解</button>
+        <button class="preset-btn" onclick="d4Preset('none')" data-i18n="d4.p2">无解</button>
+        <button class="preset-btn" onclick="d4Preset('inf')" data-i18n="d4.p3">无穷多解</button>
+      </div>
+      <div class="out-box" id="d4-out"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ DEMO 5 : EIGENVECTORS ============ -->
+<div class="demo-wrap" id="demo-5">
+  <div class="demo-grid">
+    <div class="canvas-card"><canvas id="cv5" width="540" height="500"></canvas></div>
+    <div class="ctrl-card">
+      <div class="ctrl-title"><span data-i18n="d5.title">⑤ 特征向量：变换中方向不变的轴</span></div>
+      <div class="ctrl-desc" data-i18n="d5.desc">拖动青色试探向量 <b style="color:#22d3ee">v</b>，看它经过矩阵变换后变成的紫色 <b style="color:#a78bfa">Av</b>。当两者方向重合（绿色高亮），<b>v 就是特征向量</b>，长度比就是特征值。</div>
+      <div class="mat-input">
+        <div class="mat-bracket">[</div>
+        <input class="mat-cell" id="d5-a" value="2" type="number" step="0.1">
+        <input class="mat-cell" id="d5-b" value="1" type="number" step="0.1">
+        <div class="mat-bracket">]</div><div></div>
+        <input class="mat-cell" id="d5-c" value="1" type="number" step="0.1">
+        <input class="mat-cell" id="d5-d" value="2" type="number" step="0.1">
+        <div></div>
+      </div>
+      <div class="presets">
+        <button class="preset-btn" onclick="d5Preset('sym')" data-i18n="d5.p1">对称矩阵</button>
+        <button class="preset-btn" onclick="d5Preset('rot')" data-i18n="d5.p2">旋转（无实特征向量）</button>
+        <button class="preset-btn" onclick="d5Preset('diag')" data-i18n="d5.p3">对角矩阵</button>
+        <button class="preset-btn" onclick="d5ShowEigen()" data-i18n="d5.p4">🎯 求特征向量</button>
+      </div>
+      <div class="out-box" id="d5-out"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ DEMO 6 : APPLICATIONS ============ -->
+<div class="demo-wrap" id="demo-6">
+  <div class="subtab-bar">
+    <button class="subtab active" data-subtab="pca" onclick="showSub('pca')"><span data-i18n="d6.t1">PCA · 主成分分析</span></button>
+    <button class="subtab" data-subtab="svd" onclick="showSub('svd')"><span data-i18n="d6.t2">SVD · 图像压缩</span></button>
+    <button class="subtab" data-subtab="pr" onclick="showSub('pr')"><span data-i18n="d6.t3">PageRank · 网页排名</span></button>
+  </div>
+
+  <!-- PCA -->
+  <div class="subdemo active" id="sub-pca">
+    <div class="demo-grid">
+      <div class="canvas-card"><canvas id="cv6a" width="540" height="500"></canvas></div>
+      <div class="ctrl-card">
+        <div class="ctrl-title"><span data-i18n="d6a.title">PCA：找到数据"主轴"</span></div>
+        <div class="ctrl-desc" data-i18n="d6a.desc">点云的协方差矩阵的特征向量 = 数据散布方向。最大特征值对应"主轴"（橙色），次大对应正交副轴（绿色）。</div>
+        <div class="presets">
+          <button class="preset-btn" onclick="pcaGen('elongated')" data-i18n="d6a.p1">细长云</button>
+          <button class="preset-btn" onclick="pcaGen('round')" data-i18n="d6a.p2">圆形云</button>
+          <button class="preset-btn" onclick="pcaGen('diag')" data-i18n="d6a.p3">对角云</button>
+          <button class="preset-btn" onclick="pcaGen('cluster2')" data-i18n="d6a.p4">两簇</button>
+          <button class="preset-btn" id="pca-proj-btn" onclick="pcaToggleProj()" data-i18n="d6a.p5">↘ 投影到主轴</button>
+        </div>
+        <div class="out-box" id="pca-out"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SVD -->
+  <div class="subdemo" id="sub-svd">
+    <div class="demo-grid">
+      <div class="canvas-card"><canvas id="cv6b" width="540" height="500"></canvas></div>
+      <div class="ctrl-card">
+        <div class="ctrl-title"><span data-i18n="d6b.title">SVD：用 k 个奇异值还原图像</span></div>
+        <div class="ctrl-desc" data-i18n="d6b.desc">把图像 M 矩阵分解为 M = UΣVᵀ。保留前 k 个奇异值，丢掉其余的，就是"低秩近似"——图像有损但保留主要结构。</div>
+        <div class="slider-row"><label>k</label><input type="range" id="svd-k" min="1" max="32" step="1" value="5"><span class="val" id="svd-k-v">5</span></div>
+        <div class="presets">
+          <button class="preset-btn" onclick="svdSetImg('checker')" data-i18n="d6b.p1">棋盘</button>
+          <button class="preset-btn" onclick="svdSetImg('gradient')" data-i18n="d6b.p2">渐变</button>
+          <button class="preset-btn" onclick="svdSetImg('text')" data-i18n="d6b.p3">字母 A</button>
+          <button class="preset-btn" onclick="svdSetImg('noise')" data-i18n="d6b.p4">噪声</button>
+        </div>
+        <div class="out-box" id="svd-out"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PageRank -->
+  <div class="subdemo" id="sub-pr">
+    <div class="demo-grid">
+      <div class="canvas-card"><canvas id="cv6c" width="540" height="500"></canvas></div>
+      <div class="ctrl-card">
+        <div class="ctrl-title"><span data-i18n="d6c.title">PageRank：特征向量决定网页排名</span></div>
+        <div class="ctrl-desc" data-i18n="d6c.desc">图的"链接转移矩阵"M 的主特征向量（特征值 = 1）就是 PageRank。节点圆圈大小 = 排名权重。点击节点对添加/删除边。</div>
+        <div class="slider-row"><label>d</label><input type="range" id="pr-damp" min="0.5" max="0.99" step="0.01" value="0.85"><span class="val" id="pr-damp-v">0.85</span></div>
+        <div class="presets">
+          <button class="preset-btn" onclick="prStep()" data-i18n="d6c.p1">▶ 单步迭代</button>
+          <button class="preset-btn" onclick="prRun()" data-i18n="d6c.p2">⚡ 跑到收敛</button>
+          <button class="preset-btn" onclick="prReset()" data-i18n="d6c.p3">↺ 重置</button>
+          <button class="preset-btn" onclick="prGraph('chain')" data-i18n="d6c.p4">链状图</button>
+          <button class="preset-btn" onclick="prGraph('hub')" data-i18n="d6c.p5">中心-辐射</button>
+        </div>
+        <div class="out-box" id="pr-out"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MATH PROOFS -->
+<section class="proof-section">
+  <div class="proof-title" data-i18n="proof.title">📖 关键定理与证明</div>
+  <div class="accordion" id="accordion"></div>
+</section>
+
+<footer><p data-i18n="footer">线性代数精要 · 学习中心</p></footer>
+
+<script>
+/* ============================================================
+   I18N
+   ============================================================ */
+const T = {
+zh:{
+  'nav.title':'线性代数精要','nav.back':'返回','nav.lang':'English',
+  'hero.badge':'几何直觉 + 符号严谨',
+  'hero.h1':'把矩阵当成"动作"，把向量当成"箭头"',
+  'hero.desc':'6 个互动 demo 配 3 个真实应用——拖一拖、调一调，看代数符号怎么变成几何动作。',
+  'tab.1':'① 向量','tab.2':'② 线性变换','tab.3':'③ 行列式','tab.4':'④ 线性方程组','tab.5':'⑤ 特征值','tab.6':'⑥ 真实应用',
+  'd1.title':'① 向量与线性组合',
+  'd1.desc':'直接拖动 v、w 的箭头头部；下面的滑块控制系数，得到线性组合 a·v + b·w（粉色箭头）。',
+  'd1.p1':'v + w','d1.p2':'v − w','d1.p3':'2v','d1.p4':'↺ 重置',
+  'd2.title':'② 矩阵 = 线性变换',
+  'd2.desc':'矩阵的两列就是变换后的基向量 i、j。调下面 4 个数，看单位方格如何被"扭"成新形状。',
+  'd2.p1':'单位矩阵 I','d2.p2':'旋转 90°','d2.p3':'剪切','d2.p4':'缩放 2×','d2.p5':'x 轴镜像','d2.p6':'投影到 x 轴',
+  'd3.title':'③ 行列式 = 面积缩放',
+  'd3.desc':'单位方格变换后变成平行四边形，它的有向面积就是 det(A)。det>0 保持朝向（绿），det<0 翻面（红），det=0 坍缩成线（不可逆）。',
+  'd3.p1':'det > 0','d3.p2':'det < 0','d3.p3':'det = 0','d3.p4':'放大 3×',
+  'd4.title':'④ 方程组的几何意义',
+  'd4.desc':'两个二元一次方程 = 平面上两条直线。两线交点 = 方程组的解。系数行列式为 0 时直线平行，要么无解，要么有无穷多解。',
+  'd4.p1':'唯一解','d4.p2':'无解','d4.p3':'无穷多解',
+  'd5.title':'⑤ 特征向量：变换中方向不变的轴',
+  'd5.desc':'拖动青色试探向量 v，看它经过矩阵变换后变成的紫色 Av。当两者方向重合（绿色高亮），v 就是特征向量，长度比就是特征值。',
+  'd5.p1':'对称矩阵','d5.p2':'旋转（无实特征向量）','d5.p3':'对角矩阵','d5.p4':'🎯 求特征向量',
+  'd6.t1':'PCA · 主成分分析','d6.t2':'SVD · 图像压缩','d6.t3':'PageRank · 网页排名',
+  'd6a.title':'PCA：找到数据"主轴"',
+  'd6a.desc':'点云的协方差矩阵的特征向量 = 数据散布方向。最大特征值对应"主轴"（橙色），次大对应正交副轴（绿色）。',
+  'd6a.p1':'细长云','d6a.p2':'圆形云','d6a.p3':'对角云','d6a.p4':'两簇','d6a.p5':'↘ 投影到主轴',
+  'd6b.title':'SVD：用 k 个奇异值还原图像',
+  'd6b.desc':'把图像 M 矩阵分解为 M = UΣVᵀ。保留前 k 个奇异值，丢掉其余的，就是"低秩近似"——图像有损但保留主要结构。',
+  'd6b.p1':'棋盘','d6b.p2':'渐变','d6b.p3':'字母 A','d6b.p4':'噪声',
+  'd6c.title':'PageRank：特征向量决定网页排名',
+  'd6c.desc':'图的"链接转移矩阵"M 的主特征向量（特征值=1）就是 PageRank。节点圆圈大小=排名权重。点击节点对添加/删除边。',
+  'd6c.p1':'▶ 单步迭代','d6c.p2':'⚡ 跑到收敛','d6c.p3':'↺ 重置','d6c.p4':'链状图','d6c.p5':'中心-辐射',
+  'proof.title':'📖 关键定理与证明',
+  'footer':'线性代数精要 · 学习中心',
+},
+en:{
+  'nav.title':'Linear Algebra Essentials','nav.back':'Home','nav.lang':'中文',
+  'hero.badge':'Geometric Intuition + Symbolic Rigor',
+  'hero.h1':'Matrices are actions. Vectors are arrows.',
+  'hero.desc':'6 interactive demos plus 3 real applications — drag, tweak, and watch algebraic symbols become geometric motions.',
+  'tab.1':'① Vectors','tab.2':'② Transformations','tab.3':'③ Determinant','tab.4':'④ Linear Systems','tab.5':'⑤ Eigenvectors','tab.6':'⑥ Applications',
+  'd1.title':'① Vectors & Linear Combinations',
+  'd1.desc':'Drag the heads of v and w directly. Sliders control coefficients of the linear combination a·v + b·w (pink arrow).',
+  'd1.p1':'v + w','d1.p2':'v − w','d1.p3':'2v','d1.p4':'↺ Reset',
+  'd2.title':'② Matrix = Linear Transformation',
+  'd2.desc':'The two columns of a matrix are where the basis vectors i and j land after the transformation. Tweak the 4 numbers and watch the unit square deform.',
+  'd2.p1':'Identity I','d2.p2':'Rotate 90°','d2.p3':'Shear','d2.p4':'Scale 2×','d2.p5':'Reflect x-axis','d2.p6':'Project to x-axis',
+  'd3.title':'③ Determinant = Area Scaling',
+  'd3.desc':'The unit square becomes a parallelogram. Its signed area is det(A). det>0 preserves orientation (green); det<0 flips (red); det=0 collapses to a line (singular).',
+  'd3.p1':'det > 0','d3.p2':'det < 0','d3.p3':'det = 0','d3.p4':'Scale 3×',
+  'd4.title':'④ Geometry of Linear Systems',
+  'd4.desc':'Two equations in two unknowns = two lines in the plane. Intersection = the solution. When the coefficient determinant is zero the lines are parallel: either no solution or infinitely many.',
+  'd4.p1':'Unique','d4.p2':'No solution','d4.p3':'Infinite',
+  'd5.title':'⑤ Eigenvectors: Directions That Stay',
+  'd5.desc':'Drag the cyan probe v and watch the violet Av (image after applying the matrix). When they line up (green halo) v is an eigenvector; the length ratio is the eigenvalue.',
+  'd5.p1':'Symmetric','d5.p2':'Rotation (no real eigenvector)','d5.p3':'Diagonal','d5.p4':'🎯 Find eigenvectors',
+  'd6.t1':'PCA · Principal Components','d6.t2':'SVD · Image Compression','d6.t3':'PageRank · Web Ranking',
+  'd6a.title':'PCA: Find the data’s "main axis"',
+  'd6a.desc':'The eigenvectors of the point cloud’s covariance matrix point along the directions of maximum spread. Largest eigenvalue = main axis (orange); second = orthogonal axis (green).',
+  'd6a.p1':'Elongated','d6a.p2':'Round','d6a.p3':'Diagonal','d6a.p4':'Two clusters','d6a.p5':'↘ Project to PC₁',
+  'd6b.title':'SVD: Reconstruct from k singular values',
+  'd6b.desc':'Decompose M = UΣVᵀ. Keep only the top k singular values — that is the rank-k approximation. Image is lossy but preserves the dominant structure.',
+  'd6b.p1':'Checker','d6b.p2':'Gradient','d6b.p3':'Letter A','d6b.p4':'Noise',
+  'd6c.title':'PageRank: Web ranking IS an eigenvector',
+  'd6c.desc':'The principal eigenvector (eigenvalue 1) of the link transition matrix M is the PageRank. Node circle size = rank weight. Click a pair of nodes to add/remove an edge.',
+  'd6c.p1':'▶ Step','d6c.p2':'⚡ Run to convergence','d6c.p3':'↺ Reset','d6c.p4':'Chain','d6c.p5':'Hub-and-spoke',
+  'proof.title':'📖 Key Theorems and Proofs',
+  'footer':'Linear Algebra Essentials · Learn Hub',
+},
+};
+
+let lang = localStorage.getItem('edu-lang') || 'zh';
+const tt = k => (T[lang]||T.zh)[k] || k;
+function applyLang(){
+  document.documentElement.lang = lang==='zh'?'zh-CN':'en';
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const v = tt(el.dataset.i18n); if(v) el.textContent = v;
+  });
+  renderProofs();
+  redrawAll();
+}
+function toggleLang(){
+  lang = lang==='zh'?'en':'zh';
+  localStorage.setItem('edu-lang',lang);
+  applyLang();
+}
+
+/* ============================================================
+   SHARED CANVAS UTILITIES
+   coords: math (x right+, y up+) ↔ pixels (x right+, y down+)
+   each canvas has its own (scale, ox, oy)
+   ============================================================ */
+function setupCanvas(id, opts={}){
+  const c = document.getElementById(id);
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  const ox = W/2, oy = H/2;
+  const scale = opts.scale || 50;     // px per unit
+  return {c, ctx, W, H, ox, oy, scale,
+    M2P:(x,y)=>[ox+x*scale, oy-y*scale],
+    P2M:(px,py)=>[(px-ox)/scale, (oy-py)/scale]};
+}
+function drawGrid(g, range=10){
+  const {ctx, W, H, ox, oy, scale} = g;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = '#0a1322'; ctx.fillRect(0,0,W,H);
+  // minor grid
+  ctx.strokeStyle = 'rgba(51,65,85,.35)'; ctx.lineWidth = 0.5;
+  for(let x=-range;x<=range;x++){
+    const [px] = g.M2P(x,0);
+    if(px<0||px>W) continue;
+    ctx.beginPath(); ctx.moveTo(px,0); ctx.lineTo(px,H); ctx.stroke();
+  }
+  for(let y=-range;y<=range;y++){
+    const [,py] = g.M2P(0,y);
+    if(py<0||py>H) continue;
+    ctx.beginPath(); ctx.moveTo(0,py); ctx.lineTo(W,py); ctx.stroke();
+  }
+  // axes
+  ctx.strokeStyle = '#475569'; ctx.lineWidth = 1.2;
+  ctx.beginPath(); ctx.moveTo(0,oy); ctx.lineTo(W,oy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(ox,0); ctx.lineTo(ox,H); ctx.stroke();
+  // axis labels
+  ctx.fillStyle = '#64748b'; ctx.font = '11px monospace'; ctx.textAlign='left';
+  ctx.fillText('x', W-12, oy-4);
+  ctx.fillText('y', ox+5, 12);
+  // unit ticks
+  ctx.fillStyle = '#94a3b8'; ctx.font = '10px monospace'; ctx.textAlign='center';
+  for(let x=-range;x<=range;x++){
+    if(x===0) continue;
+    const [px] = g.M2P(x,0);
+    if(px>5 && px<W-5) ctx.fillText(String(x), px, oy+12);
+  }
+  for(let y=-range;y<=range;y++){
+    if(y===0) continue;
+    const [,py] = g.M2P(0,y);
+    if(py>10 && py<H-5){ ctx.textAlign='right'; ctx.fillText(String(y), ox-4, py+3);}
+  }
+  ctx.textAlign='start';
+}
+function drawVec(g, fromX, fromY, toX, toY, color, lw=2.5, label=null){
+  const {ctx} = g;
+  const [fpx,fpy] = g.M2P(fromX,fromY);
+  const [tpx,tpy] = g.M2P(toX,toY);
+  ctx.strokeStyle = color; ctx.fillStyle = color;
+  ctx.lineWidth = lw;
+  ctx.beginPath(); ctx.moveTo(fpx,fpy); ctx.lineTo(tpx,tpy); ctx.stroke();
+  // arrowhead
+  const dx = tpx-fpx, dy = tpy-fpy, len = Math.hypot(dx,dy);
+  if(len > 4){
+    const ux = dx/len, uy = dy/len;
+    const ah = 10, aw = 5;
+    const bx = tpx - ux*ah, by = tpy - uy*ah;
+    const px = -uy, py = ux;
+    ctx.beginPath();
+    ctx.moveTo(tpx,tpy);
+    ctx.lineTo(bx+px*aw, by+py*aw);
+    ctx.lineTo(bx-px*aw, by-py*aw);
+    ctx.closePath(); ctx.fill();
+  }
+  if(label){
+    ctx.font = 'bold 13px monospace'; ctx.fillStyle = color;
+    const off = 12;
+    ctx.fillText(label, tpx + (dx>=0?off:-off-8), tpy + (dy>=0?off+4:-4));
+  }
+}
+function drawPolygon(g, pts, fillColor, strokeColor, lw=1.5){
+  const {ctx} = g;
+  ctx.beginPath();
+  pts.forEach(([x,y],i)=>{
+    const [px,py] = g.M2P(x,y);
+    if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+  });
+  ctx.closePath();
+  if(fillColor){ ctx.fillStyle = fillColor; ctx.fill(); }
+  if(strokeColor){ ctx.strokeStyle = strokeColor; ctx.lineWidth = lw; ctx.stroke(); }
+}
+function drawDot(g, x, y, color, r=4){
+  const {ctx} = g;
+  const [px,py] = g.M2P(x,y);
+  ctx.beginPath(); ctx.arc(px,py,r,0,Math.PI*2);
+  ctx.fillStyle = color; ctx.fill();
+}
+/* drag helper: returns the math coords of the cursor relative to a canvas event */
+function pointerMath(g, evt){
+  const r = g.c.getBoundingClientRect();
+  const sx = g.W/r.width, sy = g.H/r.height;
+  const cx = (evt.clientX-r.left)*sx;
+  const cy = (evt.clientY-r.top)*sy;
+  return g.P2M(cx,cy);
+}
+function nearMouse(g, evt, mx, my, tol=14){
+  const [tx,ty] = pointerMath(g, evt);
+  return Math.hypot(tx-mx,ty-my) * g.scale < tol;
+}
+/* attach a drag handler.
+   pickFn(mx,my) returns a key (truthy) for what was grabbed.
+   moveFn(key,mx,my) updates state. */
+function attachDrag(g, pickFn, moveFn){
+  let dragKey = null;
+  const start = e=>{
+    e.preventDefault();
+    const ev = e.touches ? e.touches[0] : e;
+    const [mx,my] = pointerMath(g, ev);
+    dragKey = pickFn(mx,my);
+  };
+  const move = e=>{
+    if(!dragKey) return;
+    e.preventDefault();
+    const ev = e.touches ? e.touches[0] : e;
+    const [mx,my] = pointerMath(g, ev);
+    moveFn(dragKey, mx, my);
+  };
+  const end = ()=>{ dragKey = null; };
+  g.c.addEventListener('mousedown', start);
+  window.addEventListener('mousemove', move);
+  window.addEventListener('mouseup', end);
+  g.c.addEventListener('touchstart', start, {passive:false});
+  g.c.addEventListener('touchmove', move, {passive:false});
+  g.c.addEventListener('touchend', end);
+}
+
+/* ============================================================
+   2x2 MATRIX UTILITIES
+   ============================================================ */
+function mat2(a,b,c,d){return {a,b,c,d}}    // [[a b],[c d]]
+function det2(M){return M.a*M.d - M.b*M.c}
+function tr2(M){return M.a + M.d}
+function apply2(M,x,y){return [M.a*x+M.b*y, M.c*x+M.d*y]}
+function eig2(M){
+  // eigenvalues of [[a b],[c d]]:  λ = (tr ± √(tr²−4·det)) / 2
+  const T = tr2(M), D = det2(M);
+  const disc = T*T - 4*D;
+  if(disc < -1e-9) return {real:false, l1:null, l2:null, v1:null, v2:null,
+    cReal: T/2, cImag: Math.sqrt(-disc)/2};
+  const s = Math.sqrt(Math.max(0,disc));
+  const l1 = (T+s)/2, l2 = (T-s)/2;
+  const v = (lam)=>{
+    // solve (A - λI) v = 0
+    const a = M.a-lam, b = M.b, c = M.c, d = M.d-lam;
+    let vx, vy;
+    if(Math.abs(b) > 1e-8){ vx = b; vy = lam - M.a; }
+    else if(Math.abs(c) > 1e-8){ vx = lam - M.d; vy = c; }
+    else { // diagonal: standard basis
+      if(Math.abs(M.a - lam) < 1e-6){ vx = 1; vy = 0; }
+      else { vx = 0; vy = 1; }
+    }
+    const n = Math.hypot(vx,vy);
+    return n>1e-9 ? [vx/n, vy/n] : [1,0];
+  };
+  return {real:true, l1, l2, v1:v(l1), v2:v(l2)};
+}
+function readMat(prefix){
+  const a = parseFloat(document.getElementById(prefix+'-a').value)||0;
+  const b = parseFloat(document.getElementById(prefix+'-b').value)||0;
+  const c = parseFloat(document.getElementById(prefix+'-c').value)||0;
+  const d = parseFloat(document.getElementById(prefix+'-d').value)||0;
+  return mat2(a,b,c,d);
+}
+function setMat(prefix, M){
+  document.getElementById(prefix+'-a').value = M.a;
+  document.getElementById(prefix+'-b').value = M.b;
+  document.getElementById(prefix+'-c').value = M.c;
+  document.getElementById(prefix+'-d').value = M.d;
+}
+
+/* KaTeX render helper — render only if KaTeX loaded */
+function tex(str, opts={}){
+  if(!window.katex) return str;
+  try { return katex.renderToString(str, {throwOnError:false, displayMode: !!opts.display}); }
+  catch(e){ return str; }
+}
+
+/* ============================================================
+   TAB SWITCHING
+   ============================================================ */
+function showTab(n){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', +t.dataset.tab===n));
+  document.querySelectorAll('.demo-wrap').forEach(d=>d.classList.remove('active'));
+  document.getElementById('demo-'+n).classList.add('active');
+  redrawAll();
+}
+function showSub(name){
+  document.querySelectorAll('.subtab').forEach(t=>t.classList.toggle('active', t.dataset.subtab===name));
+  document.querySelectorAll('.subdemo').forEach(d=>d.classList.remove('active'));
+  document.getElementById('sub-'+name).classList.add('active');
+  if(name==='pca') drawPCA();
+  if(name==='svd') drawSVD();
+  if(name==='pr') drawPR();
+}
+
+/* placeholder; each demo registers itself */
+let redrawAll = () => {};
+let _redrawFns = [];
+function registerRedraw(fn){ _redrawFns.push(fn); redrawAll = ()=>_redrawFns.forEach(f=>f()); }
+
+/* ============================================================
+   DEMO 1: VECTORS
+   ============================================================ */
+let d1v = [2, 1], d1w = [-1, 2];
+let g1;
+function d1Init(){
+  g1 = setupCanvas('cv1', {scale:50});
+  attachDrag(g1, (mx,my)=>{
+    if(Math.hypot(mx-d1v[0],my-d1v[1])*g1.scale < 14) return 'v';
+    if(Math.hypot(mx-d1w[0],my-d1w[1])*g1.scale < 14) return 'w';
+    return null;
+  }, (key,mx,my)=>{
+    const snap = Math.abs(mx - Math.round(mx)) < 0.15 && Math.abs(my - Math.round(my)) < 0.15;
+    if(snap){ mx = Math.round(mx); my = Math.round(my); }
+    if(key==='v') d1v = [mx,my]; else d1w = [mx,my];
+    d1Draw();
+  });
+  ['d1-a','d1-b'].forEach(id=>{
+    document.getElementById(id).addEventListener('input', d1Draw);
+  });
+  d1Draw();
+}
+function d1Draw(){
+  const a = parseFloat(document.getElementById('d1-a').value);
+  const b = parseFloat(document.getElementById('d1-b').value);
+  document.getElementById('d1-a-v').textContent = a.toFixed(1);
+  document.getElementById('d1-b-v').textContent = b.toFixed(1);
+  drawGrid(g1, 6);
+  // span hints (faint lines along v and w directions)
+  const ext = 12;
+  const nv = Math.hypot(...d1v), nw = Math.hypot(...d1w);
+  if(nv>0){
+    g1.ctx.strokeStyle = 'rgba(167,139,250,.18)'; g1.ctx.lineWidth = 1;
+    const [p1] = [g1.M2P(-ext*d1v[0]/nv, -ext*d1v[1]/nv)];
+    const [p2] = [g1.M2P( ext*d1v[0]/nv,  ext*d1v[1]/nv)];
+    g1.ctx.beginPath(); g1.ctx.moveTo(p1[0],p1[1]); g1.ctx.lineTo(p2[0],p2[1]); g1.ctx.stroke();
+  }
+  // base vectors v, w
+  drawVec(g1, 0,0, d1v[0],d1v[1], '#a78bfa', 2.8, 'v');
+  drawVec(g1, 0,0, d1w[0],d1w[1], '#fbbf24', 2.8, 'w');
+  // parallelogram for a*v + b*w
+  const r = [a*d1v[0]+b*d1w[0], a*d1v[1]+b*d1w[1]];
+  const av = [a*d1v[0], a*d1v[1]];
+  // head-to-tail: a*v then b*w
+  drawVec(g1, av[0],av[1], r[0],r[1], 'rgba(251,191,36,.5)', 1.5);
+  drawVec(g1, 0,0, av[0],av[1], 'rgba(167,139,250,.5)', 1.5);
+  // result
+  drawVec(g1, 0,0, r[0],r[1], '#f472b6', 3, 'a·v+b·w');
+  // dots on tips
+  drawDot(g1, d1v[0],d1v[1],'#a78bfa',5);
+  drawDot(g1, d1w[0],d1w[1],'#fbbf24',5);
+  // out box: render with KaTeX
+  const out = document.getElementById('d1-out');
+  out.innerHTML =
+    `<div><span class="lbl">v =</span> ${tex(`\\begin{pmatrix}${d1v[0].toFixed(2)}\\\\${d1v[1].toFixed(2)}\\end{pmatrix}`)}
+     &nbsp;&nbsp;<span class="lbl">w =</span> ${tex(`\\begin{pmatrix}${d1w[0].toFixed(2)}\\\\${d1w[1].toFixed(2)}\\end{pmatrix}`)}</div>
+     <div style="margin-top:6px"><span class="lbl">a·v + b·w =</span> ${tex(`\\begin{pmatrix}${r[0].toFixed(2)}\\\\${r[1].toFixed(2)}\\end{pmatrix}`)}</div>
+     <div style="margin-top:4px;font-size:.8rem;color:#94a3b8">|v|=${nv.toFixed(2)} |w|=${nw.toFixed(2)}</div>`;
+}
+function d1Preset(k){
+  if(k==='reset'){ d1v=[2,1]; d1w=[-1,2]; document.getElementById('d1-a').value=1; document.getElementById('d1-b').value=1; }
+  if(k==='add'){ document.getElementById('d1-a').value=1; document.getElementById('d1-b').value=1; }
+  if(k==='sub'){ document.getElementById('d1-a').value=1; document.getElementById('d1-b').value=-1; }
+  if(k==='2v') { document.getElementById('d1-a').value=2; document.getElementById('d1-b').value=0; }
+  d1Draw();
+}
+registerRedraw(()=>{ if(g1) d1Draw(); });
+
+/* ============================================================
+   DEMO 2: LINEAR TRANSFORMATIONS
+   ============================================================ */
+let g2;
+function d2Init(){
+  g2 = setupCanvas('cv2', {scale:40});
+  ['d2-a','d2-b','d2-c','d2-d'].forEach(id=>{
+    document.getElementById(id).addEventListener('input', d2Draw);
+  });
+  d2Draw();
+}
+function d2Draw(){
+  const M = readMat('d2');
+  drawGrid(g2, 8);
+  // draw transformed grid faintly
+  g2.ctx.strokeStyle = 'rgba(6,182,212,.18)'; g2.ctx.lineWidth = 0.7;
+  const N = 6;
+  for(let i=-N;i<=N;i++){
+    const [a,b] = apply2(M,i,-N), [c,d] = apply2(M,i,N);
+    const [pa,pb] = g2.M2P(a,b), [pc,pd] = g2.M2P(c,d);
+    g2.ctx.beginPath(); g2.ctx.moveTo(pa,pb); g2.ctx.lineTo(pc,pd); g2.ctx.stroke();
+    const [a2,b2] = apply2(M,-N,i), [c2,d2] = apply2(M,N,i);
+    const [pa2,pb2] = g2.M2P(a2,b2), [pc2,pd2] = g2.M2P(c2,d2);
+    g2.ctx.beginPath(); g2.ctx.moveTo(pa2,pb2); g2.ctx.lineTo(pc2,pd2); g2.ctx.stroke();
+  }
+  // original unit square (faded)
+  drawPolygon(g2, [[0,0],[1,0],[1,1],[0,1]], 'rgba(148,163,184,.08)', 'rgba(148,163,184,.4)', 1);
+  // transformed unit square
+  const tp = [[0,0],[1,0],[1,1],[0,1]].map(([x,y])=>apply2(M,x,y));
+  drawPolygon(g2, tp, 'rgba(6,182,212,.15)', '#06b6d4', 2);
+  // original basis (faded)
+  drawVec(g2, 0,0, 1,0, 'rgba(34,211,238,.35)', 1.5);
+  drawVec(g2, 0,0, 0,1, 'rgba(52,211,153,.35)', 1.5);
+  // transformed basis
+  const [ix,iy] = apply2(M,1,0);
+  const [jx,jy] = apply2(M,0,1);
+  drawVec(g2, 0,0, ix,iy, '#22d3ee', 3, 'Ai');
+  drawVec(g2, 0,0, jx,jy, '#34d399', 3, 'Aj');
+  // out box
+  const D = det2(M);
+  document.getElementById('d2-out').innerHTML =
+    `${tex(`A = \\begin{pmatrix}${M.a}&${M.b}\\\\${M.c}&${M.d}\\end{pmatrix}`)}
+    <div style="margin-top:6px">${tex(`A\\hat{\\imath}=\\begin{pmatrix}${ix.toFixed(1)}\\\\${iy.toFixed(1)}\\end{pmatrix},\\quad A\\hat{\\jmath}=\\begin{pmatrix}${jx.toFixed(1)}\\\\${jy.toFixed(1)}\\end{pmatrix}`)}</div>
+    <div style="margin-top:4px;font-size:.82rem;color:#94a3b8">det = <span class="${D>0?'ok':D<0?'bad':'warn'}">${D.toFixed(2)}</span></div>`;
+}
+function d2Preset(k){
+  const P = {I:[1,0,0,1], rot:[0,-1,1,0], shear:[1,1,0,1], scale:[2,0,0,2], refl:[1,0,0,-1], proj:[1,0,0,0]};
+  const v = P[k]; if(!v) return;
+  setMat('d2', mat2(...v)); d2Draw();
+}
+registerRedraw(()=>{ if(g2) d2Draw(); });
+
+/* ============================================================
+   DEMO 3: DETERMINANT
+   ============================================================ */
+let g3;
+function d3Init(){
+  g3 = setupCanvas('cv3', {scale:55});
+  ['d3-a','d3-b','d3-c','d3-d'].forEach(id=>{
+    document.getElementById(id).addEventListener('input', d3Draw);
+  });
+  d3Draw();
+}
+function d3Draw(){
+  const M = readMat('d3');
+  const D = det2(M);
+  drawGrid(g3, 6);
+  // original unit square
+  drawPolygon(g3, [[0,0],[1,0],[1,1],[0,1]], 'rgba(148,163,184,.06)', 'rgba(148,163,184,.4)', 1);
+  // transformed
+  const tp = [[0,0],[1,0],[1,1],[0,1]].map(([x,y])=>apply2(M,x,y));
+  let fill, stroke;
+  if(Math.abs(D) < 0.01){ fill = 'rgba(239,68,68,.18)'; stroke = '#ef4444'; }
+  else if(D > 0){ fill = 'rgba(52,211,153,.18)'; stroke = '#10b981'; }
+  else { fill = 'rgba(239,68,68,.18)'; stroke = '#ef4444'; }
+  drawPolygon(g3, tp, fill, stroke, 2.2);
+  // basis vectors
+  const [ix,iy] = apply2(M,1,0);
+  const [jx,jy] = apply2(M,0,1);
+  drawVec(g3, 0,0, ix,iy, '#22d3ee', 3, 'Ai');
+  drawVec(g3, 0,0, jx,jy, '#34d399', 3, 'Aj');
+  // area label centered in parallelogram
+  const cx = (tp[0][0]+tp[1][0]+tp[2][0]+tp[3][0])/4;
+  const cy = (tp[0][1]+tp[1][1]+tp[2][1]+tp[3][1])/4;
+  const [pcx,pcy] = g3.M2P(cx,cy);
+  g3.ctx.font = 'bold 16px monospace';
+  g3.ctx.fillStyle = stroke;
+  g3.ctx.textAlign = 'center';
+  g3.ctx.fillText(`area=${Math.abs(D).toFixed(2)}`, pcx, pcy);
+  g3.ctx.textAlign = 'start';
+  // out
+  const msg = Math.abs(D)<0.01 ? (lang==='zh'?'坍缩到一条线 → 不可逆':'collapsed to a line → singular')
+             : D>0 ? (lang==='zh'?'保持朝向（绿）':'orientation preserved (green)')
+             : (lang==='zh'?'翻面（红，行列式为负）':'flipped (red, negative det)');
+  document.getElementById('d3-out').innerHTML =
+    `${tex(`\\det\\begin{pmatrix}${M.a}&${M.b}\\\\${M.c}&${M.d}\\end{pmatrix} = ${M.a}\\cdot${M.d} - ${M.b}\\cdot${M.c} = ${D.toFixed(2)}`)}
+     <div style="margin-top:6px" class="${Math.abs(D)<0.01?'bad':D>0?'ok':'bad'}">${msg}</div>`;
+}
+function d3Preset(k){
+  const P = {pos:[2,1,0,1], neg:[1,0,0,-1], zero:[1,2,2,4], big:[3,0,0,3]};
+  setMat('d3', mat2(...P[k])); d3Draw();
+}
+registerRedraw(()=>{ if(g3) d3Draw(); });
+
+/* ============================================================
+   DEMO 4: LINEAR SYSTEMS
+   ============================================================ */
+let g4;
+function d4Init(){
+  g4 = setupCanvas('cv4', {scale:45});
+  ['d4-a1','d4-b1','d4-e1','d4-a2','d4-b2','d4-e2'].forEach(id=>{
+    document.getElementById(id).addEventListener('input', d4Draw);
+  });
+  d4Draw();
+}
+function fmtNum(x){ return (x>=0?'+':'') + x.toFixed(1); }
+function eqText(a,b,e){
+  const ax = `${a.toFixed(1)}x`;
+  const by = `${b>=0?'+ ':'− '}${Math.abs(b).toFixed(1)}y`;
+  return `${ax} ${by} = ${e.toFixed(1)}`;
+}
+function d4Draw(){
+  const a1=+document.getElementById('d4-a1').value, b1=+document.getElementById('d4-b1').value, e1=+document.getElementById('d4-e1').value;
+  const a2=+document.getElementById('d4-a2').value, b2=+document.getElementById('d4-b2').value, e2=+document.getElementById('d4-e2').value;
+  ['a1','b1','e1','a2','b2','e2'].forEach(k=>{
+    document.getElementById('d4-'+k+'-v').textContent = (+document.getElementById('d4-'+k).value).toFixed(1);
+  });
+  document.getElementById('d4-eq1').textContent = eqText(a1,b1,e1);
+  document.getElementById('d4-eq2').textContent = eqText(a2,b2,e2);
+  drawGrid(g4, 7);
+  // draw each line spanning the canvas
+  const drawLine = (a,b,e,color)=>{
+    const ext = 10;
+    let p1, p2;
+    if(Math.abs(b) > Math.abs(a)){
+      // y = (e − a*x)/b
+      p1 = [-ext, (e+a*ext)/b];
+      p2 = [ ext, (e-a*ext)/b];
+    } else if(Math.abs(a) > 1e-9){
+      // x = (e − b*y)/a
+      p1 = [(e+b*ext)/a, -ext];
+      p2 = [(e-b*ext)/a,  ext];
+    } else {
+      // 0 = e: either 0=0 (whole plane, show nothing distinct) or no solution
+      return;
+    }
+    drawVec(g4, p1[0],p1[1], p2[0],p2[1], color, 2.4);
+  };
+  drawLine(a1,b1,e1,'#a78bfa');
+  drawLine(a2,b2,e2,'#fbbf24');
+  // solve
+  const D = a1*b2 - a2*b1;
+  let msg;
+  if(Math.abs(D) > 1e-6){
+    const x = (b2*e1 - b1*e2)/D;
+    const y = (a1*e2 - a2*e1)/D;
+    drawDot(g4, x, y, '#f472b6', 7);
+    g4.ctx.fillStyle = '#f472b6'; g4.ctx.font = 'bold 12px monospace';
+    const [px,py] = g4.M2P(x,y);
+    g4.ctx.fillText(`(${x.toFixed(2)}, ${y.toFixed(2)})`, px+10, py-10);
+    msg = `<span class="ok">${lang==='zh'?'唯一解':'unique solution'}</span> ${tex(`(x,y)=(${x.toFixed(2)},\\,${y.toFixed(2)})`)}`;
+  } else {
+    // parallel or coincident
+    const consistent = Math.abs(a1*e2 - a2*e1) < 1e-6 && Math.abs(b1*e2 - b2*e1) < 1e-6;
+    msg = consistent
+      ? `<span class="warn">${lang==='zh'?'两线重合 → 无穷多解':'lines coincide → infinitely many solutions'}</span>`
+      : `<span class="bad">${lang==='zh'?'两线平行 → 无解':'lines parallel → no solution'}</span>`;
+  }
+  document.getElementById('d4-out').innerHTML =
+    `${tex(`A=\\begin{pmatrix}${a1.toFixed(1)}&${b1.toFixed(1)}\\\\${a2.toFixed(1)}&${b2.toFixed(1)}\\end{pmatrix},\\,\\det A=${D.toFixed(2)}`)}
+     <div style="margin-top:6px">${msg}</div>`;
+}
+function d4Preset(k){
+  const P = {
+    unique:{a1:2,b1:1,e1:4, a2:1,b2:-1,e2:1},
+    none:  {a1:1,b1:2,e1:3, a2:2,b2:4,e2:5},
+    inf:   {a1:1,b1:2,e1:3, a2:2,b2:4,e2:6},
+  };
+  const p = P[k];
+  Object.entries(p).forEach(([id,v])=>document.getElementById('d4-'+id).value = v);
+  d4Draw();
+}
+registerRedraw(()=>{ if(g4) d4Draw(); });
+
+/* ============================================================
+   DEMO 5: EIGENVECTORS
+   ============================================================ */
+let d5v = [1, 0.3], g5;
+function d5Init(){
+  g5 = setupCanvas('cv5', {scale:42});
+  attachDrag(g5, (mx,my)=>{
+    if(Math.hypot(mx-d5v[0],my-d5v[1])*g5.scale < 18) return 'v';
+    return null;
+  }, (k,mx,my)=>{
+    // keep magnitude bounded
+    const r = Math.hypot(mx,my);
+    if(r>5){ mx = mx*5/r; my = my*5/r; }
+    d5v = [mx,my]; d5Draw();
+  });
+  ['d5-a','d5-b','d5-c','d5-d'].forEach(id=>{
+    document.getElementById(id).addEventListener('input', d5Draw);
+  });
+  d5Draw();
+}
+function d5Draw(){
+  const M = readMat('d5');
+  drawGrid(g5, 7);
+  // light unit-square transform background
+  drawPolygon(g5, [[0,0],[1,0],[1,1],[0,1]].map(([x,y])=>apply2(M,x,y)),
+    'rgba(167,139,250,.05)','rgba(167,139,250,.3)',1);
+  // v and Av
+  const [Avx,Avy] = apply2(M,d5v[0],d5v[1]);
+  // detect parallel
+  const cross = d5v[0]*Avy - d5v[1]*Avx;
+  const nv = Math.hypot(...d5v), nAv = Math.hypot(Avx,Avy);
+  const cosA = (d5v[0]*Avx + d5v[1]*Avy) / Math.max(1e-9, nv*nAv);
+  const isEig = Math.abs(cross) < 0.04 && nv > 0.1;
+  // halo if eigenvector
+  if(isEig){
+    const [px,py] = g5.M2P(d5v[0],d5v[1]);
+    g5.ctx.beginPath(); g5.ctx.arc(px,py,16,0,Math.PI*2);
+    g5.ctx.fillStyle = 'rgba(16,185,129,.25)'; g5.ctx.fill();
+    g5.ctx.strokeStyle = '#10b981'; g5.ctx.lineWidth = 2; g5.ctx.stroke();
+  }
+  drawVec(g5, 0,0, d5v[0],d5v[1], '#22d3ee', 3, 'v');
+  drawVec(g5, 0,0, Avx,Avy, '#a78bfa', 3, 'Av');
+  drawDot(g5, d5v[0],d5v[1],'#22d3ee',6);
+  // eigen status
+  let status;
+  if(isEig){
+    const lam = (Math.abs(d5v[0])>Math.abs(d5v[1])) ? Avx/d5v[0] : Avy/d5v[1];
+    status = `<span class="ok">★ ${lang==='zh'?'v 是特征向量！特征值':'v is an eigenvector! Eigenvalue'} λ ≈ ${lam.toFixed(2)}</span>`;
+  } else if(nv < 0.1){
+    status = `<span class="warn">${lang==='zh'?'向量太短，拖远一点':'vector too short, drag farther'}</span>`;
+  } else {
+    const ang = Math.acos(Math.max(-1,Math.min(1,cosA)))*180/Math.PI;
+    status = `<span class="lbl">${lang==='zh'?'夹角':'angle'} ∠(v, Av) = ${ang.toFixed(1)}°</span>`;
+  }
+  // compute eigen
+  const E = eig2(M);
+  let eigText;
+  if(E.real){
+    eigText = `${tex(`\\lambda_1=${E.l1.toFixed(2)},\\ \\lambda_2=${E.l2.toFixed(2)}`)}`;
+  } else {
+    eigText = `${tex(`\\lambda=${E.cReal.toFixed(2)}\\pm${E.cImag.toFixed(2)}i`)} <span class="warn">${lang==='zh'?'（复数，无实特征向量）':'(complex — no real eigenvector)'}</span>`;
+  }
+  document.getElementById('d5-out').innerHTML =
+    `${tex(`A v = \\begin{pmatrix}${Avx.toFixed(2)}\\\\${Avy.toFixed(2)}\\end{pmatrix}`)}
+     <div style="margin-top:4px">${status}</div>
+     <div style="margin-top:6px">${eigText}</div>`;
+}
+function d5ShowEigen(){
+  const M = readMat('d5');
+  const E = eig2(M);
+  if(!E.real) return d5Draw();
+  // snap v to first eigenvector
+  d5v = [E.v1[0]*2, E.v1[1]*2];
+  d5Draw();
+}
+function d5Preset(k){
+  const P = {sym:[2,1,1,2], rot:[0,-1,1,0], diag:[3,0,0,1]};
+  setMat('d5', mat2(...P[k])); d5Draw();
+}
+registerRedraw(()=>{ if(g5) d5Draw(); });
+
+/* ============================================================
+   DEMO 6a: PCA
+   ============================================================ */
+let pcaPts = [], pcaShowProj = false, g6a;
+function rand(){ return (Math.random()*2-1); }
+function pcaGen(kind){
+  pcaPts = [];
+  const N = 80;
+  for(let i=0;i<N;i++){
+    let x,y;
+    const u = rand(), v = rand();
+    if(kind==='elongated'){ x = u*3.5; y = v*0.8; const a = Math.PI/6; const c=Math.cos(a),s=Math.sin(a); [x,y]=[c*x-s*y, s*x+c*y]; }
+    else if(kind==='round'){ x = u*2; y = v*2; }
+    else if(kind==='diag') { const t = (u+v); x = t*2; y = t*1.6 + v*0.7; }
+    else if(kind==='cluster2'){
+      const cl = Math.random()<0.5? -1.5 : 1.5;
+      x = cl + u*0.6; y = cl*0.8 + v*0.7;
+    }
+    pcaPts.push([x,y]);
+  }
+  pcaShowProj = false;
+  drawPCA();
+}
+function drawPCA(){
+  if(!g6a) g6a = setupCanvas('cv6a', {scale:50});
+  drawGrid(g6a, 6);
+  if(pcaPts.length === 0) pcaGen('elongated');
+  // mean
+  let mx=0,my=0;
+  pcaPts.forEach(([x,y])=>{mx+=x;my+=y;});
+  mx/=pcaPts.length; my/=pcaPts.length;
+  // covariance
+  let sxx=0,syy=0,sxy=0;
+  pcaPts.forEach(([x,y])=>{ const dx=x-mx, dy=y-my; sxx+=dx*dx; syy+=dy*dy; sxy+=dx*dy; });
+  sxx/=pcaPts.length; syy/=pcaPts.length; sxy/=pcaPts.length;
+  const C = mat2(sxx,sxy,sxy,syy);
+  const E = eig2(C);
+  let v1, v2, l1, l2;
+  if(E.real){
+    if(E.l1 >= E.l2){ v1=E.v1; v2=E.v2; l1=E.l1; l2=E.l2; }
+    else            { v1=E.v2; v2=E.v1; l1=E.l2; l2=E.l1; }
+  } else { v1=[1,0]; v2=[0,1]; l1=l2=0; }
+  const s1 = Math.sqrt(Math.max(0,l1)), s2 = Math.sqrt(Math.max(0,l2));
+  // draw points
+  pcaPts.forEach(([x,y])=>drawDot(g6a, x, y, 'rgba(34,211,238,.7)', 3));
+  // draw PC axes scaled by stdev*2
+  const k = 2.2;
+  drawVec(g6a, mx-k*s1*v1[0],my-k*s1*v1[1], mx+k*s1*v1[0],my+k*s1*v1[1], '#fbbf24', 3, 'PC₁');
+  drawVec(g6a, mx-k*s2*v2[0],my-k*s2*v2[1], mx+k*s2*v2[0],my+k*s2*v2[1], '#34d399', 2.5, 'PC₂');
+  drawDot(g6a, mx, my, '#f472b6', 5);
+  // projection
+  if(pcaShowProj){
+    pcaPts.forEach(([x,y])=>{
+      const dx=x-mx, dy=y-my;
+      const t = dx*v1[0] + dy*v1[1];
+      const px = mx + t*v1[0], py = my + t*v1[1];
+      drawDot(g6a, px, py, 'rgba(244,114,182,.85)', 3);
+      // dashed line
+      g6a.ctx.strokeStyle = 'rgba(244,114,182,.3)';
+      g6a.ctx.setLineDash([3,3]); g6a.ctx.lineWidth = 1;
+      const [a,b] = g6a.M2P(x,y), [c,d] = g6a.M2P(px,py);
+      g6a.ctx.beginPath(); g6a.ctx.moveTo(a,b); g6a.ctx.lineTo(c,d); g6a.ctx.stroke();
+      g6a.ctx.setLineDash([]);
+    });
+  }
+  const total = l1 + l2;
+  const r1 = total>1e-9? l1/total*100 : 50;
+  document.getElementById('pca-out').innerHTML =
+    `${tex(`\\mathrm{Cov}=\\begin{pmatrix}${sxx.toFixed(2)}&${sxy.toFixed(2)}\\\\${sxy.toFixed(2)}&${syy.toFixed(2)}\\end{pmatrix}`)}
+     <div style="margin-top:6px"><span class="lbl">PC₁:</span> λ₁=${l1.toFixed(2)} (<span class="ok">${r1.toFixed(0)}%</span> ${lang==='zh'?'方差':'variance'})</div>
+     <div><span class="lbl">PC₂:</span> λ₂=${l2.toFixed(2)} (${(100-r1).toFixed(0)}%)</div>`;
+}
+function pcaToggleProj(){ pcaShowProj = !pcaShowProj; drawPCA(); }
+registerRedraw(()=>{ if(g6a) drawPCA(); });
+
+/* ============================================================
+   DEMO 6b: SVD IMAGE COMPRESSION
+   ============================================================ */
+let svdImg = null, svdSV = null;     // sigma, U, V kept globally for k slider
+let g6b;
+const SVD_N = 32;
+function svdSetImg(kind){
+  const N = SVD_N;
+  svdImg = new Array(N).fill(0).map(()=>new Array(N).fill(0));
+  for(let i=0;i<N;i++)for(let j=0;j<N;j++){
+    let v;
+    if(kind==='checker') v = ((Math.floor(i/4)+Math.floor(j/4))%2)*0.9 + 0.05;
+    else if(kind==='gradient') v = (i+j)/(2*(N-1));
+    else if(kind==='text'){
+      // crude 'A' shape
+      const cx=N/2-0.5, ci=i-cx, cj=j-cx;
+      const inA = (Math.abs(cj) < (N/2 - i*0.7) && i > N*0.12 && i < N*0.92)
+        && !( (cj > -(N/2-i*0.7)+2) && (cj < (N/2-i*0.7)-2) && (i > N*0.25) && (i < N*0.92) );
+      const bar = (i > N*0.55 && i < N*0.65 && Math.abs(cj) < N/3 - i*0.5 + 3);
+      v = (inA || bar) ? 0.92 : 0.08;
+    }
+    else if(kind==='noise') v = Math.random();
+    svdImg[i][j] = v;
+  }
+  // compute full SVD using power-iteration peeling (sufficient for N=32 demo)
+  svdSV = computeSVD(svdImg, Math.min(N,32));
+  drawSVD();
+}
+/** very small in-house SVD via deflation; OK for N≤32 educational demo */
+function computeSVD(M, kMax){
+  const m = M.length, n = M[0].length;
+  // copy
+  let R = M.map(row=>row.slice());
+  const U = [], V = [], S = [];
+  for(let k=0; k<kMax; k++){
+    // power iteration on R^T R to find dominant right singular vector
+    let v = new Array(n).fill(0).map(()=>Math.random()-0.5);
+    let norm = ()=>Math.sqrt(v.reduce((s,x)=>s+x*x,0));
+    let nrm = norm(); if(nrm<1e-12) break; v = v.map(x=>x/nrm);
+    for(let it=0; it<60; it++){
+      // u = R v
+      const u = new Array(m).fill(0);
+      for(let i=0;i<m;i++){ let s=0; for(let j=0;j<n;j++) s += R[i][j]*v[j]; u[i]=s; }
+      // v = R^T u
+      const v2 = new Array(n).fill(0);
+      for(let j=0;j<n;j++){ let s=0; for(let i=0;i<m;i++) s += R[i][j]*u[i]; v2[j]=s; }
+      const nv = Math.sqrt(v2.reduce((s,x)=>s+x*x,0));
+      if(nv < 1e-12) break;
+      v = v2.map(x=>x/nv);
+    }
+    // u = R v
+    const u = new Array(m).fill(0);
+    for(let i=0;i<m;i++){ let s=0; for(let j=0;j<n;j++) s += R[i][j]*v[j]; u[i]=s; }
+    const sigma = Math.sqrt(u.reduce((s,x)=>s+x*x,0));
+    if(sigma < 1e-8) break;
+    const uN = u.map(x=>x/sigma);
+    S.push(sigma);
+    U.push(uN);
+    V.push(v);
+    // deflate: R -= sigma * u v^T
+    for(let i=0;i<m;i++) for(let j=0;j<n;j++) R[i][j] -= sigma * uN[i] * v[j];
+  }
+  return {U, S, V};
+}
+function svdReconstruct(k){
+  const {U, S, V} = svdSV;
+  const m = svdImg.length, n = svdImg[0].length;
+  const out = new Array(m).fill(0).map(()=>new Array(n).fill(0));
+  const kk = Math.min(k, S.length);
+  for(let r=0; r<kk; r++){
+    const s = S[r], u = U[r], v = V[r];
+    for(let i=0;i<m;i++)for(let j=0;j<n;j++) out[i][j] += s*u[i]*v[j];
+  }
+  return out;
+}
+function drawSVD(){
+  if(!g6b) g6b = setupCanvas('cv6b', {scale:1});
+  if(!svdImg) svdSetImg('text');
+  const k = +document.getElementById('svd-k').value;
+  document.getElementById('svd-k-v').textContent = k;
+  const recon = svdReconstruct(k);
+  const ctx = g6b.ctx, W = g6b.W, H = g6b.H, N = SVD_N;
+  ctx.fillStyle = '#0a1322'; ctx.fillRect(0,0,W,H);
+  // two images side by side
+  const cell = Math.floor(Math.min(W/(N*2+6), H/(N+8)));
+  const totalW = N*cell;
+  const pad = 20;
+  const y0 = 60, x0 = (W - 2*totalW - pad)/2;
+  // labels
+  ctx.fillStyle = '#cbd5e1'; ctx.font = 'bold 14px monospace'; ctx.textAlign='center';
+  ctx.fillText(lang==='zh'?'原图':'Original', x0 + totalW/2, y0 - 12);
+  ctx.fillText(lang==='zh'?`重建 (k=${k})`:`Reconstructed (k=${k})`, x0 + totalW + pad + totalW/2, y0 - 12);
+  // draw original
+  for(let i=0;i<N;i++)for(let j=0;j<N;j++){
+    const v = Math.max(0, Math.min(1, svdImg[i][j]));
+    const g = Math.round(v*255);
+    ctx.fillStyle = `rgb(${g},${g},${g})`;
+    ctx.fillRect(x0 + j*cell, y0 + i*cell, cell, cell);
+  }
+  // draw reconstructed
+  for(let i=0;i<N;i++)for(let j=0;j<N;j++){
+    const v = Math.max(0, Math.min(1, recon[i][j]));
+    const g = Math.round(v*255);
+    ctx.fillStyle = `rgb(${g},${g},${g})`;
+    ctx.fillRect(x0 + totalW + pad + j*cell, y0 + i*cell, cell, cell);
+  }
+  // singular value chart
+  const chartY = y0 + N*cell + 30;
+  const chartH = 100;
+  ctx.fillStyle = '#94a3b8'; ctx.font = '11px monospace'; ctx.textAlign='left';
+  ctx.fillText(lang==='zh'?'奇异值（前 32）：':'Singular values (top 32):', x0, chartY - 6);
+  const S = svdSV.S;
+  const maxS = Math.max(...S, 0.01);
+  const barW = Math.max(4, Math.floor((W-2*x0)/S.length) - 2);
+  for(let i=0;i<S.length;i++){
+    const h = S[i]/maxS * chartH;
+    ctx.fillStyle = i<k ? '#fbbf24' : '#475569';
+    ctx.fillRect(x0 + i*(barW+2), chartY + chartH - h, barW, h);
+  }
+  // accuracy
+  let totErr = 0, totSig = 0;
+  for(let i=0;i<N;i++)for(let j=0;j<N;j++){
+    const d = svdImg[i][j] - recon[i][j];
+    totErr += d*d; totSig += svdImg[i][j]*svdImg[i][j];
+  }
+  const ratio = totSig>0 ? Math.sqrt(totErr/totSig)*100 : 0;
+  const compress = (k * (N + N + 1)) / (N*N) * 100;
+  document.getElementById('svd-out').innerHTML =
+    `${tex(`M_k = \\sum_{i=1}^{${k}} \\sigma_i u_i v_i^T`)}
+     <div style="margin-top:6px"><span class="lbl">${lang==='zh'?'重建相对误差':'relative error'}:</span> ${ratio.toFixed(1)}%</div>
+     <div><span class="lbl">${lang==='zh'?'存储占用':'storage'}:</span> ${compress.toFixed(0)}% ${lang==='zh'?'（原图的）':'(of original)'}</div>`;
+}
+document.addEventListener('input', e=>{
+  if(e.target && e.target.id==='svd-k') drawSVD();
+});
+registerRedraw(()=>{ if(g6b) drawSVD(); });
+
+/* ============================================================
+   DEMO 6c: PAGERANK
+   ============================================================ */
+let prNodes = [], prEdges = new Set(), prRank = [], prSelected = -1, g6c;
+function prGraph(kind){
+  if(kind==='chain'){
+    prNodes = [[-3,1.5],[-1,1.5],[1,1.5],[3,1.5],[3,-1.5],[1,-1.5],[-1,-1.5],[-3,-1.5]];
+    prEdges = new Set(['0,1','1,2','2,3','3,4','4,5','5,6','6,7','7,0','0,3']);
+  } else if(kind==='hub'){
+    prNodes = [[0,0],[-2.5,1.5],[2.5,1.5],[2.5,-1.5],[-2.5,-1.5],[-3,0],[3,0]];
+    prEdges = new Set(['1,0','2,0','3,0','4,0','5,0','6,0','0,1','0,3']);
+  } else {
+    prNodes = [[-2,1.5],[2,1.5],[2.5,-1],[-2.5,-1],[0,0]];
+    prEdges = new Set(['0,1','1,2','2,3','3,0','0,4','4,1']);
+  }
+  prRank = prNodes.map(()=>1/prNodes.length);
+  drawPR();
+}
+function prInit(){
+  g6c = setupCanvas('cv6c', {scale:55});
+  g6c.c.addEventListener('click', e=>{
+    const [mx,my] = pointerMath(g6c, e);
+    let near = -1, best = 0.6;
+    for(let i=0;i<prNodes.length;i++){
+      const d = Math.hypot(prNodes[i][0]-mx, prNodes[i][1]-my);
+      if(d<best){ best=d; near=i; }
+    }
+    if(near<0) return;
+    if(prSelected === -1) prSelected = near;
+    else {
+      if(prSelected === near){ prSelected = -1; }
+      else {
+        const k = `${prSelected},${near}`;
+        if(prEdges.has(k)) prEdges.delete(k); else prEdges.add(k);
+        prSelected = -1;
+      }
+    }
+    drawPR();
+  });
+  document.getElementById('pr-damp').addEventListener('input', ()=>{
+    document.getElementById('pr-damp-v').textContent = (+document.getElementById('pr-damp').value).toFixed(2);
+    drawPR();
+  });
+  prGraph('default');
+}
+function prStep(){
+  const N = prNodes.length;
+  const d = +document.getElementById('pr-damp').value;
+  // out-degree per node
+  const outDeg = new Array(N).fill(0);
+  for(const k of prEdges){ const [a] = k.split(',').map(Number); outDeg[a]++; }
+  const newR = new Array(N).fill((1-d)/N);
+  for(const k of prEdges){
+    const [a,b] = k.split(',').map(Number);
+    if(outDeg[a]===0) continue;
+    newR[b] += d * prRank[a] / outDeg[a];
+  }
+  // dangling nodes: distribute their rank uniformly
+  let dangling = 0;
+  for(let i=0;i<N;i++) if(outDeg[i]===0) dangling += prRank[i];
+  for(let i=0;i<N;i++) newR[i] += d * dangling / N;
+  // normalize
+  const s = newR.reduce((x,y)=>x+y,0);
+  prRank = newR.map(x=>x/s);
+  drawPR();
+}
+function prRun(){
+  for(let i=0;i<60;i++) prStep();
+}
+function prReset(){ prRank = prNodes.map(()=>1/prNodes.length); drawPR(); }
+function drawPR(){
+  if(!g6c){ prInit(); return; }
+  drawGrid(g6c, 5);
+  // edges
+  const ctx = g6c.ctx;
+  for(const k of prEdges){
+    const [a,b] = k.split(',').map(Number);
+    const [x1,y1] = prNodes[a], [x2,y2] = prNodes[b];
+    const [p1x,p1y] = g6c.M2P(x1,y1), [p2x,p2y] = g6c.M2P(x2,y2);
+    const dx = p2x-p1x, dy = p2y-p1y, L = Math.hypot(dx,dy);
+    const ux = dx/L, uy = dy/L;
+    // shorten ends so arrow doesn't hide under circles
+    const off = 26;
+    const sx = p1x+ux*off, sy = p1y+uy*off, ex = p2x-ux*off, ey = p2y-uy*off;
+    ctx.strokeStyle = 'rgba(148,163,184,.55)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(sx,sy); ctx.lineTo(ex,ey); ctx.stroke();
+    // arrowhead
+    const ah=9, aw=4;
+    const bx = ex - ux*ah, by = ey - uy*ah;
+    const px = -uy, py = ux;
+    ctx.fillStyle = 'rgba(148,163,184,.8)';
+    ctx.beginPath(); ctx.moveTo(ex,ey);
+    ctx.lineTo(bx+px*aw, by+py*aw); ctx.lineTo(bx-px*aw, by-py*aw); ctx.closePath(); ctx.fill();
+  }
+  // nodes
+  const maxR = Math.max(...prRank);
+  prNodes.forEach(([x,y],i)=>{
+    const [px,py] = g6c.M2P(x,y);
+    const radius = 14 + 26*(prRank[i]/Math.max(maxR,1e-9));
+    const isSel = prSelected===i;
+    ctx.beginPath(); ctx.arc(px,py,radius,0,Math.PI*2);
+    ctx.fillStyle = isSel ? 'rgba(251,191,36,.4)' : 'rgba(6,182,212,.25)';
+    ctx.fill();
+    ctx.strokeStyle = isSel ? '#fbbf24' : '#06b6d4'; ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 13px monospace';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(String(i), px, py);
+    ctx.font = '11px monospace';
+    ctx.fillStyle = '#cbd5e1';
+    ctx.fillText(prRank[i].toFixed(3), px, py+radius+12);
+  });
+  ctx.textAlign='start'; ctx.textBaseline='alphabetic';
+  // out
+  const sorted = prRank.map((r,i)=>[i,r]).sort((a,b)=>b[1]-a[1]);
+  const top = sorted.slice(0,3).map(([i,r])=>`#${i}=${r.toFixed(3)}`).join(' ');
+  document.getElementById('pr-out').innerHTML =
+    `${tex(`r_{t+1}=\\frac{1-d}{N}\\mathbf{1}+d\\,M^T r_t`)}
+     <div style="margin-top:6px"><span class="lbl">${lang==='zh'?'排名（top 3）':'Top 3'}:</span> ${top}</div>
+     <div style="font-size:.78rem;color:#94a3b8">${lang==='zh'?'提示：点一个节点选中（黄圈），再点另一个加/删边。':'Tip: click one node (yellow), then another to toggle an edge.'}</div>`;
+}
+registerRedraw(()=>{ if(g6c) drawPR(); });
+
+/* ============================================================
+   PROOFS
+   ============================================================ */
+const PROOFS = [
+  {
+    zh:{label:'为什么矩阵乘法 = 函数复合'},
+    en:{label:'Why matrix multiplication = function composition'},
+    body(l){ const zh=l==='zh'; return `
+<p>${zh?'设矩阵 A、B 是两个线性变换。先做 B 再做 A，得到的新变换 T(x) = A(B(x))。我们要证明 T 对应的矩阵恰好是 A·B。':'Let A and B be linear transformations. Doing B then A gives T(x) = A(B(x)). We show T corresponds to the matrix A·B.'}</p>
+<p>${zh?'看变换把基向量 ê_j 送到哪里——线性映射由它对一组基的作用唯一决定。':'A linear map is determined by what it does to a basis. Track where ê_j goes:'}</p>
+<div class="katex-display">${tex('T(\\hat{e}_j) = A(B(\\hat{e}_j)) = A(\\text{第 }j\\text{ 列 of }B)', {display:true})}</div>
+<div class="katex-display">${tex('= A(b_{1j}\\hat{e}_1 + \\cdots + b_{nj}\\hat{e}_n) = \\sum_k b_{kj} A(\\hat{e}_k) = \\sum_k b_{kj} A_{:k}', {display:true})}</div>
+<p>${zh?'所以 T 的第 j 列第 i 行就是 Σ_k A_ik · B_kj——这正是矩阵乘积 (AB)_ij 的定义。':'So the (i,j) entry of T is Σ_k A_ik · B_kj — exactly the definition of (AB)_ij.'}</p>
+<div class="mbox info">${zh?'矩阵乘法之所以"奇怪"——非交换、求和那一长串——根源就是它必须等于函数复合。':'Matrix multiplication is "weird" (non-commutative, sums of products) precisely because it must equal function composition.'}</div>`;
+    }
+  },
+  {
+    zh:{label:'行列式的乘法定理 det(AB) = det(A)·det(B)'},
+    en:{label:'Multiplicativity of determinant: det(AB) = det(A)·det(B)'},
+    body(l){ const zh=l==='zh'; return `
+<p>${zh?'几何理解：det(A) 是 A 把单位方格放大的"有向面积倍数"。先做 B 再做 A，等于面积先乘 det(B) 再乘 det(A)——总倍数是两者的积。':'Geometric view: det(A) is the signed area scaling of A. Doing B then A scales area first by det(B), then by det(A) — total = det(A)·det(B).'}</p>
+<div class="katex-display">${tex('\\det(AB) = \\det(A) \\cdot \\det(B)', {display:true})}</div>
+<p>${zh?'代数证明（n=2）：直接展开。设 A=[[a,b],[c,d]], B=[[e,f],[g,h]]。':'Algebraic proof (n=2): direct expansion. A=[[a,b],[c,d]], B=[[e,f],[g,h]].'}</p>
+<div class="katex-display">${tex('AB = \\begin{pmatrix}ae+bg & af+bh \\\\ ce+dg & cf+dh\\end{pmatrix}', {display:true})}</div>
+<div class="katex-display">${tex('\\det(AB) = (ae+bg)(cf+dh) - (af+bh)(ce+dg) = (ad-bc)(eh-fg) = \\det A \\cdot \\det B', {display:true})}</div>
+<p>${zh?'推论：A 可逆 ⇔ det(A) ≠ 0；逆矩阵的行列式是 1/det(A)。':'Corollary: A is invertible ⇔ det(A) ≠ 0; det(A⁻¹) = 1/det(A).'}</p>`;
+    }
+  },
+  {
+    zh:{label:'特征方程 det(A − λI) = 0 是怎么来的'},
+    en:{label:'Where the characteristic equation det(A − λI) = 0 comes from'},
+    body(l){ const zh=l==='zh'; return `
+<p>${zh?'定义：v ≠ 0 是 A 的特征向量，λ 是对应特征值，若':'Definition: v ≠ 0 is an eigenvector of A with eigenvalue λ when:'}</p>
+<div class="katex-display">${tex('Av = \\lambda v', {display:true})}</div>
+<p>${zh?'移项：Av − λv = 0 → (A − λI)v = 0。这意味着 v 在矩阵 A − λI 的零空间里。':'Rearrange: (A − λI)v = 0. So v lies in the nullspace of A − λI.'}</p>
+<p>${zh?'要存在非零的 v，A − λI 必须不可逆——即':'For a nonzero v to exist, A − λI must be singular:'}</p>
+<div class="katex-display">${tex('\\det(A - \\lambda I) = 0', {display:true})}</div>
+<p>${zh?'这就是特征方程。展开后是 λ 的 n 次多项式，叫做特征多项式。':'This is the characteristic equation; expanded it is a degree-n polynomial in λ — the characteristic polynomial.'}</p>
+<div class="katex-display">${tex('2 \\times 2:\\ \\lambda^2 - (\\mathrm{tr}\\,A)\\lambda + \\det A = 0', {display:true})}</div>
+<p>${zh?'所以求特征值就是解一个一元 n 次方程。然后把每个 λ 回代到 (A − λI)v = 0 求 v。':'Solving for eigenvalues = solving a degree-n polynomial. Then substitute each λ back into (A − λI)v = 0 to find v.'}</p>`;
+    }
+  },
+  {
+    zh:{label:'对称矩阵的谱定理（特征值为实，特征向量正交）'},
+    en:{label:'Spectral theorem for symmetric matrices'},
+    body(l){ const zh=l==='zh'; return `
+<p>${zh?'定理：实对称矩阵 A = Aᵀ 有 n 个实特征值，并且对应的特征向量可以选成两两正交。':'Theorem: a real symmetric matrix A = Aᵀ has n real eigenvalues, and its eigenvectors can be chosen pairwise orthogonal.'}</p>
+<p><b>${zh?'实特征值：':'Real eigenvalues:'}</b> ${zh?'设 Av = λv，对两边取共轭转置：v*A* = λ̄v*。因为 A = Aᵀ 且实，所以 A* = A。两边右乘 v：':'Suppose Av = λv. Take conjugate transpose: v*A* = λ̄v*. Since A is real symmetric, A* = A. Multiply right by v:'}</p>
+<div class="katex-display">${tex('v^* A v = \\bar\\lambda\\, v^* v \\quad\\text{and}\\quad v^* A v = v^*(\\lambda v) = \\lambda\\, v^* v', {display:true})}</div>
+<p>${zh?'所以 λ = λ̄，λ 必为实数。':'So λ = λ̄, meaning λ is real.'}</p>
+<p><b>${zh?'正交性：':'Orthogonality:'}</b> ${zh?'设 Av₁ = λ₁v₁，Av₂ = λ₂v₂，λ₁ ≠ λ₂。':'Suppose Av₁ = λ₁v₁, Av₂ = λ₂v₂, with λ₁ ≠ λ₂.'}</p>
+<div class="katex-display">${tex('\\lambda_1 v_2^T v_1 = v_2^T A v_1 = (A^T v_2)^T v_1 = (A v_2)^T v_1 = \\lambda_2 v_2^T v_1', {display:true})}</div>
+<p>${zh?'即 (λ₁ − λ₂) v₂ᵀv₁ = 0；因为 λ₁ ≠ λ₂，所以 v₂ᵀv₁ = 0——它们正交。':'So (λ₁ − λ₂) v₂ᵀv₁ = 0; since λ₁ ≠ λ₂, we get v₂ᵀv₁ = 0 — orthogonal.'}</p>
+<div class="mbox good">${zh?'推论：实对称矩阵可以写成 A = QΛQᵀ，Q 是正交矩阵、Λ 是对角的特征值矩阵。PCA 直接靠这个分解。':'Corollary: A = QΛQᵀ with Q orthogonal and Λ diagonal of eigenvalues. PCA hinges on this decomposition.'}</div>`;
+    }
+  },
+  {
+    zh:{label:'PCA = 协方差矩阵的特征分解'},
+    en:{label:'PCA = eigendecomposition of the covariance matrix'},
+    body(l){ const zh=l==='zh'; return `
+<p>${zh?'设数据中心化后矩阵为 X（每行一个样本），方差最大的方向 u 满足：':'Let X be the centered data matrix (rows = samples). The direction u of maximum variance solves:'}</p>
+<div class="katex-display">${tex('\\max_{\\|u\\|=1}\\ u^T C u, \\quad C = \\tfrac{1}{n}X^TX\\ (\\text{covariance})', {display:true})}</div>
+<p>${zh?'用拉格朗日乘子 L = uᵀCu − λ(uᵀu − 1)，对 u 求导：':'Use Lagrange multipliers L = uᵀCu − λ(uᵀu − 1); differentiate w.r.t. u:'}</p>
+<div class="katex-display">${tex('\\nabla_u L = 2Cu - 2\\lambda u = 0 \\ \\Longrightarrow\\ Cu = \\lambda u', {display:true})}</div>
+<p>${zh?'就是说：第一主成分 u 是协方差矩阵 C 的特征向量；它对应的特征值 λ 就是该方向的方差大小。':'That is: the first principal component u is an eigenvector of C; its eigenvalue λ is the variance along that direction.'}</p>
+<div class="mbox info">${zh?'按 λ 从大到小排序的特征向量 = 数据的主成分。最大特征值对应"最分散方向"，最小对应"最瘦方向"。':'Eigenvectors ranked by descending λ = principal components. Largest λ = direction of greatest spread; smallest = thinnest.'}</div>
+<p>${zh?'C 是对称矩阵，所以谱定理保证特征值实、特征向量正交——主成分天然构成一组正交坐标系。':'C is symmetric, so by the spectral theorem its eigenvalues are real and eigenvectors orthogonal — PCs form an orthonormal coordinate system.'}</p>`;
+    }
+  },
+  {
+    zh:{label:'SVD：奇异值分解的几何意义'},
+    en:{label:'SVD: geometric meaning of singular values'},
+    body(l){ const zh=l==='zh'; return `
+<p>${zh?'任何 m×n 矩阵 M 都可以分解为 M = UΣVᵀ，其中：':'Any m×n matrix M decomposes as M = UΣVᵀ where:'}</p>
+<div class="katex-display">${tex('U\\in\\mathbb{R}^{m\\times m}\\ \\text{orthogonal},\\ V\\in\\mathbb{R}^{n\\times n}\\ \\text{orthogonal},\\ \\Sigma\\ \\text{diagonal with}\\ \\sigma_1\\ge\\sigma_2\\ge\\cdots\\ge 0', {display:true})}</div>
+<p>${zh?'几何理解：任意线性变换 = 旋转 Vᵀ → 各轴缩放 Σ → 再旋转 U。单位圆在 M 下变成椭圆，椭圆半轴长度 = σᵢ。':'Geometrically: any linear map = rotate (Vᵀ) → axis-scale (Σ) → rotate (U). The unit sphere maps to an ellipsoid with semi-axes σᵢ.'}</p>
+<p>${zh?'低秩近似定理（Eckart–Young）：保留前 k 个奇异值得到的 M_k = Σ_{i=1..k} σᵢ uᵢ vᵢᵀ 是 M 在 Frobenius 范数下最接近的秩 k 矩阵。':'Eckart–Young theorem: keeping the top k singular values gives M_k = Σᵢσᵢuᵢvᵢᵀ, the closest rank-k matrix to M in Frobenius norm.'}</p>
+<div class="katex-display">${tex('\\min_{\\mathrm{rank}(B)\\le k} \\|M - B\\|_F = \\|M - M_k\\|_F = \\sqrt{\\sigma_{k+1}^2 + \\cdots + \\sigma_r^2}', {display:true})}</div>
+<p>${zh?'这就是 SVD 图像压缩、推荐系统、信号去噪的数学根基。':'This underlies SVD image compression, recommender systems, and signal denoising.'}</p>`;
+    }
+  },
+  {
+    zh:{label:'PageRank：随机游走的极限分布是特征向量'},
+    en:{label:'PageRank: the stationary distribution is an eigenvector'},
+    body(l){ const zh=l==='zh'; return `
+<p>${zh?'设 M 为图的"列归一化邻接矩阵"，M_ij = 1/(j 的出度) 若有边 j→i，否则 0。一个随机游走者在 t 步后的位置分布 rₜ 满足 r_{t+1} = M·rₜ。':'Let M be the column-normalized adjacency matrix (M_ij = 1/outdeg(j) if j→i, else 0). The walker’s distribution after t steps satisfies r_{t+1} = M·rₜ.'}</p>
+<p>${zh?'若极限存在，则 r* = M·r*——也就是 M 的特征值 1 对应的特征向量。这就是 PageRank 的数学定义。':'If a limit exists, r* = M·r* — i.e. r* is an eigenvector of M with eigenvalue 1. That is PageRank.'}</p>
+<p>${zh?'实际公式加了阻尼因子 d 以保证收敛（避免"陷阱"和"悬空"节点）：':'In practice a damping factor d is added to ensure convergence (avoid sinks/dead ends):'}</p>
+<div class="katex-display">${tex('r_{t+1} = \\frac{1-d}{N}\\mathbf{1} + d\\,M\\,r_t', {display:true})}</div>
+<p>${zh?'Perron–Frobenius 定理保证这种"正"矩阵存在唯一的、正的、特征值最大的特征向量——就是稳态分布。':'Perron–Frobenius guarantees that such a positive matrix has a unique positive eigenvector for the largest eigenvalue — the stationary distribution.'}</p>
+<div class="mbox info">${zh?'PageRank 的核心洞见：网页的"重要性"= 它指向的入链质量的加权和。这是个自指方程，恰好用特征向量解出。':'PageRank insight: a page’s importance = weighted sum of importances of pages linking in. This self-referential equation is solved by the eigenvector.'}</div>`;
+    }
+  },
+];
+
+function renderProofs(){
+  const c = document.getElementById('accordion');
+  if(!c) return;
+  c.innerHTML = PROOFS.map((sec, i)=>`
+<div class="acc-item${i===0?' open':''}">
+  <div class="acc-head" onclick="toggleAcc(this)">
+    <div class="acc-head-l">
+      <div class="acc-num">${i+1}</div>
+      <div class="acc-label">${(lang==='zh'?sec.zh:sec.en).label}</div>
+    </div>
+    <span class="acc-arrow">▼</span>
+  </div>
+  <div class="acc-body">${sec.body(lang)}</div>
+</div>`).join('');
+}
+function toggleAcc(head){
+  head.parentElement.classList.toggle('open');
+}
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+function boot(){
+  applyLang();
+  d1Init(); d2Init(); d3Init(); d4Init(); d5Init();
+  pcaGen('elongated');
+  svdSetImg('text');
+  prInit();
+}
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+else boot();
+</script>
+</body>
+</html>
