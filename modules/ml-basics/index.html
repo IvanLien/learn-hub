@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>机器学习三大类型 · ML Basics</title>
+<link rel="stylesheet" href="../../vendor/katex/katex.min.css">
+<script defer src="../../vendor/katex/katex.min.js"></script>
 <style>
 :root {
   --bg: #0f172a; --bg-card: #1e293b; --bg-el: #334155;
@@ -237,8 +239,10 @@ footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border
   padding:.8rem 1.1rem;
   font-family:'Cascadia Code','Consolas','Monaco',monospace;
   font-size:.82rem;line-height:2;margin:.6rem 0;
-  white-space:pre;overflow-x:auto;
+  white-space:pre-wrap;overflow-x:auto;
 }
+.mf .katex-display{margin:.4rem 0;}
+.mf .katex{font-size:1em;color:#e2e8f0;}
 .mf.g{border-left-color:#10b981;}
 .mf.y{border-left-color:#f59e0b;}
 .mf.r{border-left-color:#ef4444;}
@@ -547,6 +551,21 @@ footer{text-align:center;padding:2rem;color:var(--muted);font-size:.85rem;border
 </footer>
 
 <script>
+// ============================================================
+// KaTeX helpers — $..$ inline, $$..$$ display
+// ============================================================
+function tex(latex, display=false){
+  if(typeof katex==='undefined') return latex;
+  try { return katex.renderToString(latex,{throwOnError:false,displayMode:display}); }
+  catch(e){ return latex; }
+}
+function mathify(s){
+  if(!s) return '';
+  return s
+    .replace(/\$\$([\s\S]+?)\$\$/g, (_,m)=>tex(m,true))
+    .replace(/\$([^$\n]+?)\$/g,     (_,m)=>tex(m,false));
+}
+
 // ============================================================
 // LANGUAGE SYSTEM
 // ============================================================
@@ -1200,7 +1219,7 @@ function openMath(type) {
     rl:    { zh:'Q-Learning 的数学收敛原理', en:'Q-Learning: Convergence Theory' },
   };
   title.textContent = titles[type][lang];
-  body.innerHTML = MATH[lang][type];
+  body.innerHTML = mathify(MATH[lang][type]);
   modal.classList.add('open');
   document.body.style.overflow = 'hidden';
 }
@@ -1221,76 +1240,65 @@ zh: {
 sup: `
 <div class="ms">
   <h3>🎯 本质：这是一个优化问题</h3>
-  <p>监督学习的核心任务是：找到一组参数 <strong>θ</strong>，使模型在所有训练样本上的预测误差尽可能小。这个"误差总量"叫做<strong>损失函数 L(θ)</strong>。</p>
-  <div class="mf">
+  <p>监督学习的核心任务是：找到一组参数 $\\theta$，使模型在所有训练样本上的预测误差尽可能小。这个"误差总量"叫做<strong>损失函数</strong> $L(\\theta)$。</p>
+  <div class="mf">$$L(\\theta) = -\\frac{1}{N}\\sum_{i=1}^{N}\\Big[\\,y_i \\log \\hat{y}_i + (1-y_i)\\log(1-\\hat{y}_i)\\,\\Big]$$
 <span class="cm">/* 二元交叉熵损失（垃圾邮件分类的通用形式） */</span>
-<span class="kw">L(θ)</span> = <span class="vl">-1/N</span> · Σᵢ₌₁ᴺ [ yᵢ·log(<span class="kw">ŷᵢ</span>) + (1-yᵢ)·log(1-<span class="kw">ŷᵢ</span>) ]
 
-yᵢ  = 真实标签（<span class="ok">1</span>=垃圾  <span class="ok">0</span>=正常）
-<span class="kw">ŷᵢ</span>  = 模型预测的"垃圾概率"∈(0,1)
-N   = 训练样本总数
+$y_i$ &nbsp; = 真实标签（<span class="ok">1</span>=垃圾，<span class="ok">0</span>=正常）
+$\\hat{y}_i$ &nbsp; = 模型预测的"垃圾概率" $\\in (0,1)$
+$N$ &nbsp; = 训练样本总数
   </div>
-  <p>当预测完全正确（ŷ=1 且 y=1）时，log(1)=0，损失为 0；预测错得越离谱，log 值越大，损失越高。</p>
+  <p>当预测完全正确（$\\hat{y}=1$ 且 $y=1$）时，$\\log(1)=0$，损失为 0；预测错得越离谱，$\\log$ 值越大，损失越高。</p>
 </div>
 
 <div class="ms">
   <h3>⛷️ 梯度下降：沿最陡坡面下山</h3>
-  <p>把损失函数想象成一座山。梯度 ∇L(θ) 是当前位置"最陡上坡方向"，负梯度就是下山最快的方向。每次沿负梯度走一小步：</p>
-  <div class="mf">
-<span class="kw">θ_new</span> = <span class="kw">θ_old</span> − <span class="vl">α</span> · ∇L(<span class="kw">θ_old</span>)
-           ↑            ↑          ↑
-         旧参数       学习率    梯度（下山方向）
+  <p>把损失函数想象成一座山。梯度 $\\nabla L(\\theta)$ 是当前位置"最陡上坡方向"，负梯度就是下山最快的方向。每次沿负梯度走一小步：</p>
+  <div class="mf">$$\\theta_{\\text{new}} = \\theta_{\\text{old}} - \\alpha \\cdot \\nabla L(\\theta_{\\text{old}})$$
+<span class="cm">$\\alpha$：学习率（步长）&nbsp;&nbsp;$\\nabla L$：梯度（下山方向）</span>
 
-重复直到：<span class="ok">‖∇L(θ)‖ → 0</span>（到达山谷）
+重复直到 <span class="ok">$\\|\\nabla L(\\theta)\\| \\to 0$</span>（到达山谷）。
   </div>
 </div>
 
 <div class="ms">
   <h3>✅ 收敛保证：凸函数的威力</h3>
   <p>逻辑回归的损失函数是<strong>凸函数</strong>（碗形），只有唯一的全局最小值，梯度下降一定能找到它。</p>
-  <div class="mf g">
-凸函数定义（碗形的数学表达）：
-  ∀θ₁,θ₂, ∀λ∈[0,1]:
-  L(λθ₁ + (1-λ)θ₂) ≤ λL(θ₁) + (1-λ)L(θ₂)
-
+  <div class="mf g"><span class="cm">凸函数定义（碗形）：</span>
+$$\\forall\\,\\theta_1,\\theta_2,\\;\\forall\\,\\lambda\\in[0,1]:\\quad L(\\lambda\\theta_1 + (1-\\lambda)\\theta_2) \\le \\lambda L(\\theta_1) + (1-\\lambda)L(\\theta_2)$$
 推论：<span class="ok">只有一个极小值 = 全局最小值</span>
 
-收敛速度（μ-强凸 + L-光滑，固定步长 α = 1/L）：
-  f(θ_t) − f* ≤ (1 − <span class="vl">μ/L</span>)ᵗ · (f(θ₀) − f*)
-
-μ = 强凸系数，L = 梯度的 Lipschitz 常数
-条件数 κ = L/μ（越接近 1 越好优化）
-→ <span class="ok">指数速度收敛</span>：达到 ε 精度只需 O(κ · log(1/ε)) 步
+<span class="cm">收敛速度（$\\mu$-强凸 + $L$-光滑，固定步长 $\\alpha = 1/L$）：</span>
+$$f(\\theta_t) - f^* \\le \\Big(1 - \\frac{\\mu}{L}\\Big)^{\\!t}\\,(f(\\theta_0) - f^*)$$
+其中 $\\mu$ = 强凸系数，$L$ = 梯度的 Lipschitz 常数，条件数 $\\kappa = L/\\mu$（越接近 1 越好优化）。
+→ <span class="ok">指数速度收敛</span>：达到 $\\varepsilon$ 精度只需 $O(\\kappa \\log(1/\\varepsilon))$ 步。
   </div>
 </div>
 
 <div class="ms">
   <h3>⚠️ 不收敛的三种情形</h3>
   <div class="mbox warn">
-    <strong>情形1：学习率 α 过大</strong><br>
+    <strong>情形 1：学习率 $\\alpha$ 过大</strong><br>
     步子太大，每次都"跨过"最优点，在山谷两侧震荡甚至发散。
   </div>
   <div class="mf r">
-α 太小：<span class="cm">●━━━━━━━━━━━━━━━━★  收敛，但很慢</span>
-α 合适：<span class="ok">●━━━━★              收敛，快速</span>
-α 过大：<span class="bad">●⇌⇌⇌⇌⇌⇌⇌⇌⇌⇌⇌   发散，损失飙升</span>
+$\\alpha$ 太小：<span class="cm">●━━━━━━━━━━━━━━★ &nbsp; 收敛，但很慢</span>
+$\\alpha$ 合适：<span class="ok">●━━━━★ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 收敛，快速</span>
+$\\alpha$ 过大：<span class="bad">●⇌⇌⇌⇌⇌⇌⇌⇌⇌ &nbsp;&nbsp; 发散，损失飙升</span>
 
-数学上：α &gt; 2/L（L=损失曲率）时梯度下降<span class="bad">不收敛</span>
+数学上：当 $\\alpha > 2/L$（$L$ = 损失曲率）时梯度下降<span class="bad">不收敛</span>。
   </div>
   <div class="mbox warn">
-    <strong>情形2：非凸损失（神经网络场景）</strong><br>
+    <strong>情形 2：非凸损失（神经网络场景）</strong><br>
     深度网络的损失曲面是"山地"形——存在大量局部极小值和鞍点。梯度下降可能卡在鞍点，停止更新。
   </div>
   <div class="mbox warn">
-    <strong>情形3：梯度消失 / 梯度爆炸</strong><br>
-    深层网络中，梯度通过链式法则逐层相乘。若每层梯度 &lt;1，连乘后趋向 0（消失）；若每层 &gt;1，连乘后趋向 ∞（爆炸）。结果：靠近输入的层几乎无法更新。
+    <strong>情形 3：梯度消失 / 梯度爆炸</strong><br>
+    深层网络中，梯度通过链式法则逐层相乘。若每层梯度 &lt;1，连乘后趋向 0（消失）；若每层 &gt;1，连乘后趋向 $\\infty$（爆炸）。结果：靠近输入的层几乎无法更新。
   </div>
   <div class="mf r">
-梯度消失（sigmoid激活，100层）：
-  (0.25)^100 ≈ <span class="bad">6×10⁻⁶¹</span> → 实际上为 0
-
-梯度爆炸（权重初始化过大）：
-  2^100 ≈ <span class="bad">10³⁰</span> → NaN
+梯度消失（sigmoid 激活，100 层）：$(0.25)^{100} \\approx$ <span class="bad">$6 \\times 10^{-61}$</span> → 实际上为 0
+梯度爆炸（权重初始化过大）：$2^{100} \\approx$ <span class="bad">$10^{30}$</span> → NaN
   </div>
 </div>
 
@@ -1298,9 +1306,9 @@ N   = 训练样本总数
   <h3>🔧 工程解决方案</h3>
   <div class="mbox good">
     <strong>Adam 优化器</strong>：为每个参数自适应调整学习率，兼顾动量与二阶矩估计，对学习率选择不敏感<br><br>
-    <strong>批归一化 (BatchNorm)</strong>：每层输出归一化到均值0、方差1，防止梯度消失<br><br>
-    <strong>残差连接 (ResNet)</strong>：跨层直连 <code>x + F(x)</code>，梯度可以"绕过"中间层直接回传<br><br>
-    <strong>梯度裁剪 (Gradient Clipping)</strong>：当 ‖∇L‖ > 阈值时，强制缩放梯度，防止爆炸<br><br>
+    <strong>批归一化 (BatchNorm)</strong>：每层输出归一化到均值 0、方差 1，防止梯度消失<br><br>
+    <strong>残差连接 (ResNet)</strong>：跨层直连 $x + F(x)$，梯度可以"绕过"中间层直接回传<br><br>
+    <strong>梯度裁剪 (Gradient Clipping)</strong>：当 $\\|\\nabla L\\|$ &gt; 阈值时，强制缩放梯度，防止爆炸<br><br>
     <strong>早停 (Early Stopping)</strong>：监控验证集损失，一旦开始上升即停止，防止过拟合
   </div>
 </div>`,
@@ -1310,46 +1318,36 @@ unsup: `
 <div class="ms">
   <h3>🎯 目标函数：最小化组内离散程度</h3>
   <p>K-Means 要最小化的是 <strong>WCSS（Within-Cluster Sum of Squares，组内平方和）</strong>——每个点到其所在组中心的距离平方之和：</p>
-  <div class="mf">
-<span class="kw">J</span> = Σₖ₌₁ᴷ Σₓ∈Cₖ ‖x − <span class="vl">μₖ</span>‖²
+  <div class="mf">$$J = \\sum_{k=1}^{K} \\sum_{x \\in C_k} \\|x - \\mu_k\\|^2$$
+$k$ &nbsp; = 组别编号（$1, 2, \\ldots, K$）
+$C_k$ = 第 $k$ 组中的所有数据点
+$\\mu_k$ = 第 $k$ 组的中心坐标（质心）
+$x$ &nbsp; = 单个数据点
 
-k  = 组别编号（1,2,...,K）
-Cₖ = 第 k 组中的所有数据点
-<span class="vl">μₖ</span> = 第 k 组的中心坐标（质心）
-x  = 单个数据点
-
-目标：<span class="ok">min J</span>（越小说明组内越紧凑，分组越好）
+目标：<span class="ok">$\\min J$</span>（越小说明组内越紧凑，分组越好）
   </div>
 </div>
 
 <div class="ms">
   <h3>✅ 收敛证明：两步单调递减</h3>
-  <p>K-Means 的每次迭代分两步，每步都保证 J <strong>不增大</strong>：</p>
-  <div class="mf g">
-<span class="kw">步骤 A — 分配步</span>（每个点分给最近的质心）：
-
-  对每个点 x，新分配 c(x) = argminₖ ‖x − μₖ‖²
-
-  由于选的是最近质心，J 只能 <span class="ok">减少或不变</span>：
-  J_分配后 ≤ J_分配前  ✓
+  <p>K-Means 的每次迭代分两步，每步都保证 $J$ <strong>不增大</strong>：</p>
+  <div class="mf g"><span class="kw">步骤 A — 分配步</span>（每个点分给最近的质心）：
+$$c(x) = \\arg\\min_{k}\\, \\|x - \\mu_k\\|^2$$
+由于选的是最近质心，$J$ 只能 <span class="ok">减少或不变</span>：$J_{\\text{分配后}} \\le J_{\\text{分配前}}$ ✓
 
 <span class="kw">步骤 B — 更新步</span>（质心移到组的均值位置）：
+$$\\mu_k^{\\text{new}} = \\frac{1}{|C_k|} \\sum_{x \\in C_k} x$$
+数学可证：均值是使组内平方和最小的唯一点，即 $\\mu_k^{\\text{new}} = \\arg\\min_\\mu \\sum_{x \\in C_k} \\|x - \\mu\\|^2$。
+因此 $J_{\\text{更新后}} \\le J_{\\text{分配后}}$ ✓
 
-  新质心 μₖ = (1/|Cₖ|) · Σₓ∈Cₖ x
-
-  数学可证：均值是使组内平方和最小的唯一点：
-  μₖ_new = argmin_μ Σₓ∈Cₖ ‖x − μ‖²
-
-  因此 J_更新后 ≤ J_分配后  ✓
-
-综合：每次完整迭代后 <span class="ok">J 单调不增</span>
+综合：每次完整迭代后 <span class="ok">$J$ 单调不增</span>。
   </div>
   <div class="mbox info">
     <strong>有限步内必然收敛的完整论证：</strong><br>
-    ① J ≥ 0（距离平方和不可能为负，有下界）<br>
-    ② J 每次迭代单调不增（已证）<br>
-    ③ N 个点分配到 K 个组，不同分配方案总数 ≤ Kᴺ（有限）<br>
-    ④ 由②③：不可能无限循环，<strong>必在有限步内收敛</strong> ✓
+    ① $J \\ge 0$（距离平方和不可能为负，有下界）<br>
+    ② $J$ 每次迭代单调不增（已证）<br>
+    ③ $N$ 个点分配到 $K$ 个组，不同分配方案总数 $\\le K^N$（有限）<br>
+    ④ 由 ② ③：不可能无限循环，<strong>必在有限步内收敛</strong> ✓
   </div>
 </div>
 
@@ -1362,10 +1360,10 @@ x  = 单个数据点
   <span class="ok">●●</span>   <span class="ok">△△</span>   <span class="ok">○○</span>    vs     <span class="bad">●</span>   <span class="bad">△△</span><span class="bad">○</span>   <span class="bad">○○</span>
   <span class="ok">●●</span>        <span class="ok">○○</span>              <span class="bad">△△</span>       <span class="bad">△</span>
 
-左图 J=小（分组正确）        右图 J=大（分组错误但已收敛）
+左图 $J$ 小（分组正确）&nbsp; &nbsp; 右图 $J$ 大（分组错误但已收敛）
   </div>
   <div class="mbox warn">
-    <strong>空簇问题（Empty Cluster）</strong>：若初始质心恰好很近，某个质心可能永远抢不到任何点，导致 K 个分组实际只用了 K-1 个。
+    <strong>空簇问题（Empty Cluster）</strong>：若初始质心恰好很近，某个质心可能永远抢不到任何点，导致 $K$ 个分组实际只用了 $K-1$ 个。
   </div>
 </div>
 
@@ -1374,10 +1372,10 @@ x  = 单个数据点
   <div class="mbox good">
     <strong>K-Means++ 初始化</strong>（最重要的改进）：<br>
     ① 随机选第一个质心<br>
-    ② 每个后续质心按 <strong>D(x)²</strong> 概率选取——离现有质心越远越可能被选中<br>
-    ③ 理论保证：期望 WCSS ≤ O(log K) × 全局最优 WCSS<br><br>
+    ② 每个后续质心按 $D(x)^2$ 概率选取——离现有质心越远越可能被选中<br>
+    ③ 理论保证：期望 WCSS $\\le O(\\log K) \\times$ 全局最优 WCSS<br><br>
     <strong>多次重启</strong>：用不同随机初始化跑多次，取 WCSS 最小的结果<br><br>
-    <strong>选合适的 K</strong>：用"肘部法则"（Elbow Method）——画 WCSS vs K 的曲线，找曲率突变点
+    <strong>选合适的 K</strong>：用"肘部法则"（Elbow Method）——画 WCSS vs $K$ 的曲线，找曲率突变点
   </div>
   <div class="mf g">
 肘部法则示意：
@@ -1394,83 +1392,67 @@ x  = 单个数据点
 rl: `
 <div class="ms">
   <h3>🎯 目标：求解 Bellman 最优方程</h3>
-  <p>Q-Learning 本质上在求解一个递归方程——<strong>Bellman 最优方程</strong>，其唯一解 Q* 即为"在每个状态下，每个动作的真实最优价值"：</p>
-  <div class="mf">
-<span class="kw">Q*(s, a)</span> = <span class="vl">𝔼<sub>s'</sub></span>[ r(s,a) + <span class="vl">γ</span> · max_{a'} <span class="kw">Q*(s', a')</span> ]
-
-  <span class="vl">𝔼<sub>s'</sub></span>       对随机下一状态 s' 取期望
-  r(s,a)    即时奖励
-  <span class="vl">γ</span>         折扣因子（未来奖励的衰减率）
-  max Q*    在 s' 下选择最优动作的 Q 值
+  <p>Q-Learning 本质上在求解一个递归方程——<strong>Bellman 最优方程</strong>，其唯一解 $Q^*$ 即为"在每个状态下，每个动作的真实最优价值"：</p>
+  <div class="mf">$$Q^*(s, a) = \\mathbb{E}_{s'}\\Big[\\,r(s,a) + \\gamma \\max_{a'} Q^*(s', a')\\,\\Big]$$
+$\\mathbb{E}_{s'}$ &nbsp; 对随机下一状态 $s'$ 取期望
+$r(s,a)$ &nbsp; 即时奖励
+$\\gamma$ &nbsp; 折扣因子（未来奖励的衰减率）
+$\\max Q^*$ &nbsp; 在 $s'$ 下选择最优动作的 Q 值
 
 （本项目迷宫为<span class="ok">确定性环境</span>，下一状态唯一，期望算子可省。）
-这是一个<span class="ok">不动点方程</span>：Q* 是满足此方程的唯一函数。
-代码中的即时奖励：
-  r = <span class="ok">+10</span>  （到达目标）
-  r = <span class="bad">-1</span>   （撞墙）
-  r = <span class="bad">-0.1</span> （普通移动）
+这是一个<span class="ok">不动点方程</span>：$Q^*$ 是满足此方程的唯一函数。
+
+代码中的即时奖励：$r = $ <span class="ok">+10</span>（到达目标）、<span class="bad">−1</span>（撞墙）、<span class="bad">−0.1</span>（普通移动）。
   </div>
 </div>
 
 <div class="ms">
   <h3>📐 收敛证明：压缩映射定理</h3>
-  <p>为什么反复更新 Q 值最终能收敛到 Q*？答案在于 <strong>Bellman 算子 T 是压缩映射</strong>：</p>
-  <div class="mf g">
-定义 Bellman 算子 T：
-  (<span class="kw">TQ</span>)(s,a) = <span class="vl">𝔼<sub>s'</sub></span>[ r(s,a) + <span class="vl">γ</span> · max_{a'} Q(s', a') ]
+  <p>为什么反复更新 Q 值最终能收敛到 $Q^*$？答案在于 <strong>Bellman 算子 $T$ 是压缩映射</strong>：</p>
+  <div class="mf g"><span class="cm">定义 Bellman 算子 $T$：</span>
+$$(TQ)(s,a) = \\mathbb{E}_{s'}\\Big[\\,r(s,a) + \\gamma \\max_{a'} Q(s', a')\\,\\Big]$$
+<span class="cm">关键性质（在 $L^\\infty$ 范数下）：</span>
+$$\\|TQ - TQ'\\|_\\infty \\le \\gamma \\cdot \\|Q - Q'\\|_\\infty$$
+解读：任意两个 Q 函数，经过一次 $T$ 作用后，距离<span class="ok">至少缩短为原来的 $\\gamma$ 倍</span>（本项目 $\\gamma=0.9$，每次缩短 10%）。
 
-关键性质（在 L∞ 范数下）：
-  ‖<span class="kw">TQ</span> − <span class="kw">TQ'</span>‖∞ ≤ <span class="vl">γ</span> · ‖Q − Q'‖∞
-
-解读：任意两个 Q 函数，经过一次 T 作用后，
-距离<span class="ok">至少缩短为原来的 γ 倍</span>（本项目 γ=0.9，每次缩短10%）
-
-由 Banach 不动点定理：
-  反复应用 T → <span class="ok">收敛到唯一不动点 Q*</span> ✓
+由 Banach 不动点定理：反复应用 $T$ → <span class="ok">收敛到唯一不动点 $Q^*$</span> ✓
   </div>
   <p>Q-Learning 的每次更新是这个算子的<strong>随机近似</strong>：</p>
-  <div class="mf g">
-Q_new(s,a) = Q_old(s,a) + <span class="vl">α</span>·[r + <span class="vl">γ</span>·maxQ(s') − Q_old(s,a)]
-                                   └────────────── TD误差 ──────────────┘
-                                   = 目标值 − 当前估计
-                                   = "你猜错了多少，修正这么多"
+  <div class="mf g">$$Q_{\\text{new}}(s,a) = Q_{\\text{old}}(s,a) + \\alpha \\Big[\\,\\underbrace{r + \\gamma \\max_{a'} Q(s',a') - Q_{\\text{old}}(s,a)}_{\\text{TD 误差 = 目标值} - \\text{当前估计}}\\,\\Big]$$
+"你猜错了多少，就修正这么多。"
   </div>
 </div>
 
 <div class="ms">
   <h3>📋 严格收敛的三个数学条件</h3>
-  <div class="mf g">
-条件1：<span class="ok">所有 (s,a) 对被访问无穷次</span>
-  → 由 ε-贪心（ε&gt;0）保证
-  → ε=0 时某些格子可能永远不被探索，Q 值永远不更新
+  <div class="mf g">条件 1：<span class="ok">所有 $(s,a)$ 对被访问无穷次</span>
+&nbsp; → 由 $\\varepsilon$-贪心（$\\varepsilon > 0$）保证
+&nbsp; → $\\varepsilon = 0$ 时某些格子可能永远不被探索，Q 值永远不更新
 
-条件2：<span class="ok">Σ_{t=0}^∞ αₜ = ∞</span>（步长之和无穷）
-  → 保证能"走到"最优解，不会因步长过小停滞
+条件 2：<span class="ok">$\\displaystyle \\sum_{t=0}^{\\infty} \\alpha_t = \\infty$</span>（步长之和无穷）
+&nbsp; → 保证能"走到"最优解，不会因步长过小停滞
 
-条件3：<span class="ok">Σ_{t=0}^∞ αₜ² &lt; ∞</span>（步长平方和有限）
-  → 保证随机噪声可被"平均掉"，不会永远抖动
+条件 3：<span class="ok">$\\displaystyle \\sum_{t=0}^{\\infty} \\alpha_t^2 < \\infty$</span>（步长平方和有限）
+&nbsp; → 保证随机噪声可被"平均掉"，不会永远抖动
 
-条件2 + 条件3 ⟹ αₜ → 0，但下降足够慢
-（本项目用固定 α=0.2，为演示简化；实际系统需衰减）
+条件 2 + 条件 3 $\\Longrightarrow \\alpha_t \\to 0$，但下降足够慢
+（本项目用固定 $\\alpha = 0.2$，为演示简化；实际系统需衰减）
   </div>
 </div>
 
 <div class="ms">
   <h3>⚠️ 致命三元组：Q-Learning 的失效场景</h3>
-  <p>当以下三个要素<strong>同时</strong>出现时，Q-Learning <strong>可能发散</strong>（Q值趋向±∞）：</p>
-  <div class="mf r">
-<span class="bad">致命三元组（Deadly Triad）：</span>
+  <p>当以下三个要素<strong>同时</strong>出现时，Q-Learning <strong>可能发散</strong>（Q 值趋向 $\\pm \\infty$）：</p>
+  <div class="mf r"><span class="bad">致命三元组（Deadly Triad）：</span>
 
-  ① 函数近似     用神经网络存 Q(s,a)，而非查表
-                 （状态空间太大，无法穷举，必须近似）
+① <strong>函数近似</strong> &nbsp; 用神经网络存 $Q(s,a)$，而非查表
+（状态空间太大，无法穷举，必须近似）
 
-  ② 离策略学习   更新时假设未来执行贪心动作（取 max）
-                 但实际执行的是 ε-greedy（含随机性）
+② <strong>离策略学习</strong> &nbsp; 更新时假设未来执行贪心动作（取 $\\max$），但实际执行的是 $\\varepsilon$-greedy（含随机性）
 
-  ③ 自举        用 Q 的当前估计来更新 Q 本身
-                 目标值 = r + γ·max Q(s') 中 Q 是自己预测的
+③ <strong>自举</strong> &nbsp; 用 Q 的当前估计来更新 Q 本身：目标值 $r + \\gamma \\max Q(s')$ 中的 Q 是自己预测的
 
-三者同时存在 → 目标值和估计值相互追逐，可能无限放大
+三者同时存在 → 目标值和估计值相互追逐，可能无限放大。
   </div>
   <div class="mbox warn">
     <strong>Baird 反例（1995）</strong>：即使用线性函数近似（最简单的情形），在离策略 + 自举下，Q 值也被证明可以<strong>无限增大</strong>——这不是实现 bug，是理论上的根本困难。
@@ -1479,24 +1461,21 @@ Q_new(s,a) = Q_old(s,a) + <span class="vl">α</span>·[r + <span class="vl">γ</
 
 <div class="ms">
   <h3>🔧 DQN 的两大核心修复</h3>
-  <p>2013年 DeepMind 的 DQN 用两个技巧解决了这个问题，让深度 Q-Learning 在 Atari 游戏上首次成功：</p>
+  <p>2013 年 DeepMind 的 DQN 用两个技巧解决了这个问题，让深度 Q-Learning 在 Atari 游戏上首次成功：</p>
   <div class="mbox good">
     <strong>① 经验回放（Experience Replay）</strong><br>
-    把每步经验 (s, a, r, s') 存入缓冲区，训练时<strong>随机采样</strong>小批量<br>
+    把每步经验 $(s, a, r, s')$ 存入缓冲区，训练时<strong>随机采样</strong>小批量<br>
     作用：打破时间相关性，使更新接近 i.i.d.（独立同分布），满足收敛理论假设<br><br>
     <strong>② 目标网络（Target Network）</strong><br>
-    用一个<strong>"冻结"的 Q 网络</strong>计算目标值，每 N 步才同步一次主网络参数<br>
+    用一个<strong>"冻结"的 Q 网络</strong>计算目标值，每 $N$ 步才同步一次主网络参数<br>
     作用：目标值短期稳定，防止"追逐移动目标"导致的震荡与发散
   </div>
-  <div class="mf g">
-DQN 更新公式：
-  目标值 y = r + γ · max_{a'} <span class="kw">Q_target</span>(s', a')  ← 用冻结网络
+  <div class="mf g"><span class="cm">DQN 更新公式：</span>
+$$y = r + \\gamma \\max_{a'} Q_{\\text{target}}(s', a')\\quad\\text{(用冻结网络)}$$
+$$\\mathcal{L} = \\big(y - Q_{\\text{main}}(s,a)\\big)^2\\quad\\text{(用主网络)}$$
+每 $N$ 步：$Q_{\\text{target}} \\leftarrow Q_{\\text{main}}$（同步参数）
 
-  损失 = (y − <span class="kw">Q_main</span>(s,a))²  ← 用主网络
-
-  每 N 步：<span class="kw">Q_target</span> ← <span class="kw">Q_main</span>   ← 同步参数
-
-两个网络，一个"学习"，一个"出题"——减少自举的不稳定性
+两个网络，一个"学习"，一个"出题"——减少自举的不稳定性。
   </div>
   <div class="mbox info">
     <strong>现代进展</strong>：Double DQN 进一步消除 Q 值高估偏差；Prioritized Experience Replay 优先回放"学习价值高"的经验；Dueling DQN 分离状态价值与动作优势——这些改进均从数学上针对三元组问题的不同侧面。
@@ -1509,62 +1488,53 @@ en: {
 sup: `
 <div class="ms">
   <h3>🎯 The Core: It's an Optimization Problem</h3>
-  <p>Supervised learning is fundamentally about finding parameters <strong>θ</strong> that minimize total prediction error across all training samples — quantified by the <strong>loss function L(θ)</strong>.</p>
-  <div class="mf">
+  <p>Supervised learning is fundamentally about finding parameters $\\theta$ that minimize total prediction error across all training samples — quantified by the <strong>loss function</strong> $L(\\theta)$.</p>
+  <div class="mf">$$L(\\theta) = -\\frac{1}{N}\\sum_{i=1}^{N}\\Big[\\,y_i \\log \\hat{y}_i + (1-y_i)\\log(1-\\hat{y}_i)\\,\\Big]$$
 <span class="cm">/* Binary cross-entropy loss (general form for spam classification) */</span>
-<span class="kw">L(θ)</span> = <span class="vl">-1/N</span> · Σᵢ₌₁ᴺ [ yᵢ·log(<span class="kw">ŷᵢ</span>) + (1-yᵢ)·log(1-<span class="kw">ŷᵢ</span>) ]
 
-yᵢ  = true label (<span class="ok">1</span>=spam  <span class="ok">0</span>=ham)
-<span class="kw">ŷᵢ</span>  = model's predicted "spam probability" ∈(0,1)
-N   = number of training samples
+$y_i$ &nbsp; = true label (<span class="ok">1</span> = spam, <span class="ok">0</span> = ham)
+$\\hat{y}_i$ &nbsp; = model's predicted "spam probability" $\\in (0,1)$
+$N$ &nbsp; = number of training samples
   </div>
-  <p>When prediction is perfect (ŷ=1 and y=1), log(1)=0 → zero loss. The more wrong the prediction, the larger the loss.</p>
+  <p>When prediction is perfect ($\\hat{y}=1$ and $y=1$), $\\log(1)=0$ → zero loss. The more wrong the prediction, the larger the loss.</p>
 </div>
 
 <div class="ms">
   <h3>⛷️ Gradient Descent: Walking Downhill</h3>
-  <p>Think of the loss function as a mountain. The gradient ∇L(θ) points uphill. Negative gradient points downhill fastest. Take small steps in that direction:</p>
-  <div class="mf">
-<span class="kw">θ_new</span> = <span class="kw">θ_old</span> − <span class="vl">α</span> · ∇L(<span class="kw">θ_old</span>)
-           ↑            ↑          ↑
-        old params   learning   gradient (downhill dir.)
-                      rate
+  <p>Think of the loss function as a mountain. The gradient $\\nabla L(\\theta)$ points uphill. Negative gradient points downhill fastest. Take small steps in that direction:</p>
+  <div class="mf">$$\\theta_{\\text{new}} = \\theta_{\\text{old}} - \\alpha \\cdot \\nabla L(\\theta_{\\text{old}})$$
+<span class="cm">$\\alpha$ = learning rate (step size); $\\nabla L$ = gradient (downhill direction)</span>
 
-Repeat until: <span class="ok">‖∇L(θ)‖ → 0</span>  (reached the valley)
+Repeat until <span class="ok">$\\|\\nabla L(\\theta)\\| \\to 0$</span> (reached the valley).
   </div>
 </div>
 
 <div class="ms">
   <h3>✅ Convergence Guarantee: Convexity</h3>
   <p>Logistic regression's loss is a <strong>convex function</strong> (bowl-shaped) — only one minimum exists, so gradient descent always finds it.</p>
-  <div class="mf g">
-Convex function definition:
-  ∀θ₁,θ₂, ∀λ∈[0,1]:
-  L(λθ₁ + (1-λ)θ₂) ≤ λL(θ₁) + (1-λ)L(θ₂)
+  <div class="mf g"><span class="cm">Convex function definition:</span>
+$$\\forall\\,\\theta_1,\\theta_2,\\;\\forall\\,\\lambda\\in[0,1]:\\quad L(\\lambda\\theta_1 + (1-\\lambda)\\theta_2) \\le \\lambda L(\\theta_1) + (1-\\lambda)L(\\theta_2)$$
+Implication: <span class="ok">only one local minimum = the global minimum</span>.
 
-Implication: <span class="ok">only one local minimum = the global minimum</span>
-
-Convergence rate (μ-strongly convex + L-smooth, fixed step α = 1/L):
-  f(θ_t) − f* ≤ (1 − <span class="vl">μ/L</span>)ᵗ · (f(θ₀) − f*)
-
-μ = strong-convexity constant, L = gradient Lipschitz constant
-Condition number κ = L/μ (closer to 1 = easier to optimize)
-→ <span class="ok">exponential convergence</span>: O(κ · log(1/ε)) steps to reach ε accuracy
+<span class="cm">Convergence rate ($\\mu$-strongly convex + $L$-smooth, fixed step $\\alpha = 1/L$):</span>
+$$f(\\theta_t) - f^* \\le \\Big(1 - \\frac{\\mu}{L}\\Big)^{\\!t}\\,(f(\\theta_0) - f^*)$$
+where $\\mu$ = strong-convexity constant, $L$ = gradient Lipschitz constant, condition number $\\kappa = L/\\mu$.
+→ <span class="ok">exponential convergence</span>: $O(\\kappa \\log(1/\\varepsilon))$ steps to reach $\\varepsilon$ accuracy.
   </div>
 </div>
 
 <div class="ms">
   <h3>⚠️ Three Non-Convergence Scenarios</h3>
   <div class="mbox warn">
-    <strong>Case 1: Learning rate α too large</strong><br>
+    <strong>Case 1: Learning rate $\\alpha$ too large</strong><br>
     Steps overshoot the minimum, oscillating across the valley or diverging entirely.
   </div>
   <div class="mf r">
-α too small: <span class="cm">●━━━━━━━━━━━━━━━━★  converges, very slow</span>
-α just right: <span class="ok">●━━━━★              converges quickly</span>
-α too large:  <span class="bad">●⇌⇌⇌⇌⇌⇌⇌⇌⇌⇌⇌   diverges, loss spikes</span>
+$\\alpha$ too small:&nbsp;&nbsp;<span class="cm">●━━━━━━━━━━━━━━★ &nbsp; converges, very slow</span>
+$\\alpha$ just right:&nbsp;<span class="ok">●━━━━★ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; converges quickly</span>
+$\\alpha$ too large:&nbsp;&nbsp;<span class="bad">●⇌⇌⇌⇌⇌⇌⇌⇌⇌ &nbsp; diverges, loss spikes</span>
 
-Mathematically: diverges when α &gt; 2/L (L = loss curvature)
+Mathematically: diverges when $\\alpha > 2/L$ ($L$ = loss curvature).
   </div>
   <div class="mbox warn">
     <strong>Case 2: Non-convex loss (neural networks)</strong><br>
@@ -1572,14 +1542,11 @@ Mathematically: diverges when α &gt; 2/L (L = loss curvature)
   </div>
   <div class="mbox warn">
     <strong>Case 3: Vanishing / Exploding Gradients</strong><br>
-    Gradients multiply through layers via chain rule. If each layer's gradient &lt;1, the product → 0 (vanishing). If &gt;1, the product → ∞ (exploding). Early layers stop learning.
+    Gradients multiply through layers via chain rule. If each layer's gradient &lt; 1, the product $\\to 0$ (vanishing). If &gt; 1, the product $\\to \\infty$ (exploding). Early layers stop learning.
   </div>
   <div class="mf r">
-Vanishing (sigmoid activation, 100 layers):
-  (0.25)^100 ≈ <span class="bad">6×10⁻⁶¹</span> → effectively 0
-
-Exploding (large initialization):
-  2^100 ≈ <span class="bad">10³⁰</span> → NaN
+Vanishing (sigmoid activation, 100 layers): $(0.25)^{100} \\approx$ <span class="bad">$6 \\times 10^{-61}$</span> → effectively 0
+Exploding (large initialization): $2^{100} \\approx$ <span class="bad">$10^{30}$</span> → NaN
   </div>
 </div>
 
@@ -1588,8 +1555,8 @@ Exploding (large initialization):
   <div class="mbox good">
     <strong>Adam optimizer</strong>: Adaptive per-parameter learning rates using momentum + second moment estimates. Robust to learning rate choice.<br><br>
     <strong>Batch Normalization</strong>: Normalizes layer outputs to zero mean, unit variance. Prevents vanishing gradients.<br><br>
-    <strong>Residual connections (ResNet)</strong>: Skip connections <code>x + F(x)</code> let gradients bypass layers entirely, flowing back directly.<br><br>
-    <strong>Gradient Clipping</strong>: When ‖∇L‖ exceeds threshold, rescale gradient to prevent explosion.<br><br>
+    <strong>Residual connections (ResNet)</strong>: Skip connections $x + F(x)$ let gradients bypass layers entirely, flowing back directly.<br><br>
+    <strong>Gradient Clipping</strong>: When $\\|\\nabla L\\|$ exceeds threshold, rescale gradient to prevent explosion.<br><br>
     <strong>Early Stopping</strong>: Monitor validation loss; stop when it starts rising to prevent overfitting.
   </div>
 </div>`,
@@ -1598,45 +1565,35 @@ unsup: `
 <div class="ms">
   <h3>🎯 Objective: Minimize Within-Cluster Scatter</h3>
   <p>K-Means minimizes <strong>WCSS (Within-Cluster Sum of Squares)</strong> — the sum of squared distances from each point to its cluster centroid:</p>
-  <div class="mf">
-<span class="kw">J</span> = Σₖ₌₁ᴷ Σₓ∈Cₖ ‖x − <span class="vl">μₖ</span>‖²
+  <div class="mf">$$J = \\sum_{k=1}^{K} \\sum_{x \\in C_k} \\|x - \\mu_k\\|^2$$
+$k$ &nbsp; = cluster index ($1, 2, \\ldots, K$)
+$C_k$ = all points assigned to cluster $k$
+$\\mu_k$ = centroid (mean position) of cluster $k$
+$x$ &nbsp; = individual data point
 
-k  = cluster index (1,2,...,K)
-Cₖ = all points assigned to cluster k
-<span class="vl">μₖ</span> = centroid (mean position) of cluster k
-x  = individual data point
-
-Goal: <span class="ok">min J</span>  (smaller J = tighter, better-separated clusters)
+Goal: <span class="ok">$\\min J$</span> (smaller $J$ = tighter, better-separated clusters)
   </div>
 </div>
 
 <div class="ms">
   <h3>✅ Convergence Proof: Two-Step Monotone Decrease</h3>
-  <p>Each K-Means iteration has two steps. Both guarantee J <strong>never increases</strong>:</p>
-  <div class="mf g">
-<span class="kw">Step A — Assignment</span> (assign each point to nearest centroid):
-
-  c(x) = argminₖ ‖x − μₖ‖²  for each x
-
-  We always pick the nearest centroid, so J can only <span class="ok">decrease or stay same</span>:
-  J_after_assign ≤ J_before_assign  ✓
+  <p>Each K-Means iteration has two steps. Both guarantee $J$ <strong>never increases</strong>:</p>
+  <div class="mf g"><span class="kw">Step A — Assignment</span> (assign each point to nearest centroid):
+$$c(x) = \\arg\\min_{k}\\, \\|x - \\mu_k\\|^2$$
+We always pick the nearest centroid, so $J$ can only <span class="ok">decrease or stay same</span>: $J_{\\text{after assign}} \\le J_{\\text{before assign}}$ ✓
 
 <span class="kw">Step B — Update</span> (move centroid to cluster mean):
+$$\\mu_k^{\\text{new}} = \\frac{1}{|C_k|} \\sum_{x \\in C_k} x$$
+The mean minimizes the sum of squared distances: $\\mu_k^{\\text{new}} = \\arg\\min_\\mu \\sum_{x \\in C_k} \\|x - \\mu\\|^2$.
+So $J_{\\text{after update}} \\le J_{\\text{after assign}}$ ✓
 
-  μₖ_new = (1/|Cₖ|) · Σₓ∈Cₖ x
-
-  Proof: the mean minimizes sum of squared distances:
-  μₖ_new = argmin_μ Σₓ∈Cₖ ‖x − μ‖²
-
-  So J_after_update ≤ J_after_assign  ✓
-
-Combined: J is <span class="ok">monotonically non-increasing</span> each iteration.
+Combined: $J$ is <span class="ok">monotonically non-increasing</span> each iteration.
   </div>
   <div class="mbox info">
     <strong>Complete finite-step convergence argument:</strong><br>
-    ① J ≥ 0 (squared distances can't be negative — lower bounded)<br>
-    ② J is monotonically non-increasing (proved above)<br>
-    ③ N points assigned to K clusters: at most Kᴺ distinct assignments (finite)<br>
+    ① $J \\ge 0$ (squared distances can't be negative — lower bounded)<br>
+    ② $J$ is monotonically non-increasing (proved above)<br>
+    ③ $N$ points assigned to $K$ clusters: at most $K^N$ distinct assignments (finite)<br>
     ④ From ② + ③: cannot cycle forever → <strong>converges in finite steps</strong> ✓
   </div>
 </div>
@@ -1650,10 +1607,10 @@ True structure (global optimum):    Bad init → local optimum:
   <span class="ok">●●</span>   <span class="ok">△△</span>   <span class="ok">○○</span>    vs     <span class="bad">●</span>   <span class="bad">△△</span><span class="bad">○</span>   <span class="bad">○○</span>
   <span class="ok">●●</span>        <span class="ok">○○</span>              <span class="bad">△△</span>       <span class="bad">△</span>
 
-Left: J=low (correct grouping)       Right: J=high (wrong but converged)
+Left: $J$ low (correct grouping) &nbsp; &nbsp; Right: $J$ high (wrong but converged)
   </div>
   <div class="mbox warn">
-    <strong>Empty Cluster Problem</strong>: If initial centroids are too close together, one centroid may never "win" any points. Result: K clusters initialized but only K-1 actually used.
+    <strong>Empty Cluster Problem</strong>: If initial centroids are too close together, one centroid may never "win" any points. Result: $K$ clusters initialized but only $K-1$ actually used.
   </div>
 </div>
 
@@ -1662,10 +1619,10 @@ Left: J=low (correct grouping)       Right: J=high (wrong but converged)
   <div class="mbox good">
     <strong>K-Means++ Initialization</strong> (most important fix):<br>
     ① Choose first centroid uniformly at random<br>
-    ② Each subsequent centroid chosen with probability ∝ <strong>D(x)²</strong> — farther from existing centroids = more likely to be chosen<br>
-    ③ Theory: expected WCSS ≤ O(log K) × global optimal WCSS<br><br>
+    ② Each subsequent centroid chosen with probability $\\propto D(x)^2$ — farther from existing centroids = more likely to be chosen<br>
+    ③ Theory: expected WCSS $\\le O(\\log K) \\times$ global optimal WCSS<br><br>
     <strong>Multiple restarts</strong>: Run K-Means many times with different random seeds, keep the result with lowest WCSS.<br><br>
-    <strong>Choosing K</strong>: Use the "Elbow Method" — plot WCSS vs. K, find the elbow (point of diminishing returns).
+    <strong>Choosing K</strong>: Use the "Elbow Method" — plot WCSS vs $K$, find the elbow (point of diminishing returns).
   </div>
   <div class="mf g">
 Elbow method illustration:
@@ -1682,84 +1639,66 @@ Choose K=3 (marginal gain drops sharply after this point)
 rl: `
 <div class="ms">
   <h3>🎯 Goal: Solve the Bellman Optimality Equation</h3>
-  <p>Q-Learning is solving a recursive fixed-point equation. Its unique solution Q* gives the true optimal value of every action in every state:</p>
-  <div class="mf">
-<span class="kw">Q*(s, a)</span> = <span class="vl">𝔼<sub>s'</sub></span>[ r(s,a) + <span class="vl">γ</span> · max_{a'} <span class="kw">Q*(s', a')</span> ]
-
-  <span class="vl">𝔼<sub>s'</sub></span>       expectation over the random next state s'
-  r(s,a)    immediate reward
-  <span class="vl">γ</span>         discount factor (decay rate for future rewards)
-  max Q*    optimal-action Q value at s'
+  <p>Q-Learning is solving a recursive fixed-point equation. Its unique solution $Q^*$ gives the true optimal value of every action in every state:</p>
+  <div class="mf">$$Q^*(s, a) = \\mathbb{E}_{s'}\\Big[\\,r(s,a) + \\gamma \\max_{a'} Q^*(s', a')\\,\\Big]$$
+$\\mathbb{E}_{s'}$ &nbsp; expectation over the random next state $s'$
+$r(s,a)$ &nbsp; immediate reward
+$\\gamma$ &nbsp; discount factor (decay rate for future rewards)
+$\\max Q^*$ &nbsp; optimal-action Q value at $s'$
 
 (Our maze is <span class="ok">deterministic</span> — the next state is unique, so the expectation drops out.)
-This is a <span class="ok">fixed-point equation</span>: Q* is the unique function satisfying it.
-Rewards in our maze:
-  r = <span class="ok">+10</span>  (reached goal)
-  r = <span class="bad">-1</span>   (hit a wall)
-  r = <span class="bad">-0.1</span> (normal step)
+This is a <span class="ok">fixed-point equation</span>: $Q^*$ is the unique function satisfying it.
+
+Rewards in our maze: $r = $ <span class="ok">+10</span> (reached goal), <span class="bad">−1</span> (hit a wall), <span class="bad">−0.1</span> (normal step).
   </div>
 </div>
 
 <div class="ms">
   <h3>📐 Why It Converges: Contraction Mapping Theorem</h3>
-  <p>Why does repeatedly updating Q eventually reach Q*? Because the <strong>Bellman operator T is a contraction</strong>:</p>
-  <div class="mf g">
-Define the Bellman operator T:
-  (<span class="kw">TQ</span>)(s,a) = <span class="vl">𝔼<sub>s'</sub></span>[ r(s,a) + <span class="vl">γ</span> · max_{a'} Q(s', a') ]
+  <p>Why does repeatedly updating Q eventually reach $Q^*$? Because the <strong>Bellman operator $T$ is a contraction</strong>:</p>
+  <div class="mf g"><span class="cm">Define the Bellman operator $T$:</span>
+$$(TQ)(s,a) = \\mathbb{E}_{s'}\\Big[\\,r(s,a) + \\gamma \\max_{a'} Q(s', a')\\,\\Big]$$
+<span class="cm">Key property (in the $L^\\infty$ norm):</span>
+$$\\|TQ - TQ'\\|_\\infty \\le \\gamma \\cdot \\|Q - Q'\\|_\\infty$$
+Translation: any two Q-functions, after one application of $T$, are <span class="ok">at least $\\gamma$-times closer together</span> ($\\gamma = 0.9$ in our code → gap shrinks by $\\ge 10\\%$ each iteration).
 
-Key property (in the L∞ norm):
-  ‖<span class="kw">TQ</span> − <span class="kw">TQ'</span>‖∞ ≤ <span class="vl">γ</span> · ‖Q − Q'‖∞
-
-Translation: any two Q-functions, after one application of T,
-are <span class="ok">at least γ-times closer together</span>
-(γ=0.9 in our code → gap shrinks by ≥10% each iteration)
-
-By Banach Fixed-Point Theorem:
-  Repeated application of T → <span class="ok">converges to unique Q*</span> ✓
+By the Banach fixed-point theorem: repeated application of $T$ → <span class="ok">converges to the unique $Q^*$</span> ✓
   </div>
   <p>Q-Learning's update is a <strong>stochastic approximation</strong> of this operator:</p>
-  <div class="mf g">
-Q_new(s,a) = Q_old(s,a) + <span class="vl">α</span>·[r + <span class="vl">γ</span>·maxQ(s') − Q_old(s,a)]
-                                   └──────────── TD error ─────────────┘
-                                   = target − current estimate
-                                   = "how wrong you were; correct by this much"
+  <div class="mf g">$$Q_{\\text{new}}(s,a) = Q_{\\text{old}}(s,a) + \\alpha \\Big[\\,\\underbrace{r + \\gamma \\max_{a'} Q(s',a') - Q_{\\text{old}}(s,a)}_{\\text{TD error = target} - \\text{current estimate}}\\,\\Big]$$
+"How wrong you were; correct by this much."
   </div>
 </div>
 
 <div class="ms">
   <h3>📋 Three Strict Conditions for Convergence</h3>
-  <div class="mf g">
-Condition 1: <span class="ok">every (s,a) pair visited infinitely often</span>
-  → Guaranteed by ε-greedy (ε &gt; 0)
-  → With ε=0 some cells may never be explored → Q stays wrong forever
+  <div class="mf g">Condition 1: <span class="ok">every $(s,a)$ pair visited infinitely often</span>
+&nbsp; → Guaranteed by $\\varepsilon$-greedy ($\\varepsilon > 0$)
+&nbsp; → With $\\varepsilon = 0$ some cells may never be explored → Q stays wrong forever
 
-Condition 2: <span class="ok">Σ_{t=0}^∞ αₜ = ∞</span>  (step sizes sum to infinity)
-  → Ensures we can "reach" the optimum, don't stall from tiny steps
+Condition 2: <span class="ok">$\\displaystyle \\sum_{t=0}^{\\infty} \\alpha_t = \\infty$</span> (step sizes sum to infinity)
+&nbsp; → Ensures we can "reach" the optimum, don't stall from tiny steps
 
-Condition 3: <span class="ok">Σ_{t=0}^∞ αₜ² &lt; ∞</span>  (squared step sizes finite)
-  → Ensures stochastic noise averages out; Q doesn't jitter forever
+Condition 3: <span class="ok">$\\displaystyle \\sum_{t=0}^{\\infty} \\alpha_t^2 < \\infty$</span> (squared step sizes finite)
+&nbsp; → Ensures stochastic noise averages out; Q doesn't jitter forever
 
-Conditions 2+3 ⟹ αₜ → 0, but slowly enough
-(Our code uses fixed α=0.2 for demo simplicity; real systems use decay)
+Conditions 2 + 3 $\\Longrightarrow \\alpha_t \\to 0$, but slowly enough.
+(Our code uses fixed $\\alpha = 0.2$ for demo simplicity; real systems use decay.)
   </div>
 </div>
 
 <div class="ms">
   <h3>⚠️ The Deadly Triad: When Q-Learning Diverges</h3>
-  <p>When these three elements appear <strong>simultaneously</strong>, Q-Learning <strong>can diverge</strong> (Q values → ±∞):</p>
-  <div class="mf r">
-<span class="bad">The Deadly Triad:</span>
+  <p>When these three elements appear <strong>simultaneously</strong>, Q-Learning <strong>can diverge</strong> (Q values $\\to \\pm\\infty$):</p>
+  <div class="mf r"><span class="bad">The Deadly Triad:</span>
 
-  ① Function approximation   Use a neural net for Q(s,a) instead of a table
-                             (state space too large to enumerate)
+① <strong>Function approximation</strong> &nbsp; Use a neural net for $Q(s,a)$ instead of a table (state space too large to enumerate)
 
-  ② Off-policy learning      Updates assume greedy future actions (take max)
-                             but actual behavior uses ε-greedy (random component)
+② <strong>Off-policy learning</strong> &nbsp; Updates assume greedy future actions (take $\\max$), but actual behavior uses $\\varepsilon$-greedy (random component)
 
-  ③ Bootstrapping            Use current Q estimates to update Q estimates
-                             Target = r + γ·max Q(s') where Q is self-predicted
+③ <strong>Bootstrapping</strong> &nbsp; Use current Q estimates to update Q estimates: target $r + \\gamma \\max Q(s')$ where Q is self-predicted
 
-All three together → target and estimate chase each other → may grow unbounded
+All three together → target and estimate chase each other → may grow unbounded.
   </div>
   <div class="mbox warn">
     <strong>Baird's Counterexample (1995)</strong>: Even with linear function approximation (simplest possible), off-policy + bootstrapping is proven to make Q values <strong>diverge to infinity</strong>. This is a fundamental theoretical limitation, not an implementation bug.
@@ -1771,22 +1710,18 @@ All three together → target and estimate chase each other → may grow unbound
   <p>DeepMind's 2013 DQN used two tricks to make deep Q-Learning practically stable, achieving superhuman performance on Atari games:</p>
   <div class="mbox good">
     <strong>① Experience Replay</strong><br>
-    Store each transition (s, a, r, s') in a replay buffer. Train by <strong>randomly sampling</strong> mini-batches.<br>
+    Store each transition $(s, a, r, s')$ in a replay buffer. Train by <strong>randomly sampling</strong> mini-batches.<br>
     Effect: breaks temporal correlations → updates approximate i.i.d. → satisfies convergence theory assumptions.<br><br>
     <strong>② Target Network</strong><br>
-    Compute target values using a <strong>"frozen" copy</strong> of Q. Sync with main network every N steps.<br>
+    Compute target values using a <strong>"frozen" copy</strong> of Q. Sync with main network every $N$ steps.<br>
     Effect: stabilizes the target — prevents "chasing a moving target" oscillation.
   </div>
-  <div class="mf g">
-DQN update:
-  target y = r + γ · max_{a'} <span class="kw">Q_target</span>(s', a')  ← frozen network
+  <div class="mf g"><span class="cm">DQN update:</span>
+$$y = r + \\gamma \\max_{a'} Q_{\\text{target}}(s', a')\\quad\\text{(frozen network)}$$
+$$\\mathcal{L} = \\big(y - Q_{\\text{main}}(s,a)\\big)^2\\quad\\text{(main network trains on this)}$$
+Every $N$ steps: $Q_{\\text{target}} \\leftarrow Q_{\\text{main}}$ (sync weights).
 
-  loss = (y − <span class="kw">Q_main</span>(s,a))²  ← main network trains on this
-
-  every N steps: <span class="kw">Q_target</span> ← <span class="kw">Q_main</span>   ← sync weights
-
-Two networks: one "learns," one "sets the exam questions"
-→ reduces the self-referential instability of bootstrapping
+Two networks: one "learns," one "sets the exam questions" → reduces the self-referential instability of bootstrapping.
   </div>
   <div class="mbox info">
     <strong>Modern advances</strong>: Double DQN eliminates Q-value overestimation bias. Prioritized Experience Replay samples high-learning-value transitions more often. Dueling DQN separates state value from action advantage. Each targets a different mathematical aspect of the deadly triad problem.
