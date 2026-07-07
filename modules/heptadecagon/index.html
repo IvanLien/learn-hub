@@ -311,19 +311,46 @@ pt.E = [OX + R*(S17-1)/16,   OY];
 // External bisector meets x-axis at F (left of O)
 pt.F = [OX - R*(S17+1)/16,   OY];
 
-// Carlyle circle C1: diameter = P1 to F
-const M1x = (pt.P1[0] + pt.F[0]) / 2;
-const r1   = Math.abs(pt.P1[0] - pt.F[0]) / 2;
-// C1 meets y-axis at G (above O)
-const Gdy  = Math.sqrt(r1*r1 - (M1x - OX)**2);
-pt.G = [OX, OY - Gdy];
+// Step ⑦ — bisect OJ to mark M = (0, r/8): the "+1" reference at scale r/8 used
+// by both the Carlyle-2 circle (step ⑧) and the Carlyle-3 circle (step ⑨).
+pt.M = [OX, OY - R/8];
 
-// Circle C2: center G, radius |GE|
-const GE   = Math.hypot(pt.E[0]-pt.G[0], pt.E[1]-pt.G[1]);
-const Gaxy = OY - pt.G[1]; // G.y < OY so this is positive
-const Hdx  = Math.sqrt(Math.max(0, GE*GE - Gaxy*Gaxy));
-pt.H1 = [OX + Hdx, OY];
-pt.H2 = [OX - Hdx, OY];
+// Step ⑧ Carlyle circle C2: diameter MK realizes x² − η₁·x − 1 = 0 at scale r/8.
+//   K = (Eₓ, −r/8) = the point directly below E at depth r/8 (E itself
+//       is the foot of the perpendicular from K to the x-axis)
+// The circle's center sits on the x-axis at (Eₓ/2, 0); its x-axis intersections
+// are exactly (r/8)·η₁₁ and (r/8)·η₁₂.
+pt.K = [pt.E[0], OY + R/8];
+const M2cx = (pt.M[0] + pt.K[0]) / 2;
+const r2   = Math.hypot(pt.M[0]-pt.K[0], pt.M[1]-pt.K[1]) / 2;
+pt.H1 = [M2cx + r2, OY];          // ≈ +0.2562 r  (= (r/8)·η₁₁)
+pt.H2 = [M2cx - r2, OY];          // ≈ −0.0610 r  (= (r/8)·η₁₂)
+
+// Step ⑨ — finish the construction with two more Carlyle circles.
+// Carlyle 3 (on the η₂ side): diameter MK₂ realizes x² − η₂·x − 1 = 0 at scale r/8.
+//   K₂ = (Fₓ, −r/8) is the analogue of K, sitting directly below F.
+// Its x-axis intersections encode the 2nd-level periods η₂₁, η₂₂ at scale r/8.
+pt.K2 = [pt.F[0], OY + R/8];
+const M3cx = (pt.M[0] + pt.K2[0]) / 2;
+const r3   = Math.hypot(pt.M[0]-pt.K2[0], pt.M[1]-pt.K2[1]) / 2;
+pt.H21 = [M3cx + r3, OY];         // ≈ +0.043 r  (= (r/8)·η₂₁)
+pt.H22 = [M3cx - r3, OY];         // ≈ −0.363 r  (= (r/8)·η₂₂)
+
+// Carlyle 4 (level-3, at scale r/2 so the larger root lands exactly at r·cos(2π/17)).
+// Frame:
+//   M' = (0, r/2) = midpoint of OB → the "+1" reference at scale r/2
+//   Q' = ((r/2)·η₁₁, (r/2)·η₂₁) → the "(η₁₁, η₂₁)" diameter endpoint at scale r/2.
+// Construct Q' by compass-stepping the level-2 results (OH₁ and OH₂₁) four times
+// each, then lifting the second length perpendicular to the x-axis at A.
+const eta11 = ((-1 + S17) + Math.sqrt(34 - 2*S17)) / 4;       // ≈ 2.0495
+const eta21 = (((-1 - S17) + Math.sqrt(34 + 2*S17)) / 4);     // ≈ 0.3442
+pt.Mhalf = [OX,                          OY - R/2];           // midpoint of OB
+pt.Qprime = [OX + R/2 * eta11,           OY - R/2 * eta21];   // off main circle (right-up)
+const M4cx = (pt.Mhalf[0] + pt.Qprime[0]) / 2;
+const M4cy = (pt.Mhalf[1] + pt.Qprime[1]) / 2;
+const r4   = Math.hypot(pt.Mhalf[0]-pt.Qprime[0], pt.Mhalf[1]-pt.Qprime[1]) / 2;
+// Larger x-axis root of Carlyle 4 = r·cos(2π/17), exactly P₂'s x-coordinate.
+pt.CosLand = [OX + R * Math.cos(2*Math.PI/17), OY];
 
 // Actual vertices (exact)
 const VERTS = Array.from({length:17}, (_,k) => [
@@ -532,23 +559,26 @@ const STEPS = [
   // 6
   {
     badge:'key',
-    zh:{title:'⑦ 以 $P_1 F$ 为直径画 Carlyle 圆 $C_1$，得辅助点 $G$',
-        desc:'以 $P_1$ 和 $F$ 为直径两端作圆 $C_1$（Carlyle 圆思想：$x$ 轴上的直径端点决定一个开方运算）。$C_1$ 与 $y$ 轴的交点 $G$ 满足：\n\n$|OG|^2 = -x_{P_1}\\cdot x_F = (1+\\sqrt{17})/16 = |\\eta_2|/8$\n$\\therefore |OG| = \\sqrt{1+\\sqrt{17}}/4 \\approx 0.566\\,r$\n\n说明：$G$ 本身不是第二层高斯周期 $\\eta_{11}, \\eta_{12}$；它是一个中间几何量——把代数表达式 $\\sqrt{1+\\sqrt{17}}$ 用一次圆规操作（圆与 $y$ 轴的交点）实现出来，留给下一步使用。'},
-    en:{title:'⑦ Carlyle circle $C_1$ (diameter $P_1 F$) → auxiliary point $G$',
-        desc:'Draw circle $C_1$ with diameter $P_1 F$ (Carlyle-circle idea: $x$-axis diameter endpoints realize one square-root operation). $C_1$ meets the $y$-axis at $G$:\n\n$|OG|^2 = -x_{P_1}\\cdot x_F = (1+\\sqrt{17})/16 = |\\eta_2|/8$\n$|OG| = \\sqrt{1+\\sqrt{17}}/4 \\approx 0.566\\,r$\n\nNote: $G$ is not itself a 2nd-level Gaussian period $\\eta_{11}$ or $\\eta_{12}$. It is an intermediate geometric quantity that realizes the algebraic $\\sqrt{1+\\sqrt{17}}$ with one compass operation, ready to be used by the next step.'},
-    key:'$|OG| = \\sqrt{1+\\sqrt{17}}/4 \\approx 0.566\\,r$',
+    zh:{title:'⑦ 平分 $OJ$ → $M = (0,\\,r/8)$,Carlyle 圆要用的"$+1$"参考点',
+        desc:'用尺规平分 $OJ$,取中点 $M$。\n\n$|OM| = |OJ|/2 = r/8$,$M$ 落在 $y$ 轴上。\n\n这一步为接下来的 Carlyle 圆准备**$y$ 方向的"$+1$" 参考**:$\\eta_1, \\eta_2$ 已经按 $r/8$ 尺度编码在 $x$ 轴上(在 $E, F$),现在 $y$ 轴上也有了同尺度的"$+1$"。两端配齐,Carlyle 圆的直径就可以放下了。\n\n($M$ 是步骤 ⑧、⑨ 的共用基点 —— 这一步看似简单,但它是把"代数方程的系数"翻译成"几何点"的关键桥梁。)'},
+    en:{title:'⑦ Bisect $OJ$ → $M = (0,\\,r/8)$, the "$+1$" reference for the Carlyle circles',
+        desc:'Bisect segment $OJ$ with compass and straightedge; let $M$ be the midpoint.\n\n$|OM| = |OJ|/2 = r/8$, and $M$ sits on the y-axis.\n\nThis step sets up the **"$+1$" reference on the y-axis**: $\\eta_1, \\eta_2$ are already encoded at scale $r/8$ on the x-axis (at $E$ and $F$); now we have the matching "$+1$" on the y-axis at the same scale. With both axes calibrated, the Carlyle-circle diameter can be placed.\n\n($M$ is the shared base point for steps ⑧ and ⑨ — this step looks small but it is the bridge that turns the algebraic coefficient "$+1$" into a geometric point.)'},
+    key:'$|OM| = r/8$',
     draw(isCur) {
       const a = isCur?1:0.4;
       ctx.globalAlpha = a;
-      const m1x=(pt.P1[0]+pt.F[0])/2;
-      circle(m1x,OY,r1, isCur?'#06b6d4':'#155e75', isCur?1.5:1, isCur?[]:[4,4]);
-      dot([m1x,OY],'#475569',3);
-      dot(pt.G,'#06b6d4',isCur?5:4);
-      label(pt.G,'G','#06b6d4',8,0);
+      // Highlight OJ being bisected
+      line(pt.O, pt.J, isCur?'#06b6d4':'#155e75', isCur?2:1.2);
+      // Show small tick at the midpoint along OJ
       if(isCur){
-        line(pt.O,pt.G,'#06b6d4',1,[3,3]);
-        ctx.font='11px monospace';ctx.fillStyle='#06b6d4';
-        ctx.fillText('√(1+√17)/4·r', pt.G[0]+10, pt.G[1]+6);
+        // tiny perpendicular tick across OJ at M
+        line([pt.M[0]-6, pt.M[1]], [pt.M[0]+6, pt.M[1]], '#06b6d4', 1);
+      }
+      dot(pt.M, '#06b6d4', isCur?5:4);
+      label(pt.M, 'M', '#06b6d4', 8, 4);
+      if(isCur){
+        ctx.font='11px monospace'; ctx.fillStyle='#06b6d4';
+        ctx.fillText('r/8', pt.M[0]+10, pt.M[1]-4);
       }
       ctx.globalAlpha=1;
     }
@@ -556,23 +586,33 @@ const STEPS = [
   // 7
   {
     badge:'key',
-    zh:{title:'⑧ 以 $G$ 为圆心、$|GE|$ 为半径画圆 $C_2$，得辅助点 $H_1, H_2$',
-        desc:'以 $G$ 为圆心、$GE$ 为半径作圆 $C_2$，与 $x$ 轴交于两点 $H_1$ 和 $H_2$。\n\n$|OH_1| = |OH_2| = \\sqrt{(9-\\sqrt{17})/128}\\cdot r \\approx 0.195\\,r$\n\n说明：$H_1, H_2$ 同样不是 Gaussian period 本身，而是再下一层嵌套根号 $\\sqrt{34-2\\sqrt{17}}$ 的几何实现——为接下来收尾的两次 Carlyle 圆做准备，最终把 $\\cos(2\\pi/17)$ 的四重根号公式逐层"打开"。'},
-    en:{title:'⑧ Circle $C_2$ (center $G$, radius $|GE|$) → auxiliary $H_1, H_2$',
-        desc:'Draw circle $C_2$ centered at $G$ with radius $|GE|$. It meets the $x$-axis at $H_1$ and $H_2$.\n\n$|OH| = \\sqrt{(9-\\sqrt{17})/128}\\cdot r \\approx 0.195\\,r$\n\nNote: like $G$, $H_1$ and $H_2$ are not Gaussian periods themselves — they geometrically realize the deeper nested radical $\\sqrt{34-2\\sqrt{17}}$, setting up the final two Carlyle circles that "unpack" the 4-radical formula for $\\cos(2\\pi/17)$.'},
-    key:'$|OH_1| = |OH_2| \\approx 0.195\\,r$\n$(= \\sqrt{(9-\\sqrt{17})/128}\\cdot r)$',
+    zh:{title:'⑧ Carlyle 圆 $C_2$ —— 从 $\\eta_1$ 真正取出第二层周期 $\\eta_{11}, \\eta_{12}$',
+        desc:'在 $E$ 正下方、距 $E$ 为 $r/8$ 处取点 $K = (E_x,\\,-r/8)$（$E$ 自己是 $K$ 到 $x$ 轴的垂足）。\n\n以 $MK$ 为直径作圆 $C_2$（$M$ 来自上一步,$+r/8$ 那个点）。圆心落在 $x$ 轴上 $(E_x/2,\\,0)$，它与 $x$ 轴的两个交点即：\n\n$|OH_1| = (r/8)\\cdot\\eta_{11} \\approx +0.2562\\,r$\n$OH_2 = (r/8)\\cdot\\eta_{12} \\approx -0.0610\\,r$（$H_2$ 落在 $O$ 左侧）\n\n这正是 Carlyle 圆的经典用法：把代数方程 $x^2 - \\eta_1 x - 1 = 0$ 的两根 $\\eta_{11}, \\eta_{12}$ 直接读成 $x$ 轴交点——按 $r/8$ 尺度放置的直径端点 $(0,+1)$ 与 $(\\eta_1,-1)$ 编码了系数，圆与 $x$ 轴的交点就是根。\n\n这一步把分解真正推进到第二层，$\\eta_1$ 至此被打开为 $\\eta_{11}, \\eta_{12}$。'},
+    en:{title:'⑧ Carlyle circle $C_2$ — split $\\eta_1$ into the 2nd-level periods $\\eta_{11}, \\eta_{12}$',
+        desc:'Below $E$, at distance $r/8$, place the point $K = (E_x,\\,-r/8)$ (so $E$ itself is the foot of the perpendicular from $K$ to the x-axis).\n\nDraw $C_2$ with diameter $MK$ ($M$ is the point from the previous step at $(0, r/8)$). Its center sits on the x-axis at $(E_x/2,\\,0)$, and its two x-axis intersections are:\n\n$|OH_1| = (r/8)\\cdot\\eta_{11} \\approx +0.2562\\,r$\n$OH_2 = (r/8)\\cdot\\eta_{12} \\approx -0.0610\\,r$ ($H_2$ on the negative side)\n\nThis is the textbook Carlyle-circle solution: the roots of $x^2 - \\eta_1 x - 1 = 0$ are read straight off the x-axis from a circle whose diameter endpoints $(0,+1)$ and $(\\eta_1,-1)$ — placed at scale $r/8$ — encode the coefficients.\n\nThe decomposition has now genuinely advanced to the 2nd level: $\\eta_1$ is split into $\\eta_{11}, \\eta_{12}$.'},
+    key:'$|OH_1| = \\dfrac{(\\sqrt{17}-1) + \\sqrt{34-2\\sqrt{17}}}{32}\\,r \\approx +0.2562\\,r$\n$OH_2 = \\dfrac{(\\sqrt{17}-1) - \\sqrt{34-2\\sqrt{17}}}{32}\\,r \\approx -0.0610\\,r$',
     draw(isCur) {
       const a = isCur?1:0.4;
       ctx.globalAlpha = a;
-      circle(pt.G[0],pt.G[1],GE, isCur?'#10b981':'#064e3b', isCur?1.5:1, isCur?[]:[4,4]);
+      // Carlyle circle C₂ on diameter MK (center on x-axis)
+      const c2cx = (pt.M[0]+pt.K[0])/2;
+      const c2r  = Math.hypot(pt.M[0]-pt.K[0], pt.M[1]-pt.K[1])/2;
+      circle(c2cx, OY, c2r, isCur?'#10b981':'#064e3b', isCur?1.5:1, isCur?[]:[4,4]);
+      // diameter endpoints (M is already labelled by step ⑦; here just draw K and the diameter)
+      if(isCur){
+        line(pt.M, pt.K, '#10b981', 1, [3,3]);
+        dot(pt.K, '#10b981', 4);
+        label(pt.K, 'K', '#10b981', 6, 14);
+      }
+      // x-axis intersections = H₁, H₂  (= (r/8)·η₁₁, (r/8)·η₁₂)
       dot(pt.H1,'#10b981',isCur?5:4);
       dot(pt.H2,'#10b981',isCur?5:4);
       label(pt.H1,'H₁','#10b981',6,-10);
-      label(pt.H2,'H₂','#10b981',-26,-10);
+      label(pt.H2,'H₂','#10b981',-18,-10);
       if(isCur){
-        line(pt.G,pt.H1,'#10b981',1,[3,3]);
-        ctx.font='11px monospace';ctx.fillStyle='#10b981';
-        ctx.fillText('|GE|', (pt.G[0]+pt.H1[0])/2+4,(pt.G[1]+pt.H1[1])/2-6);
+        ctx.font='11px monospace'; ctx.fillStyle='#10b981';
+        ctx.fillText('(r/8)·η₁₁', pt.H1[0]+6, pt.H1[1]+22);
+        ctx.fillText('(r/8)·η₁₂', pt.H2[0]-95, pt.H2[1]+22);
       }
       ctx.globalAlpha=1;
     }
@@ -580,20 +620,49 @@ const STEPS = [
   // 8
   {
     badge:'key',
-    zh:{title:'⑨ 再经两轮 Carlyle 圆，确定 $\\cos(2\\pi/17)$',
-        desc:'对 $H_1, H_2$ 再作两次 Carlyle 圆，最终在 $x$ 轴上定位到 $\\cos(2\\pi/17)$ 的精确位置。\n\n（为保持画面整洁，图中略去后两次 Carlyle 圆的具体作图细节，直接标出最终落点。）\n\n显式公式（四重嵌套根号）：\n$\\cos(2\\pi/17) = \\dfrac{-1+\\sqrt{17}+\\sqrt{34-2\\sqrt{17}}+2\\sqrt{A}}{16}$\n其中 $A = 17+3\\sqrt{17}-\\sqrt{34-2\\sqrt{17}}-2\\sqrt{34+2\\sqrt{17}}$\n\n每一层对应一次圆规作图，总计 4 次。'},
-    en:{title:'⑨ Two more Carlyle circles → $\\cos(2\\pi/17)$',
-        desc:'Two more Carlyle-circle rounds applied to $H_1, H_2$ pinpoint $\\cos(2\\pi/17)$ on the $x$-axis.\n\n(For visual clarity the last two Carlyle circles are not drawn — only the final landing point is marked.)\n\nExplicit formula (4 nested radicals):\n$\\cos(2\\pi/17) = \\dfrac{-1+\\sqrt{17}+\\sqrt{34-2\\sqrt{17}}+2\\sqrt{A}}{16}$\nwhere $A = 17+3\\sqrt{17}-\\sqrt{34-2\\sqrt{17}}-2\\sqrt{34+2\\sqrt{17}}$\n\nEach square root = one compass construction. Total: 4.'},
-    key:'$\\cos(2\\pi/17) \\approx 0.9326$\n$= (-1+\\sqrt{17}+\\sqrt{34-2\\sqrt{17}}+2\\sqrt{A})/16$',
+    zh:{title:'⑨ 余下两个 Carlyle 圆 —— 严格走到 $r\\cos(2\\pi/17)$',
+        desc:'Carlyle 3（$\\eta_2$ 那侧的同样套路）：以 $MK_2$ 为直径作圆，$K_2 = (F_x,\\,-r/8)$ 是 $F$ 正下方距 $F$ 为 $r/8$ 的点。该圆与 $x$ 轴交点编码 $\\eta_{21}, \\eta_{22}$（满足 $x^2 - \\eta_2 x - 1 = 0$）：\n\n$|OH_{21}| = (r/8)\\cdot\\eta_{21} \\approx +0.043\\,r$\n$OH_{22} = (r/8)\\cdot\\eta_{22} \\approx -0.363\\,r$\n\nCarlyle 4（最后一层）：现在用 $\\eta_{11}, \\eta_{21}$ 解 $x^2 - \\eta_{11} x + \\eta_{21} = 0$（两根即 $2\\cos(2\\pi/17), 2\\cos(8\\pi/17)$）。为让最大根直接落在 $r\\cos(2\\pi/17)$ 上,改用 $r/2$ 尺度:\n\n• $M\\,\\!\\!\'\\,= (0,\\,r/2)$ 是 $OB$ 的中点;\n• $Q\\,\\!\\!\'\\,= ((r/2)\\eta_{11},\\,(r/2)\\eta_{21})$ —— 把 $OH_1$ 用圆规沿 $x$ 轴步进 4 次得 $(r/2)\\eta_{11}$,把 $OH_{21}$ 步进 4 次后再竖直转到 $A = ((r/2)\\eta_{11}, 0)$ 上方得 $(r/2)\\eta_{21}$ 的高度;\n• 以 $M\\,\\!\\!\'\\,Q\\,\\!\\!\'\\,$ 为直径的 Carlyle 圆与 $x$ 轴的较大交点正是 $r\\cos(2\\pi/17) \\approx 0.933\\,r$,刚好是 $P_2$ 的横坐标。\n\n这与显式公式 $\\cos(2\\pi/17) = \\dfrac{-1+\\sqrt{17}+\\sqrt{34-2\\sqrt{17}}+2\\sqrt{A}}{16}$（$A = 17+3\\sqrt{17}-\\sqrt{34-2\\sqrt{17}}-2\\sqrt{34+2\\sqrt{17}}$)一致 —— 四层嵌套根号 = 四次 Carlyle 圆。'},
+    en:{title:'⑨ The remaining two Carlyle circles — landing rigorously at $r\\cos(2\\pi/17)$',
+        desc:'Carlyle 3 (the same trick on the $\\eta_2$ side): the circle on diameter $MK_2$, with $K_2 = (F_x,\\,-r/8)$ directly below $F$, meets the $x$-axis at points that encode $\\eta_{21}, \\eta_{22}$ (the roots of $x^2 - \\eta_2 x - 1 = 0$):\n\n$|OH_{21}| = (r/8)\\cdot\\eta_{21} \\approx +0.043\\,r$\n$OH_{22} = (r/8)\\cdot\\eta_{22} \\approx -0.363\\,r$\n\nCarlyle 4 (the final round): we now use $\\eta_{11}, \\eta_{21}$ to solve $x^2 - \\eta_{11} x + \\eta_{21} = 0$ (whose roots are $2\\cos(2\\pi/17)$ and $2\\cos(8\\pi/17)$). To make the larger root land directly at $r\\cos(2\\pi/17)$, we switch to scale $r/2$:\n\n• $M\\,\\!\\!\'\\,= (0,\\,r/2)$ is the midpoint of $OB$;\n• $Q\\,\\!\\!\'\\,= ((r/2)\\eta_{11},\\,(r/2)\\eta_{21})$ — step $OH_1$ along the x-axis four times with the compass to obtain $(r/2)\\eta_{11}$, step $OH_{21}$ four times the same way, then transfer that length vertically above $A = ((r/2)\\eta_{11}, 0)$ to produce the height $(r/2)\\eta_{21}$;\n• the Carlyle circle on diameter $M\\,\\!\\!\'\\,Q\\,\\!\\!\'\\,$ meets the x-axis at its larger root $= r\\cos(2\\pi/17) \\approx 0.933\\,r$ — exactly $P_2$\'s x-coordinate.\n\nThis matches the explicit formula $\\cos(2\\pi/17) = \\dfrac{-1+\\sqrt{17}+\\sqrt{34-2\\sqrt{17}}+2\\sqrt{A}}{16}$ ($A = 17+3\\sqrt{17}-\\sqrt{34-2\\sqrt{17}}-2\\sqrt{34+2\\sqrt{17}}$): four nested radicals = four Carlyle circles.'},
+    key:'$r\\cos(2\\pi/17) \\approx 0.9326\\,r$\n$= \\dfrac{r}{16}\\,\\big[-1+\\sqrt{17}+\\sqrt{34-2\\sqrt{17}}+2\\sqrt{A}\\big]$',
     draw(isCur) {
       const a = isCur?1:0.4;
       ctx.globalAlpha = a;
-      const cx = pt.P2[0];
+      // ── Carlyle 3 (small, on the η₂ side) ──
+      const c3cx = (pt.M[0]+pt.K2[0])/2;
+      const c3r  = Math.hypot(pt.M[0]-pt.K2[0], pt.M[1]-pt.K2[1])/2;
+      circle(c3cx, OY, c3r, isCur?'#fb7185':'#7f1d1d', isCur?1.5:1, isCur?[]:[4,4]);
       if(isCur){
-        line([cx,OY-10],[cx,OY+10],'#f59e0b',1.5);
+        line(pt.M, pt.K2, '#fb7185', 1, [3,3]);
+        dot(pt.K2, '#fb7185', 4);
+        label(pt.K2, 'K₂', '#fb7185', -22, 14);
+      }
+      dot(pt.H21, '#fb7185', isCur?5:4);
+      dot(pt.H22, '#fb7185', isCur?5:4);
+      label(pt.H21, 'H₂₁', '#fb7185', 6, -10);
+      label(pt.H22, 'H₂₂', '#fb7185', -28, -10);
+
+      // ── Carlyle 4 (large, scale r/2, lands at r·cos(2π/17)) ──
+      const c4cx = (pt.Mhalf[0]+pt.Qprime[0])/2;
+      const c4cy = (pt.Mhalf[1]+pt.Qprime[1])/2;
+      const c4r  = Math.hypot(pt.Mhalf[0]-pt.Qprime[0], pt.Mhalf[1]-pt.Qprime[1])/2;
+      circle(c4cx, c4cy, c4r, isCur?'#f59e0b':'#78450a', isCur?2:1.2, isCur?[]:[5,4]);
+      if(isCur){
+        line(pt.Mhalf, pt.Qprime, '#f59e0b', 1, [3,3]);
+        dot(pt.Mhalf, '#f59e0b', 4);
+        dot(pt.Qprime, '#f59e0b', 4);
+        label(pt.Mhalf, "M'", '#f59e0b', -16, 4);
+        label(pt.Qprime, "Q'", '#f59e0b', 8, 0);
+      }
+
+      // Final landing point on x-axis = r·cos(2π/17)
+      const cx = pt.CosLand[0];
+      if(isCur){
+        line([cx,OY-12],[cx,OY+12],'#f59e0b',2);
         line([OX,OY],[cx,OY],'#f59e0b',1,[4,3]);
+        dot(pt.CosLand,'#f59e0b',6);
         ctx.font='11px monospace';ctx.fillStyle='#f59e0b';
-        ctx.fillText('cos(2π/17)·r', cx-30, OY+22);
+        ctx.fillText('r·cos(2π/17)', cx-36, OY+24);
       } else {
         line([cx,OY-6],[cx,OY+6],'#78450a',1);
       }
@@ -762,16 +831,313 @@ const PROOF = [
 <p class="proof-p">因此，一个长度 <span class="hl">$L$</span> 是可作图的，当且仅当 $L$ 可以从有理数出发，经过<b>有限次四则运算和开平方根</b>得到。</p>
 <div class="mbox info">尺规可作图数 = 由有理数 $\\mathbb{Q}$ 出发，有限次 $+,-,\\times,\\div$ 与 $\\sqrt{\\,\\cdot\\,}$ 得到的实数</div>
 <p class="proof-p">高斯在 1796 年证明：<b>正 $n$ 边形可以尺规作图，当且仅当</b></p>
-<div class="formula">$$n = 2^k \\cdot p_1 \\cdot p_2 \\cdots p_m$$<div style="margin-top:.4rem">其中 $p_i$ 是<b>互不相同的费马素数</b>（形如 $2^{2^k}+1$ 的素数）</div></div>
+<div class="formula">$$n = 2^k \\cdot p_1 \\cdot p_2 \\cdots p_m$$<div style="margin-top:.4rem">其中 $k \\ge 0$，$p_i$ 是<b>互不相同的费马素数</b>（形如 $2^{2^k}+1$ 的素数）</div></div>
 <p class="proof-p">目前已知的费马素数只有：<span class="hl">$3, 5, 17, 257, 65537$</span>（是否还有更大的费马素数至今未知）。</p>
-<p class="proof-p">$17 = 2^4 + 1$ 是费马素数，且 $n = 17 = 2^0 \\cdot 17$，满足上述条件，因此<span class="hl-green">正十七边形可以作图</span>。</p>
-<div class="mbox good">正 3、4、5、15、17 边形……均可作图。<br>正 7、9、11 边形等不可作图。</div>` : `
+
+<p class="proof-p" style="margin-top:1.2rem;border-top:1px dashed #475569;padding-top:.8rem;"><b>—— 完整证明 ——</b></p>
+
+<p class="proof-p"><b>步骤 1（几何 → 代数）：</b>正 $n$ 边形内接于单位圆的顶点为 $\\omega^k = e^{2\\pi i k/n}$，$k = 0, 1, \\ldots, n-1$，由本原 $n$ 次单位根 $\\omega = e^{2\\pi i/n}$ 完全决定。所以：</p>
+<div class="mbox info">正 $n$ 边形可作图 $\\iff \\omega = e^{2\\pi i/n}$ 在复平面上可作图 $\\iff \\cos(2\\pi/n)$ 可作图。<br>(后一步：$\\sin(2\\pi/n)$ 由 $\\cos$ 经过单位圆上的垂线读出。)</div>
+
+<p class="proof-p"><b>步骤 2（代数判据）：</b>由前一篇 "<b>桥梁定理</b>"：复数 $x$ 可尺规作图 $\\iff$ 存在含 $x$ 的 Galois 扩张 $L / \\mathbb{Q}$ 使 $[L : \\mathbb{Q}]$ 是 2 的幂。</p>
+<p class="proof-p">这条判据本身是抽象的:它只说"存在某个含 $x$ 的 Galois 扩张 $L$,且 $[L:\\mathbb{Q}]$ 是 2 的幂"。要把它<b>用在 $\\omega = e^{2\\pi i/n}$ 上</b>,得回答几个具体问题:</p>
+<ul class="proof-ol">
+<li><b>取哪个 $L$ 装下 $\\omega$?</b>(自然候选是 $\\mathbb{Q}(\\omega)$)</li>
+<li><b>这个 $L$ 有多大?</b>(即怎么算 $[\\mathbb{Q}(\\omega) : \\mathbb{Q}]$)</li>
+<li><b>它真的是 Galois 扩张吗?为什么?</b></li>
+</ul>
+<p class="proof-p">要解决这三件事,会用到几个基础概念:<b>域扩张</b>、<b>极小多项式</b>、<b>分圆多项式</b>、<b>Galois 扩张的定义</b>。下面六小段不假设抽象代数背景,从最基本的定义讲起,逐一搭建这些工具,最终把判据具体落到 $\\varphi(n)$ 上。</p>
+
+<p class="proof-p" style="color:#a78bfa;margin-top:.8rem;"><b>2a. 什么是 $\\mathbb{Q}(\\omega)$？</b></p>
+<p class="proof-p">直观上,$\\mathbb{Q}(\\omega)$ 是"把 $\\omega$ 加进有理数之后能凑出来的最小数域"。形式上:它是 $\\mathbb{C}$ 中同时包含 $\\mathbb{Q}$ 与 $\\omega$ 的最小子域。</p>
+<p class="proof-p">具体地说,它的每个元素都形如</p>
+<div class="formula">$$a_0 + a_1\\omega + a_2\\omega^2 + \\cdots + a_{d-1}\\omega^{d-1},\\quad a_i \\in \\mathbb{Q}$$
+<div style="margin-top:.4rem">其中 $d$ 是某个有限数(后面会算出 $d = \\varphi(n)$)。为什么有限就够?因为 $\\omega$ 至少满足 $\\omega^n = 1$ 这条关系,这就让 $\\omega^n, \\omega^{n+1}, \\ldots$ 全部能折回到 $\\omega^0, \\omega^1, \\ldots, \\omega^{n-1}$ 之间。所以哪怕一开始写出无穷多项的多项式表达,也总能化简到有限项。后面 2b 会进一步说,真正必需的项数其实是 $d$,跟极小多项式的次数一致。</div></div>
+<p class="proof-p">把 $\\mathbb{Q}(\\omega)$ 当作 $\\mathbb{Q}$ 上的<b>向量空间</b>,它的维数(就是上面那个 $d$)叫作<b>扩张次数</b>,记 $[\\mathbb{Q}(\\omega) : \\mathbb{Q}]$。这是衡量"加进 $\\omega$ 之后数域变大多少"的核心量。</p>
+
+<p class="proof-p" style="color:#a78bfa;margin-top:.8rem;"><b>2b. 极小多项式 —— 用最简洁的多项式刻画 $\\omega$:</b></p>
+<p class="proof-p">$\\omega$ 满足无数个有理系数多项式方程,比如 $\\omega^n - 1 = 0$、$\\omega^{2n} - 1 = 0$、$2(\\omega^n - 1) + 3(\\omega^{2n}-1) = 0$、等等。在所有"以 $\\omega$ 为根"的有理多项式中:</p>
+<div class="mbox info">
+<b>极小多项式 $m_\\omega(x)$:</b><br>
+&nbsp;&nbsp;• 系数在 $\\mathbb{Q}$<br>
+&nbsp;&nbsp;• 首项系数为 1(monic)<br>
+&nbsp;&nbsp;• 次数最低的、有 $\\omega$ 为根的非零多项式<br>
+满足上面三条的唯一多项式,就叫 $\\omega$ 的极小多项式。
+</div>
+<p class="proof-p">极小多项式自动是<b>不可约</b>的 —— 反证:若 $m_\\omega = f \\cdot g$,且 $f, g$ 都是次数更低的有理多项式,那么 $f(\\omega) g(\\omega) = m_\\omega(\\omega) = 0$,从而 $f(\\omega) = 0$ 或 $g(\\omega) = 0$,无论哪个,$\\omega$ 都有一个次数更低的多项式让它当根,与"次数最低"矛盾。</p>
+<p class="proof-p"><b>数域论关键定理:</b></p>
+<div class="formula">$$[\\mathbb{Q}(\\omega) : \\mathbb{Q}] = \\deg m_\\omega(x)$$
+<div style="margin-top:.4rem">扩张次数 $=$ 极小多项式的次数。</div></div>
+<p class="proof-p"><b>直观解释:</b>$\\mathbb{Q}(\\omega)$ 的每个元素都是 $\\omega$ 的有理多项式。若 $m_\\omega$ 次数是 $d$,则 $1, \\omega, \\omega^2, \\ldots, \\omega^{d-1}$ 是 $\\mathbb{Q}(\\omega)$ 的一组基(更高次幂能用 $m_\\omega(\\omega) = 0$ 这条关系往下降),所以维数 $= d$。</p>
+
+<p class="proof-p" style="color:#a78bfa;margin-top:.8rem;"><b>2c. 分圆多项式 $\\Phi_n(x)$ —— 专门捕获 $\\omega$:</b></p>
+<p class="proof-p">先理一下 $n$ 次单位根:满足 $z^n = 1$ 的复数共有 $n$ 个,即 $1, \\omega, \\omega^2, \\ldots, \\omega^{n-1}$(复平面上单位圆的 $n$ 等分点)。它们都是 $x^n - 1$ 的根。</p>
+<p class="proof-p"><b>但 $x^n - 1$ 太大:</b>次数是 $n$,而我们怀疑 $\\omega$ 的极小多项式次数可能更小(实际上是 $\\varphi(n) \\le n$)。怎么"只保留 $\\omega$ 那一类根、滤掉其余"?</p>
+<p class="proof-p"><b>引入"本原"概念:</b></p>
+<div class="mbox info">
+$\\omega^k$ 是 <b>$n$ 次本原单位根</b> $\\iff$ 使 $(\\omega^k)^d = 1$ 的最小正整数 $d$ 恰为 $n$。<br>
+等价地: $\\gcd(k, n) = 1$($k$ 与 $n$ 互素)。
+</div>
+<p class="proof-p">直观上:$\\omega^k$ 的"实际阶"是 $n / \\gcd(k, n)$。当 $\\gcd = 1$ 时阶就是 $n$ —— 这种 $\\omega^k$ 不是某个更小的 $n'$ 次单位根、不能"早归到" $\\Phi_{n'}$ 那里去,它真正属于 $n$ 这一层。</p>
+<p class="proof-p"><b>定义:</b>第 $n$ 个<b>分圆多项式</b> $\\Phi_n(x)$ 是以所有 $n$ 次本原单位根为根的首一多项式:</p>
+<div class="formula">$$\\Phi_n(x) \\;=\\; \\prod_{\\substack{1 \\le k \\le n \\\\ \\gcd(k,n) = 1}} (x - \\omega^k)$$</div>
+<p class="proof-p"><b>次数:</b>满足 $1 \\le k \\le n,\\;\\gcd(k,n) = 1$ 的 $k$ 一共有多少?这就是 <b>Euler 函数 $\\varphi(n)$</b> 的定义。所以:</p>
+<div class="formula">$$\\deg \\Phi_n \\;=\\; \\varphi(n)$$</div>
+
+<p class="proof-p"><b>具体例子(可以亲自展开验证):</b></p>
+<table class="period-table"><thead><tr>
+<th>$n$</th><th>$\\Phi_n(x)$</th><th>$\\deg = \\varphi(n)$</th><th>本原根 / 注</th>
+</tr></thead><tbody>
+<tr><td>1</td><td class="num">$x - 1$</td><td class="num">1</td><td class="num">$1$</td></tr>
+<tr><td>2</td><td class="num">$x + 1$</td><td class="num">1</td><td class="num">$-1$</td></tr>
+<tr><td>3</td><td class="num">$x^2 + x + 1$</td><td class="num">2</td><td class="num">$e^{\\pm 2\\pi i/3}$</td></tr>
+<tr><td>4</td><td class="num">$x^2 + 1$</td><td class="num">2</td><td class="num">$\\pm i$</td></tr>
+<tr><td>5</td><td class="num">$x^4 + x^3 + x^2 + x + 1$</td><td class="num">4</td><td class="num">$e^{2\\pi i k/5},\\;k=1,2,3,4$</td></tr>
+<tr><td>6</td><td class="num">$x^2 - x + 1$</td><td class="num">2</td><td class="num">$e^{\\pm \\pi i/3}$</td></tr>
+<tr><td>$p$(素数)</td><td class="num">$x^{p-1} + \\cdots + x + 1$</td><td class="num">$p-1$</td><td class="num">所有 $\\omega^k$, $k=1,\\ldots,p-1$</td></tr>
+<tr><td>17</td><td class="num">$x^{16} + x^{15} + \\cdots + x + 1$</td><td class="num">16</td><td class="num">$\\omega = e^{2\\pi i/17}$ 等 16 个</td></tr>
+</tbody></table>
+
+<p class="proof-p"><b>有用的分解恒等式:</b></p>
+<div class="formula">$$x^n - 1 \\;=\\; \\prod_{d \\mid n} \\Phi_d(x)$$
+<div style="margin-top:.4rem">把所有 $n$ 次单位根按"它真正的阶 $d$"($d$ 必是 $n$ 的因子)归到对应的 $\\Phi_d$ 里去。例:$x^6 - 1 = \\Phi_1 \\Phi_2 \\Phi_3 \\Phi_6 = (x-1)(x+1)(x^2+x+1)(x^2-x+1)$。</div></div>
+
+<p class="proof-p" style="color:#a78bfa;margin-top:.8rem;"><b>2d. $\\Phi_n$ 就是 $\\omega$ 的极小多项式:</b></p>
+<p class="proof-p">$\\Phi_n$ 不可约 —— 这是 19 世纪数域论的经典深刻结果:</p>
+<div class="mbox info">
+<b>Gauss(1801)定理:</b>$\\Phi_n(x)$ 在 $\\mathbb{Q}$ 上<b>不可约</b>,即不能写成两个次数更低的有理多项式之积。
+</div>
+<p class="proof-p">证明思路(本文不展开):素数 $n = p$ 时用 Eisenstein 判别法的变形(代入 $x = y + 1$ 后系数满足条件);一般 $n$ 用模 $p$ 还原 + Hensel 引理 + 素数倍 Frobenius 论证。这里接受结论。</p>
+<p class="proof-p">三件事拼起来:</p>
+<ol class="proof-ol">
+<li>$\\omega$ 是 $\\Phi_n$ 的根(它就是个 $n$ 次本原单位根);</li>
+<li>$\\Phi_n$ 不可约(刚才的 Gauss 定理);</li>
+<li>极小多项式必须不可约,且整除"任何以 $\\omega$ 为根的多项式"(基本性质)。</li>
+</ol>
+<p class="proof-p">三者结合:$\\omega$ 的极小多项式既不可约、又被另一个不可约多项式 $\\Phi_n$ 整除,只能完全相等(到首项归一化):</p>
+<div class="formula">$$m_\\omega(x) \\;=\\; \\Phi_n(x)$$</div>
+<p class="proof-p">所以:</p>
+<div class="mbox good"><b>$[\\mathbb{Q}(\\omega) : \\mathbb{Q}] \\;=\\; \\deg \\Phi_n \\;=\\; \\varphi(n)$</b></div>
+
+<p class="proof-p" style="color:#a78bfa;margin-top:.8rem;"><b>2e. 为什么 $\\mathbb{Q}(\\omega)$ 是 Galois 扩张?</b></p>
+<p class="proof-p"><b>Galois 扩张的定义:</b>一个有限扩张 $L/\\mathbb{Q}$ 是 Galois 当且仅当同时满足:</p>
+<div class="mbox info">
+<b>正规性 (Normal):</b>任何 $\\mathbb{Q}[x]$ 中的不可约多项式,只要它在 $L$ 里有一个根,就必须有它的<b>所有</b>根都在 $L$ 中。<br>
+<b>可分性 (Separable):</b>不可约多项式没有重根。对特征 0 的 $\\mathbb{Q}$ 自动成立(因为 $f$ 与 $f'$ 互素)。
+</div>
+<p class="proof-p"><b>等价说法:</b>$L$ 是某个有理多项式的<b>分裂域</b>(包含该多项式所有根的最小域)。</p>
+<p class="proof-p"><b>检查 $\\mathbb{Q}(\\omega)$:</b>$\\Phi_n$ 的根是所有 $n$ 次本原单位根 $\\omega^k$($\\gcd(k,n)=1$)。一旦我们有 $\\omega$:</p>
+<ul class="proof-ol">
+<li>$\\omega^2, \\omega^3, \\ldots$ 自动都在 $\\mathbb{Q}(\\omega)$ 里(都是 $\\omega$ 的幂);</li>
+<li>所以每个 $\\omega^k$($k \\ge 0$)都在 $\\mathbb{Q}(\\omega)$ 中;</li>
+<li>特别地,所有本原根都在,$\\Phi_n$ 在 $\\mathbb{Q}(\\omega)$ 中完全分裂;</li>
+<li>另一方面,要包含 $\\omega$ 就必须包含 $\\Phi_n$ 的所有根,所以 $\\mathbb{Q}(\\omega)$ <b>恰好就是</b> $\\Phi_n$ 的分裂域。</li>
+</ul>
+<p class="proof-p">分裂域 $\\Longrightarrow$ 正规;特征 0 $\\Longrightarrow$ 可分。于是:</p>
+<div class="mbox good">
+<b>$\\mathbb{Q}(\\omega) / \\mathbb{Q}$ 是 Galois 扩张。</b><br>
+它是 $\\Phi_n(x)$(或等价地 $x^n - 1$)的分裂域。
+</div>
+
+<p class="proof-p" style="color:#a78bfa;margin-top:.8rem;"><b>2f. Galois 群(下一篇会深入分析,这里只快速点一下):</b></p>
+<p class="proof-p">任何 Galois 自同构 $\\sigma : \\mathbb{Q}(\\omega) \\to \\mathbb{Q}(\\omega)$ 必须固定 $\\mathbb{Q}$ 中每个元素,且把 $\\omega$ 送到 $\\Phi_n$ 的另一个根 —— 也就是另一个 $\\omega^k$($\\gcd(k,n) = 1$)。不同的 $k$ 给出不同的 $\\sigma_k$,共 $\\varphi(n)$ 个;且 $\\sigma_{k_1} \\circ \\sigma_{k_2} = \\sigma_{k_1 k_2}$(指数相乘 mod $n$)。映射 $\\sigma_k \\leftrightarrow k$ 给出群同构:</p>
+<div class="formula">$$\\mathrm{Gal}(\\mathbb{Q}(\\omega) / \\mathbb{Q}) \\;\\cong\\; (\\mathbb{Z}/n\\mathbb{Z})^\\times$$
+<div style="margin-top:.4rem">群阶为 $\\varphi(n) = [\\mathbb{Q}(\\omega) : \\mathbb{Q}]$ —— 这正是 Galois 扩张的特征(群阶 $=$ 扩张次数)。</div></div>
+
+<p class="proof-p" style="border-top:1px dashed #475569;padding-top:.8rem;margin-top:1rem;"><b>—— 综合 2a–2f,判据最终形式 ——</b></p>
+<ul class="proof-ol">
+<li>$\\mathbb{Q}(\\omega) / \\mathbb{Q}$ 是 Galois 扩张 ✓ (2e)</li>
+<li>$[\\mathbb{Q}(\\omega) : \\mathbb{Q}] = \\varphi(n)$ ✓ (2d)</li>
+</ul>
+<p class="proof-p">代入桥梁定理:</p>
+<div class="mbox good"><b>正 $n$ 边形可作图 $\\iff \\varphi(n)$ 是 2 的幂。</b></div>
+
+<p class="proof-p"><b>步骤 3（计算 $\\varphi(n)$）：</b>设 $n$ 的素分解为</p>
+<div class="formula">$$n \\;=\\; 2^k \\cdot p_1^{a_1} \\cdot p_2^{a_2} \\cdots p_m^{a_m}$$<div style="margin-top:.4rem">$p_1, \\ldots, p_m$ 是互不相同的奇素数,$a_i \\ge 1$,$k \\ge 0$。</div></div>
+<p class="proof-p">$\\varphi$ 在互素分量上乘性。代入熟知公式 $\\varphi(2^k) = 2^{k-1}$（$k \\ge 1$）和 $\\varphi(p^a) = p^{a-1}(p-1)$：</p>
+<div class="formula">$$\\varphi(n) \\;=\\; \\varphi(2^k) \\cdot \\prod_{i=1}^{m} p_i^{a_i-1}(p_i - 1)$$</div>
+<p class="proof-p">$\\varphi(2^k)$ 本身总是 1 或 2 的幂,不引入奇因子。剩下的问题是后面那个连乘。</p>
+
+<p class="proof-p"><b>步骤 4（$\\varphi(n)$ 是 2 的幂的必要充分条件）：</b>$\\varphi(n)$ 是 2 的幂 $\\iff$ 每个 $p_i^{a_i-1}(p_i - 1)$ 都是 2 的幂。</p>
+<p class="proof-p">由于 $p_i$ 是奇素数,$p_i^{a_i-1}$ 是 1 或奇数 $>1$。要让 $p_i^{a_i-1}(p_i - 1)$ 是 2 的幂,这个奇数因子必须 $= 1$，即 $a_i - 1 = 0$。所以:</p>
+<div class="mbox warn">
+① 每个奇素数 $p_i$ <b>只出现一次</b>($a_i = 1$);<br>
+② $p_i - 1$ 必须是 2 的幂,即 $p_i = 2^{m_i} + 1$ 对某 $m_i \\ge 1$ 成立。
+</div>
+<p class="proof-p">所以必有 $n = 2^k \\cdot p_1 \\cdot p_2 \\cdots p_m$,每个 $p_i$ 是 "$2^{m_i}+1$ 型" 的奇素数。</p>
+
+<p class="proof-p"><b>步骤 5（费马素数的进一步刻画）：</b>断言:若 $p = 2^m + 1$ 是素数,则 $m$ 必为 2 的幂。</p>
+<p class="proof-p"><b>证明（反证）：</b>设 $m$ 有奇因子 $q \\ge 3$,写 $m = q \\cdot r$($r \\ge 1$)。利用代数恒等式（$q$ 奇时）:</p>
+<div class="formula">$$x^q + 1 \\;=\\; (x + 1)\\big(x^{q-1} - x^{q-2} + \\cdots - x + 1\\big)$$<div style="margin-top:.4rem">代入 $x = 2^r$:&nbsp; $2^m + 1 = (2^r)^q + 1 = (2^r + 1)\\cdot N$,其中 $N$ 是上式后一个括号代入。</div></div>
+<p class="proof-p">$2^r + 1 \\ge 3$（$r \\ge 1$）且 $N \\ge 2$（$q \\ge 3$),所以 $2^m + 1$ 拆成两个 $> 1$ 的因子相乘,合数,矛盾。故 $m$ 没有奇因子 $> 1$,即 $m$ 本身就是 2 的幂。</p>
+<p class="proof-p">于是费马素数必形如:</p>
+<div class="formula">$$F_k \\;=\\; 2^{2^k} + 1$$<div style="margin-top:.4rem">已知素的:$F_0 = 3,\\;F_1 = 5,\\;F_2 = 17,\\;F_3 = 257,\\;F_4 = 65537$;<br>$F_5 = 2^{32}+1 = 641 \\times 6\\,700\\,417$(合数);$F_5$ 之后没找到过新的费马素数。</div></div>
+
+<p class="proof-p"><b>步骤 6（合并）：</b></p>
+<div class="mbox good">
+<b>正 $n$ 边形可作图</b><br>
+$\\iff \\varphi(n)$ 是 2 的幂<br>
+$\\iff n = 2^k \\cdot p_1 \\cdot p_2 \\cdots p_m$，其中 $p_i$ 是互不相同的费马素数。<br>
+&nbsp;<b>QED</b>
+</div>
+
+<p class="proof-p"><b>回到 $n = 17$：</b>$17 = 2^4 + 1 = F_2$ 是费马素数,$n = 17 = 2^0 \\cdot 17$ 满足判据,所以<span class="hl-green">正十七边形可作图</span>;并且作图所需的开方次数 $= \\log_2 \\varphi(17) = \\log_2 16 = $ <b>4 次</b> —— 这正是后续步骤中那 4 重嵌套根号/4 次开方作图的来源。</p>
+<div class="mbox good">正 3、4、5、15、17 边形 …… 均可作图。<br>正 7、9、11 边形等不可作图($\\varphi(7) = 6,\\;\\varphi(9) = 6,\\;\\varphi(11) = 10$,都含因子 3 或 5,不是 2 的幂)。</div>` : `
 <p class="proof-p">Compass-and-straightedge constructions are algebraically equivalent to performing <b>rational operations and square roots</b>. Every construction step (midpoint, perpendicular, circle) corresponds algebraically to one such operation.</p>
 <div class="mbox info">Constructible $\\iff$ reachable from $\\mathbb{Q}$ by finitely many $+,-,\\times,\\div$ and $\\sqrt{\\,\\cdot\\,}$</div>
-<p class="proof-p">Gauss proved: a regular $n$-gon is constructible if and only if</p>
-<div class="formula">$$n = 2^k \\cdot p_1 \\cdot p_2 \\cdots p_m$$<div style="margin-top:.4rem">where the $p_i$ are <b>distinct Fermat primes</b> (primes of the form $2^{2^k}+1$)</div></div>
+<p class="proof-p">Gauss proved (1796): a regular $n$-gon is constructible if and only if</p>
+<div class="formula">$$n = 2^k \\cdot p_1 \\cdot p_2 \\cdots p_m$$<div style="margin-top:.4rem">where $k \\ge 0$ and the $p_i$ are <b>distinct Fermat primes</b> (primes of the form $2^{2^k}+1$).</div></div>
 <p class="proof-p">Known Fermat primes: <span class="hl">$3, 5, 17, 257, 65537$</span> (no others known).</p>
-<p class="proof-p">Since $17 = 2^4 + 1$ is a Fermat prime, the <span class="hl-green">17-gon is constructible</span>.</p>`;
+
+<p class="proof-p" style="margin-top:1.2rem;border-top:1px dashed #475569;padding-top:.8rem;"><b>—— Full proof ——</b></p>
+
+<p class="proof-p"><b>Step 1 (geometry $\\to$ algebra):</b> The vertices of a regular $n$-gon inscribed in the unit circle are $\\omega^k = e^{2\\pi i k/n}$, $k = 0, 1, \\ldots, n-1$, completely determined by the primitive $n$-th root of unity $\\omega = e^{2\\pi i/n}$. So:</p>
+<div class="mbox info">Regular $n$-gon constructible $\\iff \\omega = e^{2\\pi i/n}$ is constructible in $\\mathbb{C}$ $\\iff \\cos(2\\pi/n)$ is constructible.<br>(The last step: once $\\cos(2\\pi/n)$ is known, $\\sin(2\\pi/n)$ is read off by erecting a perpendicular to the unit circle.)</div>
+
+<p class="proof-p"><b>Step 2 (algebraic criterion):</b> From the previous "<b>bridge theorem</b>": a complex number $x$ is constructible $\\iff$ there exists a Galois extension $L/\\mathbb{Q}$ containing $x$ with $[L : \\mathbb{Q}]$ a power of 2.</p>
+<p class="proof-p">The criterion itself is abstract: it merely asserts the existence of some Galois extension $L$ containing $x$ with $[L:\\mathbb{Q}]$ a power of 2. To <b>apply it to $\\omega = e^{2\\pi i/n}$</b>, we have to answer three concrete questions:</p>
+<ul class="proof-ol">
+<li><b>Which $L$ should contain $\\omega$?</b> (the natural candidate is $\\mathbb{Q}(\\omega)$)</li>
+<li><b>How large is this $L$?</b> (how to compute $[\\mathbb{Q}(\\omega) : \\mathbb{Q}]$)</li>
+<li><b>Is it really Galois over $\\mathbb{Q}$, and why?</b></li>
+</ul>
+<p class="proof-p">Answering them brings in several foundational notions: <b>field extension</b>, <b>minimal polynomial</b>, <b>cyclotomic polynomial</b>, and the <b>definition of Galois extension</b>. The six sub-sections below build these tools from scratch — no abstract algebra background assumed — and end by pinning the criterion down to a concrete condition on $\\varphi(n)$.</p>
+
+<p class="proof-p" style="color:#a78bfa;margin-top:.8rem;"><b>2a. What is $\\mathbb{Q}(\\omega)$?</b></p>
+<p class="proof-p">Informally, $\\mathbb{Q}(\\omega)$ is the smallest number field one can build by throwing $\\omega$ into the rationals. Formally: the smallest subfield of $\\mathbb{C}$ that contains both $\\mathbb{Q}$ and $\\omega$.</p>
+<p class="proof-p">Concretely, every element has the form</p>
+<div class="formula">$$a_0 + a_1\\omega + a_2\\omega^2 + \\cdots + a_{d-1}\\omega^{d-1},\\quad a_i \\in \\mathbb{Q}$$
+<div style="margin-top:.4rem">for some finite $d$ (we will show $d = \\varphi(n)$). Why is finite enough? Because $\\omega$ at least satisfies $\\omega^n = 1$, so every power $\\omega^n, \\omega^{n+1}, \\ldots$ wraps back into $\\omega^0, \\omega^1, \\ldots, \\omega^{n-1}$. Even if we started with an infinite polynomial expression, it can be reduced to finitely many terms. Section 2b will refine this further: the truly necessary number of basis terms is $d$, the degree of the minimal polynomial.</div></div>
+<p class="proof-p">Viewed as a <b>vector space</b> over $\\mathbb{Q}$, this field has dimension $d$, called the <b>extension degree</b>, written $[\\mathbb{Q}(\\omega) : \\mathbb{Q}]$. It measures how much larger $\\mathbb{Q}$ becomes after $\\omega$ is adjoined.</p>
+
+<p class="proof-p" style="color:#a78bfa;margin-top:.8rem;"><b>2b. Minimal polynomial — the simplest equation $\\omega$ satisfies:</b></p>
+<p class="proof-p">$\\omega$ satisfies infinitely many rational-coefficient polynomial equations: $\\omega^n - 1 = 0$, $\\omega^{2n} - 1 = 0$, and any rational combination of these. Among all polynomials in $\\mathbb{Q}[x]$ vanishing at $\\omega$:</p>
+<div class="mbox info">
+<b>Minimal polynomial $m_\\omega(x)$:</b><br>
+&nbsp;&nbsp;• coefficients in $\\mathbb{Q}$<br>
+&nbsp;&nbsp;• monic (leading coefficient $1$)<br>
+&nbsp;&nbsp;• lowest degree among nonzero polynomials with $\\omega$ as a root.<br>
+The unique polynomial meeting all three conditions is the minimal polynomial of $\\omega$.
+</div>
+<p class="proof-p">The minimal polynomial is automatically <b>irreducible</b>: suppose $m_\\omega = f \\cdot g$ with $f, g$ of lower degree in $\\mathbb{Q}[x]$. Then $f(\\omega) g(\\omega) = m_\\omega(\\omega) = 0$, so $f(\\omega) = 0$ or $g(\\omega) = 0$ — either way, $\\omega$ vanishes on a polynomial of lower degree, contradicting "lowest".</p>
+<p class="proof-p"><b>Key theorem of field theory:</b></p>
+<div class="formula">$$[\\mathbb{Q}(\\omega) : \\mathbb{Q}] \\;=\\; \\deg m_\\omega(x)$$
+<div style="margin-top:.4rem">Extension degree equals the degree of the minimal polynomial.</div></div>
+<p class="proof-p"><b>Intuition:</b> every element of $\\mathbb{Q}(\\omega)$ is a polynomial in $\\omega$ with rational coefficients. If $\\deg m_\\omega = d$, then $1, \\omega, \\omega^2, \\ldots, \\omega^{d-1}$ form a $\\mathbb{Q}$-basis (higher powers reduce using $m_\\omega(\\omega) = 0$), so the dimension is $d$.</p>
+
+<p class="proof-p" style="color:#a78bfa;margin-top:.8rem;"><b>2c. Cyclotomic polynomial $\\Phi_n(x)$ — pinpointing $\\omega$:</b></p>
+<p class="proof-p">First sort out the $n$-th roots of unity: the complex numbers satisfying $z^n = 1$, namely $1, \\omega, \\omega^2, \\ldots, \\omega^{n-1}$ (the $n$ equally-spaced points on the unit circle). They are all roots of $x^n - 1$.</p>
+<p class="proof-p"><b>But $x^n - 1$ is too coarse:</b> its degree is $n$, while the minimal polynomial of $\\omega$ may be smaller (we will see it has degree $\\varphi(n) \\le n$). How do we filter out only the roots of the same "type" as $\\omega$?</p>
+<p class="proof-p"><b>The "primitive" notion:</b></p>
+<div class="mbox info">
+$\\omega^k$ is a <b>primitive $n$-th root of unity</b> $\\iff$ the smallest positive $d$ with $(\\omega^k)^d = 1$ is exactly $n$.<br>
+Equivalently: $\\gcd(k, n) = 1$.
+</div>
+<p class="proof-p">Intuition: the "true order" of $\\omega^k$ is $n / \\gcd(k, n)$. When $\\gcd = 1$ the order is $n$ — this $\\omega^k$ does not "live earlier" in any smaller $\\Phi_{n'}$ and genuinely belongs to level $n$.</p>
+<p class="proof-p"><b>Definition:</b> the $n$-th <b>cyclotomic polynomial</b> $\\Phi_n(x)$ is the monic polynomial whose roots are exactly the primitive $n$-th roots of unity:</p>
+<div class="formula">$$\\Phi_n(x) \\;=\\; \\prod_{\\substack{1 \\le k \\le n \\\\ \\gcd(k,n) = 1}} (x - \\omega^k)$$</div>
+<p class="proof-p"><b>Degree:</b> how many integers $k$ satisfy $1 \\le k \\le n$ and $\\gcd(k, n) = 1$? Exactly the <b>Euler totient $\\varphi(n)$</b>. Hence:</p>
+<div class="formula">$$\\deg \\Phi_n \\;=\\; \\varphi(n)$$</div>
+
+<p class="proof-p"><b>Concrete examples (expand to verify):</b></p>
+<table class="period-table"><thead><tr>
+<th>$n$</th><th>$\\Phi_n(x)$</th><th>$\\deg = \\varphi(n)$</th><th>primitive roots / note</th>
+</tr></thead><tbody>
+<tr><td>1</td><td class="num">$x - 1$</td><td class="num">1</td><td class="num">$1$</td></tr>
+<tr><td>2</td><td class="num">$x + 1$</td><td class="num">1</td><td class="num">$-1$</td></tr>
+<tr><td>3</td><td class="num">$x^2 + x + 1$</td><td class="num">2</td><td class="num">$e^{\\pm 2\\pi i/3}$</td></tr>
+<tr><td>4</td><td class="num">$x^2 + 1$</td><td class="num">2</td><td class="num">$\\pm i$</td></tr>
+<tr><td>5</td><td class="num">$x^4 + x^3 + x^2 + x + 1$</td><td class="num">4</td><td class="num">$e^{2\\pi i k/5},\\;k=1,2,3,4$</td></tr>
+<tr><td>6</td><td class="num">$x^2 - x + 1$</td><td class="num">2</td><td class="num">$e^{\\pm \\pi i/3}$</td></tr>
+<tr><td>$p$ (prime)</td><td class="num">$x^{p-1} + \\cdots + x + 1$</td><td class="num">$p-1$</td><td class="num">all $\\omega^k$, $k=1,\\ldots,p-1$</td></tr>
+<tr><td>17</td><td class="num">$x^{16} + x^{15} + \\cdots + x + 1$</td><td class="num">16</td><td class="num">$\\omega = e^{2\\pi i/17}$ and 15 more</td></tr>
+</tbody></table>
+
+<p class="proof-p"><b>Useful identity (factoring $x^n - 1$ by primitive order):</b></p>
+<div class="formula">$$x^n - 1 \\;=\\; \\prod_{d \\mid n} \\Phi_d(x)$$
+<div style="margin-top:.4rem">Each $n$-th root of unity is placed in the $\\Phi_d$ whose $d$ is its true order. Example: $x^6 - 1 = \\Phi_1 \\Phi_2 \\Phi_3 \\Phi_6 = (x-1)(x+1)(x^2+x+1)(x^2-x+1)$.</div></div>
+
+<p class="proof-p" style="color:#a78bfa;margin-top:.8rem;"><b>2d. $\\Phi_n$ is the minimal polynomial of $\\omega$:</b></p>
+<p class="proof-p">Irreducibility of $\\Phi_n$ is a deep 19th-century result:</p>
+<div class="mbox info">
+<b>Theorem (Gauss, 1801):</b> $\\Phi_n(x)$ is <b>irreducible</b> over $\\mathbb{Q}$ — it cannot be factored into two polynomials of lower degree with rational coefficients.
+</div>
+<p class="proof-p">Proof sketch (not given here): for prime $n = p$, use a variant of the Eisenstein criterion (substitute $x = y + 1$ and check the coefficients); for general $n$, use reduction modulo $p$ plus Hensel lifting and a Frobenius argument. Accept the result.</p>
+<p class="proof-p">Combine three facts:</p>
+<ol class="proof-ol">
+<li>$\\omega$ is a root of $\\Phi_n$ (it is a primitive $n$-th root of unity);</li>
+<li>$\\Phi_n$ is irreducible (Gauss above);</li>
+<li>The minimal polynomial is irreducible and divides every polynomial vanishing at $\\omega$ (basic property).</li>
+</ol>
+<p class="proof-p">All three force: the minimal polynomial of $\\omega$ is irreducible and is divisible by another irreducible polynomial $\\Phi_n$ — they must be equal (up to leading-coefficient normalization):</p>
+<div class="formula">$$m_\\omega(x) \\;=\\; \\Phi_n(x)$$</div>
+<p class="proof-p">Therefore:</p>
+<div class="mbox good"><b>$[\\mathbb{Q}(\\omega) : \\mathbb{Q}] \\;=\\; \\deg \\Phi_n \\;=\\; \\varphi(n)$</b></div>
+
+<p class="proof-p" style="color:#a78bfa;margin-top:.8rem;"><b>2e. Why is $\\mathbb{Q}(\\omega)$ a Galois extension over $\\mathbb{Q}$?</b></p>
+<p class="proof-p"><b>Definition of Galois extension:</b> a finite extension $L/\\mathbb{Q}$ is Galois iff both</p>
+<div class="mbox info">
+<b>Normality:</b> every irreducible $p(x) \\in \\mathbb{Q}[x]$ with one root in $L$ has <b>all</b> its roots in $L$.<br>
+<b>Separability:</b> irreducible polynomials have no repeated roots — automatic for characteristic 0 fields such as $\\mathbb{Q}$ (because $f$ and its derivative are coprime).
+</div>
+<p class="proof-p"><b>Equivalent characterization:</b> $L$ is the <b>splitting field</b> of some rational polynomial (the smallest field containing all of its roots).</p>
+<p class="proof-p"><b>Verification for $\\mathbb{Q}(\\omega)$:</b> the roots of $\\Phi_n$ are all primitive $n$-th roots of unity $\\omega^k$ with $\\gcd(k,n)=1$. Once $\\omega$ is in hand:</p>
+<ul class="proof-ol">
+<li>$\\omega^2, \\omega^3, \\ldots$ are automatically inside $\\mathbb{Q}(\\omega)$ (powers of $\\omega$);</li>
+<li>so every $\\omega^k$ ($k \\ge 0$) is in $\\mathbb{Q}(\\omega)$;</li>
+<li>in particular every primitive root is, and $\\Phi_n$ splits completely in $\\mathbb{Q}(\\omega)$;</li>
+<li>conversely, any field containing $\\omega$ must contain every root of $\\Phi_n$, so $\\mathbb{Q}(\\omega)$ <b>is exactly</b> the splitting field of $\\Phi_n$.</li>
+</ul>
+<p class="proof-p">Splitting field $\\Longrightarrow$ normal; characteristic 0 $\\Longrightarrow$ separable. Hence:</p>
+<div class="mbox good">
+<b>$\\mathbb{Q}(\\omega) / \\mathbb{Q}$ is a Galois extension.</b><br>
+It is the splitting field of $\\Phi_n(x)$ (equivalently, of $x^n - 1$).
+</div>
+
+<p class="proof-p" style="color:#a78bfa;margin-top:.8rem;"><b>2f. The Galois group (the next proof explores it in depth — here is a quick note):</b></p>
+<p class="proof-p">Any Galois automorphism $\\sigma : \\mathbb{Q}(\\omega) \\to \\mathbb{Q}(\\omega)$ must fix every rational and send $\\omega$ to another root of $\\Phi_n$ — that is, to some $\\omega^k$ with $\\gcd(k, n) = 1$. Different $k$ give different $\\sigma_k$, a total of $\\varphi(n)$ in all, with $\\sigma_{k_1} \\circ \\sigma_{k_2} = \\sigma_{k_1 k_2}$ (exponents multiply mod $n$). The map $\\sigma_k \\leftrightarrow k$ yields the group isomorphism:</p>
+<div class="formula">$$\\mathrm{Gal}(\\mathbb{Q}(\\omega) / \\mathbb{Q}) \\;\\cong\\; (\\mathbb{Z}/n\\mathbb{Z})^\\times$$
+<div style="margin-top:.4rem">The group order is $\\varphi(n) = [\\mathbb{Q}(\\omega) : \\mathbb{Q}]$ — the defining feature of a Galois extension (group order $=$ extension degree).</div></div>
+
+<p class="proof-p" style="border-top:1px dashed #475569;padding-top:.8rem;margin-top:1rem;"><b>—— Combining 2a–2f: final form of the criterion ——</b></p>
+<ul class="proof-ol">
+<li>$\\mathbb{Q}(\\omega) / \\mathbb{Q}$ is Galois ✓ (2e)</li>
+<li>$[\\mathbb{Q}(\\omega) : \\mathbb{Q}] = \\varphi(n)$ ✓ (2d)</li>
+</ul>
+<p class="proof-p">Plugging into the bridge theorem:</p>
+<div class="mbox good"><b>Regular $n$-gon constructible $\\iff \\varphi(n)$ is a power of 2.</b></div>
+
+<p class="proof-p"><b>Step 3 (computing $\\varphi(n)$):</b> Write the prime factorization</p>
+<div class="formula">$$n \\;=\\; 2^k \\cdot p_1^{a_1} \\cdot p_2^{a_2} \\cdots p_m^{a_m}$$<div style="margin-top:.4rem">with $p_1, \\ldots, p_m$ distinct odd primes, $a_i \\ge 1$, $k \\ge 0$.</div></div>
+<p class="proof-p">$\\varphi$ is multiplicative on coprime factors. Using $\\varphi(2^k) = 2^{k-1}$ (for $k \\ge 1$) and $\\varphi(p^a) = p^{a-1}(p-1)$:</p>
+<div class="formula">$$\\varphi(n) \\;=\\; \\varphi(2^k) \\cdot \\prod_{i=1}^{m} p_i^{a_i-1}(p_i - 1)$$</div>
+<p class="proof-p">$\\varphi(2^k)$ itself is always 1 or a power of 2 — it never introduces an odd factor. The question reduces to the product over the odd primes.</p>
+
+<p class="proof-p"><b>Step 4 (necessary and sufficient condition for $\\varphi(n)$ to be a power of 2):</b> $\\varphi(n)$ is a power of 2 $\\iff$ every factor $p_i^{a_i-1}(p_i - 1)$ is a power of 2.</p>
+<p class="proof-p">Since $p_i$ is odd, $p_i^{a_i-1}$ is either $1$ or an odd number $> 1$. For the product $p_i^{a_i-1}(p_i - 1)$ to be a power of 2, the odd factor must equal $1$, forcing $a_i - 1 = 0$. So:</p>
+<div class="mbox warn">
+(1) Each odd prime $p_i$ appears <b>exactly once</b> ($a_i = 1$);<br>
+(2) $p_i - 1$ must itself be a power of 2, i.e. $p_i = 2^{m_i} + 1$ for some $m_i \\ge 1$.
+</div>
+<p class="proof-p">Hence $n = 2^k \\cdot p_1 \\cdot p_2 \\cdots p_m$, with each $p_i$ an odd prime of the shape "$2^{m_i}+1$".</p>
+
+<p class="proof-p"><b>Step 5 (further characterization of these primes):</b> Claim: if $p = 2^m + 1$ is prime, then $m$ must be a power of 2.</p>
+<p class="proof-p"><b>Proof (by contradiction):</b> suppose $m$ has an odd factor $q \\ge 3$; write $m = q \\cdot r$ with $r \\ge 1$. Use the algebraic identity (valid for odd $q$):</p>
+<div class="formula">$$x^q + 1 \\;=\\; (x + 1)\\big(x^{q-1} - x^{q-2} + \\cdots - x + 1\\big)$$<div style="margin-top:.4rem">Substituting $x = 2^r$:&nbsp; $2^m + 1 = (2^r)^q + 1 = (2^r + 1) \\cdot N$, where $N$ is the second factor evaluated at $x = 2^r$.</div></div>
+<p class="proof-p">Now $2^r + 1 \\ge 3$ (since $r \\ge 1$) and $N \\ge 2$ (since $q \\ge 3$), so $2^m + 1$ splits as a product of two factors both $> 1$ — contradicting primality. Hence $m$ has no odd factor $> 1$, i.e. $m$ is itself a power of 2.</p>
+<p class="proof-p">So the relevant primes must take the form:</p>
+<div class="formula">$$F_k \\;=\\; 2^{2^k} + 1$$<div style="margin-top:.4rem">Known to be prime: $F_0 = 3,\\;F_1 = 5,\\;F_2 = 17,\\;F_3 = 257,\\;F_4 = 65537$;<br>$F_5 = 2^{32}+1 = 641 \\times 6\\,700\\,417$ (composite); no Fermat prime beyond $F_4$ has ever been found.</div></div>
+
+<p class="proof-p"><b>Step 6 (combining):</b></p>
+<div class="mbox good">
+<b>Regular $n$-gon constructible</b><br>
+$\\iff \\varphi(n)$ is a power of 2<br>
+$\\iff n = 2^k \\cdot p_1 \\cdot p_2 \\cdots p_m$ with the $p_i$ distinct Fermat primes.<br>
+&nbsp;<b>QED</b>
+</div>
+
+<p class="proof-p"><b>Back to $n = 17$:</b> $17 = 2^4 + 1 = F_2$ is a Fermat prime, and $n = 17 = 2^0 \\cdot 17$ satisfies the criterion, so the <span class="hl-green">17-gon is constructible</span>. Moreover the number of square roots needed is exactly $\\log_2 \\varphi(17) = \\log_2 16 = $ <b>4</b> — the source of the 4 nested radicals / 4 square-root construction steps that appear in the rest of this proof.</p>
+<div class="mbox good">Regular 3-, 4-, 5-, 15-, 17-gons … are all constructible.<br>Regular 7-, 9-, 11-gons are not ($\\varphi(7) = 6,\\;\\varphi(9) = 6,\\;\\varphi(11) = 10$, each containing an odd factor 3 or 5).</div>`;
     }
   },
   {
@@ -779,19 +1145,53 @@ const PROOF = [
     en:{label:'Galois theory: why "power of 2" is the key'},
     body(l) { return l==='zh' ? `
 <p class="proof-p">设 $\\omega = e^{2\\pi i/17}$（一个 17 次本原单位根），则 $\\omega, \\omega^2, \\ldots, \\omega^{16}$ 是方程 $x^{17}-1=0$ 的全部非平凡根。</p>
-<p class="proof-p">将 $\\cos(2\\pi/17)$ 作图等价于将 $\\omega + \\omega^{-1} = 2\\cos(2\\pi/17)$ 作图，即找到一个包含 $\\omega$ 的<b>可作图域扩张链</b>。</p>
-<div class="mbox info">分圆域 $\\mathbb{Q}(\\omega)$ 在 $\\mathbb{Q}$ 上的 Galois 群 $\\mathrm{Gal}(\\mathbb{Q}(\\omega)/\\mathbb{Q}) \\cong (\\mathbb{Z}/17\\mathbb{Z})^\\times \\cong \\mathbb{Z}/16\\mathbb{Z}$</div>
-<p class="proof-p">该群的阶为 <span class="hl">$\\varphi(17) = 16 = 2^4$</span>，是 2 的幂次。</p>
-<p class="proof-p">一个域扩张可以被尺规实现，当且仅当它对应一个 <span class="hl">2 的幂次阶</span> 的伽罗瓦群。这是因为每个"开平方根"操作将域的次数扩大 2 倍。</p>
-<p class="proof-p">由于 $|\\mathrm{Gal}(\\mathbb{Q}(\\omega)/\\mathbb{Q})| = 16 = 2^4$，我们可以建立一个扩张塔：</p>
+<p class="proof-p">将 $\\cos(2\\pi/17)$ 作图等价于将 $\\omega + \\omega^{-1} = 2\\cos(2\\pi/17)$ 作图，即找到一个包含 $\\omega$ 的<b>可作图域扩张链</b>——从 $\\mathbb{Q}$ 出发，每一步只用尺规允许的代数运算（有理运算或一次开平方根），逐级往上爬，最终爬进一个含 $\\omega$ 的域。</p>
+<div class="mbox info"><b>桥梁定理（可作图的代数刻画）：</b>复数 $x$ 可尺规作图 $\\iff$ 存在域扩张塔 $\\mathbb{Q} = K_0 \\subset K_1 \\subset \\cdots \\subset K_n \\ni x$，每层 $[K_i:K_{i-1}] = 2$。</div>
+<p class="proof-p"><b>为什么必须是"层层 2 次"扩张？</b>尺规作图只允许两类代数操作：(i) 有理运算（加减乘除）——不扩域；(ii) 开平方根 $\\sqrt{a}$——把 $K$ 扩成 $K(\\sqrt{a})$，恰好 2 次。所以从 $\\mathbb{Q}$ 一路作图到 $x$ 的路径，可以拆成<b>有限次的"2 次扩张"序列</b>。</p>
+<p class="proof-p">问题归结为：<b>包含 $\\omega$ 的最小域 $\\mathbb{Q}(\\omega)$ 能不能这样层层 2 次拆下来？</b></p>
+<p class="proof-p">先看次数：$\\omega$ 的极小多项式是 17 次分圆多项式 $\\Phi_{17}(x)$（次数 $\\varphi(17) = 16$），所以 <span class="hl">$[\\mathbb{Q}(\\omega) : \\mathbb{Q}] = 16 = 2^4$</span>。次数本身是 2 的幂——必要条件先过关。</p>
+<div class="mbox info">分圆域的 Galois 群 $\\mathrm{Gal}(\\mathbb{Q}(\\omega)/\\mathbb{Q}) \\cong (\\mathbb{Z}/17\\mathbb{Z})^\\times \\cong \\mathbb{Z}/16\\mathbb{Z}$，阶 $= \\varphi(17) = 16 = 2^4$（循环群）。</div>
+<p class="proof-p"><b>Galois 基本对应：</b>域扩张塔 $K_0 \\subset \\cdots \\subset K_n$ 一一对应于 Galois 群子群链 $G \\supset \\cdots \\supset \\{e\\}$；"层层 2 次扩张"翻成子群侧就是"层层指数 2"的子群链。</p>
+<p class="proof-p"><b>关键事实：</b>阶为 $2^n$ 的有限 abelian 群（这里更特殊，是循环群 $\\mathbb{Z}/16\\mathbb{Z}$）总能写出长度 $n$ 的指数 2 子群链。具体到这里：</p>
+<div class="formula">$$\\mathbb{Z}/16\\mathbb{Z} \\;\\supset\\; 2\\mathbb{Z}/16\\mathbb{Z} \\;\\supset\\; 4\\mathbb{Z}/16\\mathbb{Z} \\;\\supset\\; 8\\mathbb{Z}/16\\mathbb{Z} \\;\\supset\\; \\{0\\}$$<div style="margin-top:.4rem">阶数：$16 \\to 8 \\to 4 \\to 2 \\to 1$，每步指数 2，共 4 步。</div></div>
+<p class="proof-p">通过 Galois 对应翻译回域侧，得到 <span class="hl">4 层域扩张塔</span>：</p>
 <div class="formula">$$\\mathbb{Q} \\subset K_1 \\subset K_2 \\subset K_3 \\subset K_4 = \\mathbb{Q}(\\omega)$$<div style="margin-top:.4rem">$[K_1:\\mathbb{Q}] = [K_2:K_1] = [K_3:K_2] = [K_4:K_3] = 2$</div></div>
-<p class="proof-p">每步扩张的次数为 2，对应一次<b>开平方根操作</b>——即一次圆规作图！四步恰好对应 $\\cos(2\\pi/17)$ 公式中的<span class="hl">四重嵌套根号</span>。</p>` : `
-<p class="proof-p">Let $\\omega = e^{2\\pi i/17}$ (a primitive 17th root of unity). The Galois group of the cyclotomic field $\\mathbb{Q}(\\omega)$ over $\\mathbb{Q}$ is:</p>
-<div class="mbox info">$\\mathrm{Gal}(\\mathbb{Q}(\\omega)/\\mathbb{Q}) \\cong (\\mathbb{Z}/17\\mathbb{Z})^\\times \\cong \\mathbb{Z}/16\\mathbb{Z}$, &nbsp; order $= \\varphi(17) = 16 = 2^4$</div>
-<p class="proof-p">A Galois extension is constructible iff its Galois group has <span class="hl">2-power order</span> — each degree-2 sub-extension corresponds to one square-root (compass) operation.</p>
-<p class="proof-p">Since $|\\mathrm{Gal}| = 16 = 2^4$, we get a tower of four degree-2 extensions:</p>
+<p class="proof-p"><b>翻译成几何：</b>每一层 2 次扩张 $=$ 引入一个新的平方根 $=$ 一次"开方"作图操作。所以：</p>
+<div class="mbox good"><b>4 层域扩张塔 $=$ 4 次开方运算 $=$ $\\cos(2\\pi/17)$ 显式公式中的<span class="hl-green">四重嵌套根号</span> $=$ 作图中 4 次实质性操作。</b></div>
+<p class="proof-p">而且每一层都能跟具体的作图步骤一一对应：</p>
+<table class="period-table"><thead><tr>
+  <th>扩张层</th><th>新引入的根号</th><th>对应作图步骤</th><th>第几次"开方"</th>
+</tr></thead><tbody>
+<tr><td>$K_1 = \\mathbb{Q}(\\sqrt{17})$</td><td class="num">$\\sqrt{17}$</td><td>⑤ 角平分线 $\\to E, F$</td><td>1</td></tr>
+<tr><td>$K_2 = K_1(\\sqrt{34-2\\sqrt{17}})$</td><td class="num">$\\sqrt{34-2\\sqrt{17}}$</td><td>⑧ Carlyle 圆 $C_2 \\to H_1, H_2$</td><td>2</td></tr>
+<tr><td>$K_3 = K_2(\\sqrt{34+2\\sqrt{17}})$</td><td class="num">$\\sqrt{34+2\\sqrt{17}}$</td><td>⑨ Carlyle 圆 $C_3 \\to H_{21}, H_{22}$</td><td>3</td></tr>
+<tr><td>$K_4 = K_3(\\sqrt{\\eta_{11}^2 - 4\\eta_{21}})$</td><td class="num">$\\sqrt{\\eta_{11}^2 - 4\\eta_{21}}$</td><td>⑨ Carlyle 圆 $C_4 \\to r\\cos(2\\pi/17)$</td><td>4</td></tr>
+</tbody></table>
+<p class="proof-p">这就是"<b>群阶是 2 的幂</b>"为什么关键：它<b>从代数上保证了</b>作图所需的扩张塔存在，并且<b>明确告诉了几次开方就够</b>——恰好 4 次，不多不少。</p>` : `
+<p class="proof-p">Let $\\omega = e^{2\\pi i/17}$ (a primitive 17th root of unity). Then $\\omega, \\omega^2, \\ldots, \\omega^{16}$ are all non-trivial roots of $x^{17} - 1 = 0$.</p>
+<p class="proof-p">Constructing $\\cos(2\\pi/17)$ is equivalent to constructing $\\omega + \\omega^{-1} = 2\\cos(2\\pi/17)$ — that is, finding a <b>constructible field extension chain</b> containing $\\omega$: starting from $\\mathbb{Q}$, each step uses only operations the compass and straightedge permit (rational operations, or one square-root extraction), eventually reaching a field that contains $\\omega$.</p>
+<div class="mbox info"><b>Bridge theorem (algebraic characterization of constructibility):</b> A complex number $x$ is compass-and-straightedge constructible $\\iff$ there exists a tower $\\mathbb{Q} = K_0 \\subset K_1 \\subset \\cdots \\subset K_n \\ni x$ with $[K_i:K_{i-1}] = 2$ for every layer.</div>
+<p class="proof-p"><b>Why must each layer have degree exactly 2?</b> Compass-and-straightedge operations are algebraically of two kinds: (i) rational operations, which do not enlarge the field; (ii) square-root extraction $\\sqrt{a}$, which enlarges $K$ to $K(\\sqrt{a})$, a degree-2 extension. So any constructive path from $\\mathbb{Q}$ to $x$ decomposes into a finite sequence of degree-2 extensions.</p>
+<p class="proof-p">The question becomes: <b>can the smallest field containing $\\omega$, namely $\\mathbb{Q}(\\omega)$, be unrolled as such a tower?</b></p>
+<p class="proof-p">First the degree: $\\omega$ has minimal polynomial $\\Phi_{17}(x)$ (the 17th cyclotomic polynomial, of degree $\\varphi(17) = 16$), so <span class="hl">$[\\mathbb{Q}(\\omega) : \\mathbb{Q}] = 16 = 2^4$</span>. The degree itself is a power of 2 — necessary condition cleared.</p>
+<div class="mbox info">Galois group of the cyclotomic field: $\\mathrm{Gal}(\\mathbb{Q}(\\omega)/\\mathbb{Q}) \\cong (\\mathbb{Z}/17\\mathbb{Z})^\\times \\cong \\mathbb{Z}/16\\mathbb{Z}$, order $= \\varphi(17) = 16 = 2^4$ (cyclic).</div>
+<p class="proof-p"><b>Galois correspondence:</b> a tower $K_0 \\subset \\cdots \\subset K_n$ of subfields biject with a chain $G \\supset \\cdots \\supset \\{e\\}$ of subgroups; "every layer has degree 2" translates on the group side to "every step has index 2".</p>
+<p class="proof-p"><b>Key fact:</b> a finite abelian group of order $2^n$ (and here in particular the cyclic $\\mathbb{Z}/16\\mathbb{Z}$) always admits an index-2 subgroup chain of length $n$. Concretely:</p>
+<div class="formula">$$\\mathbb{Z}/16\\mathbb{Z} \\;\\supset\\; 2\\mathbb{Z}/16\\mathbb{Z} \\;\\supset\\; 4\\mathbb{Z}/16\\mathbb{Z} \\;\\supset\\; 8\\mathbb{Z}/16\\mathbb{Z} \\;\\supset\\; \\{0\\}$$<div style="margin-top:.4rem">orders: $16 \\to 8 \\to 4 \\to 2 \\to 1$, each step has index 2, total of 4 steps.</div></div>
+<p class="proof-p">Translating back to the field side via Galois correspondence gives a <span class="hl">4-layer tower</span>:</p>
 <div class="formula">$$\\mathbb{Q} \\subset K_1 \\subset K_2 \\subset K_3 \\subset K_4 = \\mathbb{Q}(\\omega)$$<div style="margin-top:.4rem">$[K_i:K_{i-1}] = 2$ for each step</div></div>
-<p class="proof-p">Four steps, four square roots — exactly the <span class="hl">4 nested radicals</span> in the formula for $\\cos(2\\pi/17)$.</p>`;
+<p class="proof-p"><b>Geometric translation:</b> each degree-2 extension $=$ one new square root introduced $=$ one square-root construction step. So:</p>
+<div class="mbox good"><b>4-layer field tower $=$ 4 square-root operations $=$ the <span class="hl-green">4 nested radicals</span> in the explicit formula for $\\cos(2\\pi/17)$ $=$ 4 essential construction steps.</b></div>
+<p class="proof-p">Each layer maps one-to-one onto a concrete construction step:</p>
+<table class="period-table"><thead><tr>
+  <th>Layer</th><th>New radical</th><th>Construction step</th><th>Sqrt #</th>
+</tr></thead><tbody>
+<tr><td>$K_1 = \\mathbb{Q}(\\sqrt{17})$</td><td class="num">$\\sqrt{17}$</td><td>⑤ angle bisector $\\to E, F$</td><td>1</td></tr>
+<tr><td>$K_2 = K_1(\\sqrt{34-2\\sqrt{17}})$</td><td class="num">$\\sqrt{34-2\\sqrt{17}}$</td><td>⑧ Carlyle $C_2 \\to H_1, H_2$</td><td>2</td></tr>
+<tr><td>$K_3 = K_2(\\sqrt{34+2\\sqrt{17}})$</td><td class="num">$\\sqrt{34+2\\sqrt{17}}$</td><td>⑨ Carlyle $C_3 \\to H_{21}, H_{22}$</td><td>3</td></tr>
+<tr><td>$K_4 = K_3(\\sqrt{\\eta_{11}^2 - 4\\eta_{21}})$</td><td class="num">$\\sqrt{\\eta_{11}^2 - 4\\eta_{21}}$</td><td>⑨ Carlyle $C_4 \\to r\\cos(2\\pi/17)$</td><td>4</td></tr>
+</tbody></table>
+<p class="proof-p">This is why "<b>group order is a power of 2</b>" is the decisive condition: it <b>algebraically guarantees</b> that the required extension tower exists, and <b>tells us exactly how many square roots</b> are needed — here, four, no more and no less.</p>`;
     }
   },
   {
@@ -805,12 +1205,39 @@ const PROOF = [
 $\\eta_1 \\cdot \\eta_2 = -4$ &nbsp; (${zh?'可直接展开验证':'verify by direct expansion'})<br>
 $\\Longrightarrow \\eta_1, \\eta_2$ ${zh?'满足方程':'satisfy'} $x^2 + x - 4 = 0$<br>
 <b>$\\eta_1 = \\dfrac{-1+\\sqrt{17}}{2} \\approx 1.5616, \\quad \\eta_2 = \\dfrac{-1-\\sqrt{17}}{2} \\approx -2.5616$</b></div></div>
-<p class="proof-p"><b>${zh?'第二层（4 个周期，各 4 项）：':'Level 2 (four 4-term periods):'}</b></p>
+<p class="proof-p"><b>${zh?'第二层（4 个周期，各 4 项）—— $\\eta_1$ 的两个分量：':'Level 2 (four 4-term periods) — splitting $\\eta_1$:'}</b></p>
 <div class="formula">$$\\begin{aligned}\\eta_{11} &= \\omega + \\omega^4 + \\omega^{13} + \\omega^{16} = 2(\\cos\\tfrac{2\\pi}{17} + \\cos\\tfrac{8\\pi}{17}) \\\\ \\eta_{12} &= \\omega^2 + \\omega^8 + \\omega^9 + \\omega^{15} = 2(\\cos\\tfrac{4\\pi}{17} + \\cos\\tfrac{16\\pi}{17})\\end{aligned}$$
 <div style="margin-top:.3rem">$\\eta_{11} + \\eta_{12} = \\eta_1, \\quad \\eta_{11}\\cdot\\eta_{12} = -1$<br>
 $\\Longrightarrow \\eta_{11}, \\eta_{12}$ ${zh?'满足':'satisfy'} $x^2 - \\eta_1 x - 1 = 0$<br>
 <b>$\\eta_{11} = \\dfrac{(-1+\\sqrt{17}) + \\sqrt{34-2\\sqrt{17}}}{4} \\approx +2.0495$</b><br>
 <b>$\\eta_{12} = \\dfrac{(-1+\\sqrt{17}) - \\sqrt{34-2\\sqrt{17}}}{4} \\approx -0.4878$</b></div></div>
+<p class="proof-p"><b>${zh?'第二层（续）—— $\\eta_2$ 的两个分量：':'Level 2 (continued) — splitting $\\eta_2$:'}</b></p>
+<div class="formula">$$\\begin{aligned}\\eta_{21} &= \\omega^3 + \\omega^5 + \\omega^{12} + \\omega^{14} = 2(\\cos\\tfrac{6\\pi}{17} + \\cos\\tfrac{10\\pi}{17}) \\\\ \\eta_{22} &= \\omega^6 + \\omega^7 + \\omega^{10} + \\omega^{11} = 2(\\cos\\tfrac{12\\pi}{17} + \\cos\\tfrac{14\\pi}{17})\\end{aligned}$$
+<div style="margin-top:.3rem">$\\eta_{21} + \\eta_{22} = \\eta_2, \\quad \\eta_{21}\\cdot\\eta_{22} = -1$ &nbsp;(${zh?'与 $\\eta_{11}\\cdot\\eta_{12}=-1$ 完全对称':'symmetric with $\\eta_{11}\\cdot\\eta_{12}=-1$'})<br>
+$\\Longrightarrow \\eta_{21}, \\eta_{22}$ ${zh?'满足':'satisfy'} $x^2 - \\eta_2 x - 1 = 0$<br>
+<b>$\\eta_{21} = \\dfrac{(-1-\\sqrt{17}) + \\sqrt{34+2\\sqrt{17}}}{4} \\approx +0.3442$</b><br>
+<b>$\\eta_{22} = \\dfrac{(-1-\\sqrt{17}) - \\sqrt{34+2\\sqrt{17}}}{4} \\approx -2.9057$</b></div></div>
+<p class="proof-p"><b>${zh?'第三层（8 个周期，各 2 项 = 一对共轭余弦）：':'Level 3 (eight 2-term periods = conjugate cosine pairs):'}</b></p>
+<p class="proof-p">${zh?'每个第二层周期再分裂成两个余弦项。关键的代数恒等式（积化和差）：':'Each Level-2 period splits into two cosines. The key product-to-sum identity:'}</p>
+<div class="formula">$$2\\cos\\alpha \\cdot 2\\cos\\beta = 2\\cos(\\alpha-\\beta) + 2\\cos(\\alpha+\\beta)$$
+${zh?'$\\Longrightarrow$ 第三层分裂的乘积总是另一个第二层周期 —— 这就是 Gauss 周期理论的对称之美。':'$\\Longrightarrow$ each level-3 product is itself another level-2 period — the symmetry that makes the whole tower work.'}
+<div style="margin-top:.4rem">$$\\begin{aligned}
+\\eta_{11}\\,\\text{${zh?'拆分,乘积为':'splits with product'}} &= \\eta_{21} \\\\
+\\eta_{12}\\,\\text{${zh?'拆分,乘积为':'splits with product'}} &= \\eta_{22} \\\\
+\\eta_{21}\\,\\text{${zh?'拆分,乘积为':'splits with product'}} &= \\eta_{12} \\\\
+\\eta_{22}\\,\\text{${zh?'拆分,乘积为':'splits with product'}} &= \\eta_{11}
+\\end{aligned}$$</div></div>
+<p class="proof-p">${zh?'重点看 $\\eta_{11}$ 的分裂（含 $2\\cos(2\\pi/17)$，正是我们要的 P₂ 横坐标）：':'Focus on the split of $\\eta_{11}$ (which contains $2\\cos(2\\pi/17)$, the x-coordinate of P₂):'}</p>
+<div class="formula"><span class="cm">${zh?'设':'Let'}</span> $u = 2\\cos\\tfrac{2\\pi}{17},\\;v = 2\\cos\\tfrac{8\\pi}{17}$:
+$$u + v = \\eta_{11}, \\quad u \\cdot v = 2\\cos\\tfrac{6\\pi}{17} + 2\\cos\\tfrac{10\\pi}{17} = \\eta_{21}$$
+$\\Longrightarrow u, v$ ${zh?'满足':'satisfy'} $x^2 - \\eta_{11}\\,x + \\eta_{21} = 0$
+$$u = 2\\cos\\tfrac{2\\pi}{17} = \\dfrac{\\eta_{11} + \\sqrt{\\eta_{11}^2 - 4\\eta_{21}}}{2}$$
+$$v = 2\\cos\\tfrac{8\\pi}{17} = \\dfrac{\\eta_{11} - \\sqrt{\\eta_{11}^2 - 4\\eta_{21}}}{2}$$
+<span class="cm">${zh?'代入数值验证：':'Numerical check:'}</span>
+$\\eta_{11}^2 \\approx 4.2005,\\;4\\eta_{21} \\approx 1.3766$ → $\\eta_{11}^2 - 4\\eta_{21} \\approx 2.8239$
+$\\sqrt{2.8239} \\approx 1.6804$
+<b>$u = (2.0495 + 1.6804)/2 \\approx 1.8650$</b> ✓ &nbsp;(${zh?'与':'matches'} $2\\cos 21.18° \\approx 1.8652$)
+<b>$v = (2.0495 - 1.6804)/2 \\approx 0.1846$</b> ✓ &nbsp;(${zh?'与':'matches'} $2\\cos 84.71° \\approx 0.1846$)</div>
 <table class="period-table"><thead><tr>
   <th>${zh?'周期':'Period'}</th><th>${zh?'表达式':'Expression'}</th><th>${zh?'数值（≈）':'Numeric (≈)'}</th>
 </tr></thead><tbody>
@@ -818,9 +1245,12 @@ $\\Longrightarrow \\eta_{11}, \\eta_{12}$ ${zh?'满足':'satisfy'} $x^2 - \\eta_
 <tr><td>$\\eta_2$</td><td class="num">$(-1-\\sqrt{17})/2$</td><td class="num">−2.5616</td></tr>
 <tr><td>$\\eta_{11}$</td><td class="num">$[(-1+\\sqrt{17})+\\sqrt{34-2\\sqrt{17}}]/4$</td><td class="num">+2.0495</td></tr>
 <tr><td>$\\eta_{12}$</td><td class="num">$[(-1+\\sqrt{17})-\\sqrt{34-2\\sqrt{17}}]/4$</td><td class="num">−0.4878</td></tr>
-<tr><td>$2\\cos(2\\pi/17)$</td><td class="num">${zh?'第三层分解得到':'from 3rd-level split'}</td><td class="num">+1.8652</td></tr>
+<tr><td>$\\eta_{21}$</td><td class="num">$[(-1-\\sqrt{17})+\\sqrt{34+2\\sqrt{17}}]/4$</td><td class="num">+0.3442</td></tr>
+<tr><td>$\\eta_{22}$</td><td class="num">$[(-1-\\sqrt{17})-\\sqrt{34+2\\sqrt{17}}]/4$</td><td class="num">−2.9057</td></tr>
+<tr><td>$2\\cos(2\\pi/17)$</td><td class="num">$(\\eta_{11}+\\sqrt{\\eta_{11}^2-4\\eta_{21}})/2$</td><td class="num">+1.8652</td></tr>
+<tr><td>$2\\cos(8\\pi/17)$</td><td class="num">$(\\eta_{11}-\\sqrt{\\eta_{11}^2-4\\eta_{21}})/2$</td><td class="num">+0.1846</td></tr>
 </tbody></table>
-<p class="proof-p">${zh?'验证：$\\eta_{11}\\cdot\\eta_{12} \\approx 2.0495 \\times (-0.4878) \\approx -0.9998 \\approx -1$ ✓（与 Vieta 公式 $\\eta_{11}\\cdot\\eta_{12} = -1$ 一致）':'Check: $\\eta_{11}\\cdot\\eta_{12} \\approx 2.0495 \\times (-0.4878) \\approx -0.9998 \\approx -1$ ✓ (matches the Vieta relation $\\eta_{11}\\cdot\\eta_{12} = -1$)'}</p>`;
+<p class="proof-p">${zh?'Vieta 一致性检查：$\\eta_{11}\\cdot\\eta_{12} \\approx 2.0495 \\times (-0.4878) \\approx -1$ ✓ &nbsp;且 $\\eta_{21}\\cdot\\eta_{22} \\approx 0.3442 \\times (-2.9057) \\approx -1$ ✓ &nbsp;且 $u \\cdot v \\approx 1.8650 \\times 0.1846 \\approx 0.3443 \\approx \\eta_{21}$ ✓。三层分解全部自洽。':'Vieta consistency: $\\eta_{11}\\cdot\\eta_{12} \\approx 2.0495 \\times (-0.4878) \\approx -1$ ✓; &nbsp;$\\eta_{21}\\cdot\\eta_{22} \\approx 0.3442 \\times (-2.9057) \\approx -1$ ✓; &nbsp;$u \\cdot v \\approx 1.8650 \\times 0.1846 \\approx 0.3443 \\approx \\eta_{21}$ ✓. All three levels are self-consistent.'}</p>`;
     }
   },
   {
